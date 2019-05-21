@@ -1,0 +1,6 @@
+MDK-ARM/DebugConfig/
+MDK-ARM/RTE/
+MDK-ARM/STM32F411 NOXE/
+MDK-ARM/EventRecorderStub.scvd
+MDK-ARM/startup_stm32f411xe.lst
+MDK-ARM/STM32F411 NOXE.uvguix.mgr

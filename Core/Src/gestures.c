@@ -1,6 +1,7 @@
 #include <stdbool.h>
 
 #include "config.h"
+#include "drv_reset.h"
 #include "drv_time.h"
 #include "flash.h"
 #include "gesture_detect.h"
@@ -99,5 +100,12 @@ void gestures( void )
 		}
 #endif // PID_GESTURE_TUNING
 
+		if ( command == GESTURE_LRU ) {
+			perform_system_reset();
+		}
+
+		if ( command == GESTURE_LRD ) {
+			jump_to_bootloader();
+		}
 	}
 }

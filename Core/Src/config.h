@@ -49,8 +49,8 @@
 
 // Software Gyro Filters
 
-// #define BIQUAD_NOTCH_A_HZ 260
-// #define BIQUAD_NOTCH_A_Q 6
+#define BIQUAD_NOTCH_A_HZ 200
+#define BIQUAD_NOTCH_A_Q 6
 
 // #define BIQUAD_NOTCH_B_HZ BIQUAD_NOTCH_A_HZ * 3
 // #define BIQUAD_NOTCH_B_Q BIQUAD_NOTCH_A_Q
@@ -173,8 +173,8 @@
 //#define SENSOR_ROTATE_45_CCW
 //#define SENSOR_ROTATE_45_CW
 //#define SENSOR_ROTATE_90_CW
-#define SENSOR_ROTATE_90_CCW
-//#define SENSOR_ROTATE_180
+//#define SENSOR_ROTATE_90_CCW
+#define SENSOR_ROTATE_180
 //#define SENSOR_FLIP_180 // Flip is forward. If you want to flip sideways then you have to FLIP_180 and ROTATE_180.
 
 // Motor order

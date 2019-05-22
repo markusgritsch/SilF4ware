@@ -85,6 +85,16 @@ const uint8_t command10[ GSIZE ] = {
 
 #endif // PID_GESTURE_TUNING
 
+// L R U - Perform system reset
+const uint8_t command11[ GSIZE ] = {
+	GESTURE_CENTER_IDLE, GESTURE_LEFT, GESTURE_CENTER, GESTURE_RIGHT, GESTURE_CENTER, GESTURE_UP, GESTURE_CENTER
+};
+
+// L R D - Jump to bootloader
+const uint8_t command12[ GSIZE ] = {
+	GESTURE_CENTER_IDLE, GESTURE_LEFT, GESTURE_CENTER, GESTURE_RIGHT, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER
+};
+
 static int gesture_start;
 static int lastgesture;
 static int setgesture;
@@ -204,6 +214,15 @@ int gesture_sequence( int currentgesture )
 			return GESTURE_UDL;
 		}
 #endif // PID_GESTURE_TUNING
+
+		if ( check_command( &gbuffer[ 0 ], &command11[ 0 ] ) ) {
+			gbuffer[ 1 ] = GESTURE_OTHER;
+			return GESTURE_LRU;
+		}
+		if ( check_command( &gbuffer[ 0 ], &command12[ 0 ] ) ) {
+			gbuffer[ 1 ] = GESTURE_OTHER;
+			return GESTURE_LRD;
+		}
 	}
 
 	return GESTURE_NONE;

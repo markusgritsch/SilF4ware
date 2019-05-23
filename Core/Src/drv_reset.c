@@ -10,6 +10,7 @@ void perform_system_reset( void )
 // https://stm32f4-discovery.net/2017/04/tutorial-jump-system-memory-software-stm32/
 void jump_to_bootloader( void )
 {
+	__enable_irq();
 	HAL_RCC_DeInit();
 	HAL_DeInit();
 	SysTick->CTRL = SysTick->LOAD = SysTick->VAL = 0;

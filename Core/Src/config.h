@@ -49,13 +49,13 @@
 
 // Software Gyro Filters
 
-#define BIQUAD_NOTCH_A_HZ 200
+#define BIQUAD_NOTCH_A_HZ 213
 #define BIQUAD_NOTCH_A_Q 6
 
-// #define BIQUAD_NOTCH_B_HZ BIQUAD_NOTCH_A_HZ * 3
-// #define BIQUAD_NOTCH_B_Q BIQUAD_NOTCH_A_Q
+#define BIQUAD_NOTCH_B_HZ BIQUAD_NOTCH_A_HZ
+#define BIQUAD_NOTCH_B_Q BIQUAD_NOTCH_A_Q
 
-// #define BIQUAD_NOTCH_C_HZ BIQUAD_NOTCH_A_HZ * 6
+// #define BIQUAD_NOTCH_C_HZ BIQUAD_NOTCH_A_HZ * 3
 // #define BIQUAD_NOTCH_C_Q BIQUAD_NOTCH_A_Q
 
 // #define DYNAMIC_LPF_1ST_HZ // Raises filter frequency with throttle.
@@ -64,12 +64,12 @@
 // #define DYNAMIC_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
 
 #define DYNAMIC_LPF_2ND_HZ
-#define DYNAMIC_LPF_2ND_HZ_BASE 400 * ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
+#define DYNAMIC_LPF_2ND_HZ_BASE 400 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
 #define DYNAMIC_LPF_2ND_HZ_MAX 400
 #define DYNAMIC_LPF_2ND_HZ_THROTTLE 0.25
 
 // D-Term second order LPF (cannot be turned off)
-#define DYNAMIC_DTERM_LPF_2ND_HZ_BASE 80 * ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
+#define DYNAMIC_DTERM_LPF_2ND_HZ_BASE 80 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
 #define DYNAMIC_DTERM_LPF_2ND_HZ_MAX 120
 #define DYNAMIC_DTERM_LPF_2ND_HZ_THROTTLE 0.5
 

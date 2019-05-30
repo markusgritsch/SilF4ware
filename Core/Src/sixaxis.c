@@ -15,10 +15,11 @@
 #define ACC_LOW_PASS_FILTER 5
 
 // gyro ids for the gyro check
-#define GYRO_ID_1 0x68
-#define GYRO_ID_2 0x98
+#define GYRO_ID_MPUx0x0 0x68 // MPU3050, MPU6000, MPU6050
+#define GYRO_ID_ICM20689 0x98
 #define GYRO_ID_3 0x7D
 #define GYRO_ID_4 0x72
+#define GYRO_ID_ICM20602 0x12
 
 static void process_gyronew_to_gyro( float gyronew[] ); // To avoid code duplication.
 
@@ -40,7 +41,9 @@ void sixaxis_init( void )
 
 #ifdef GYRO_CHECK
 	extern void failloop( int );
-	if ( id != GYRO_ID_1 && id != GYRO_ID_2 && id != GYRO_ID_3 && id != GYRO_ID_4 ) {
+	if ( id != GYRO_ID_MPUx0x0 && id != GYRO_ID_ICM20689 &&
+		 id != GYRO_ID_3 && id != GYRO_ID_4 && id != GYRO_ID_ICM20602 )
+	{
 		failloop( 4 );
 	}
 #endif

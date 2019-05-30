@@ -88,7 +88,7 @@ void battery( void )
 
 #ifdef AUTO_VDROP_FACTOR
 
-	#define BINS 20
+	#define BINS 12
 	static float lastout[ BINS ];
 	static float lastin[ BINS ];
 	static float vcomp[ BINS ];

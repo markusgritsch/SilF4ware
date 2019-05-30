@@ -17,14 +17,14 @@
 
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
-#define AA_pdScaleYawStabilizer 1.25f // multiply pdScaleValue by this value at full yaw
+#define AA_pdScaleYawStabilizer 1.2f // multiply pdScaleValue by this value at full yaw
 static float pdScaleValue; // updated in pid_precalc()
 
 #define AA_pidkp ( x < 2 ? pdScaleValue * aux_analog[ 0 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
 #define AA_pidki 1.0f
 #define AA_pidkd ( x < 2 ? pdScaleValue * aux_analog[ 1 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
 
-#define AA_pidScaleInverted 1.5f // multiply by this value when flying inverted
+#define AA_pidScaleInverted 1.1f // multiply by this value when flying inverted
 
 // if ( aux[ DEVO_CHAN_11 ] ) { // 3S
 // } else { // 4S
@@ -111,9 +111,9 @@ void pid( int x )
 #ifdef TRANSIENT_WINDUP_PROTECTION
 	static float avgSetpoint[ 2 ];
 	if ( x < 2 ) { // Only for roll and pitch.
-		lpf( &avgSetpoint[ x ], setpoint[ x ], FILTERCALC( LOOPTIME, 1e6f / 12.0f ) ); // 12 Hz
+		lpf( &avgSetpoint[ x ], setpoint[ x ], FILTERCALC( LOOPTIME, 1e6f / 20.0f ) ); // 20 Hz
 		const float hpfSetpoint = setpoint[ x ] - avgSetpoint[ x ]; // HPF = input - average_input
-		if ( fabsf( hpfSetpoint ) > 0.01f ) { // 0.57 °/s
+		if ( fabsf( hpfSetpoint ) > 0.1f ) { // 5.7 °/s
 			i_windup = 1;
 		}
 	}

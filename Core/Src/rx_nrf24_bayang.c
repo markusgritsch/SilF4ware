@@ -1,5 +1,6 @@
 #include <math.h> // fabsf
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "binary.h"
 #include "config.h"
@@ -286,6 +287,10 @@ static void send_telemetry()
 	// battery volt filtered
 	int vbatt = vbattfilt * 100 + .5f;
 
+#ifndef MOTOR_BEEPS_CHANNEL
+#define MOTOR_BEEPS_CHANNEL CH_OFF
+#endif
+
 #ifdef DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
 	extern float accel[ 3 ];
 	extern int calibration_done;
@@ -293,15 +298,10 @@ static void send_telemetry()
 	if ( fabsf( accel[ 2 ] ) > maxg && calibration_done ) {
 		maxg = fabsf( accel[ 2 ] );
 	}
-#ifndef MOTOR_BEEPS_CHANNEL
-#define MOTOR_BEEPS_CHANNEL CH_OFF
-#endif
 	if ( aux[ MOTOR_BEEPS_CHANNEL ] ) { // reset displayed maxg
 		maxg = 0.0f;
 	}
-	if ( aux[ CH_ON ] ) {
-		vbatt = maxg * 100;
-	}
+	vbatt = maxg * 100;
 #endif // DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
 
 	txdata[ 3 ] = ( vbatt >> 8 ) & 0xff;
@@ -313,11 +313,19 @@ static void send_telemetry()
 	txdata[ 6 ] = vbatt & 0xff;
 
 	int temp = packetpersecond / 2;
+
+#ifdef DISPLAY_MAX_USED_LOOP_TIME_INSTEAD_OF_RX_PACKETS
+	extern uint32_t max_used_loop_time;
+	if ( aux[ MOTOR_BEEPS_CHANNEL ] ) { // reset displayed max_used_loop_time
+		max_used_loop_time = 0;
+	}
+	temp = max_used_loop_time / 2;
+#endif // DISPLAY_MAX_USED_LOOP_TIME_INSTEAD_OF_RX_PACKETS
+
 	if ( temp > 255 ) {
 		temp = 255;
 	}
-
-	txdata[ 7 ] = temp; // rx strenght
+	txdata[ 7 ] = temp; // rx strength
 
 	if ( lowbatt ) {
 		txdata[ 3 ] |= 1 << 3;

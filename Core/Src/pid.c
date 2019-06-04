@@ -39,9 +39,9 @@ static float pdScaleValue; // updated in pid_precalc()
 // }
 
 // 5 (length) / 4 (width) stretched X frame; unscaled values tuned for 4S
-float pidkp[ PIDNUMBER ] = { 4./5 * 0.04, 0.04, 0.05 };
-float pidki[ PIDNUMBER ] = { 4./5 * 0.5, 0.5, 2.0 };
-float pidkd[ PIDNUMBER ] = { 4./5 * 0.2, 0.2, 0.0 };
+float pidkp[ PIDNUMBER ] = { 0.04, 0.04, 0.05 };
+float pidki[ PIDNUMBER ] = { 0.5, 0.5, 2.0 };
+float pidkd[ PIDNUMBER ] = { 0.2, 0.2, 0.0 };
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
 //#define ENABLE_SETPOINT_WEIGHTING

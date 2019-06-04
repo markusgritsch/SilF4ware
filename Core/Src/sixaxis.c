@@ -133,7 +133,7 @@ void sixaxis_read( void )
 }
 #endif
 
-#ifdef SENSOR_FLIP_180
+#ifdef SENSOR_INVERT
 {
 	accel[ 2 ] = -accel[ 2 ];
 	accel[ 0 ] = -accel[ 0 ];
@@ -209,7 +209,7 @@ static void process_gyronew_to_gyro( float gyronew[] )
 }
 #endif
 
-#ifdef SENSOR_FLIP_180
+#ifdef SENSOR_INVERT
 {
 	gyronew[ 1 ] = -gyronew[ 1 ];
 	gyronew[ 2 ] = -gyronew[ 2 ];

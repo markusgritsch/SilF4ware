@@ -40,11 +40,11 @@
 #define LVC_LOWER_THROTTLE_VOLTAGE_RAW 2.70
 #define LVC_LOWER_THROTTLE_KP 3.0
 
-// on-chip Gyro LPF filter frequency
-// gyro filter 0 = 250hz delay 0.97mS (use this to get 8k gyro update frequency)
-// gyro filter 1 = 184hz delay 2.9mS
-// gyro filter 2 = 92hz delay 3.9mS
-// gyro filter 3 = 41hz delay 5.9mS
+// MPU-60x0 on-chip Gyro LPF filter frequency
+// gyro filter 0: 256 Hz, delay 0.98 ms (use this to get 8k gyro update frequency)
+// gyro filter 1: 188 Hz, delay 1.9 ms
+// gyro filter 2: 98 Hz, delay 2.8 ms
+// gyro filter 3: 42 Hz, delay 4.8 ms
 #define GYRO_LOW_PASS_FILTER 0
 
 // Software Gyro Filters
@@ -177,7 +177,8 @@
 //#define SENSOR_ROTATE_90_CW
 //#define SENSOR_ROTATE_90_CCW
 #define SENSOR_ROTATE_180
-//#define SENSOR_FLIP_180 // Flip is forward. If you want to flip sideways then you have to FLIP_180 and ROTATE_180.
+//#define SENSOR_INVERT // Necessary if the gyro is mounted upside down. For an inverted gyro,
+// the expected orientation is with the dot on the chip in the front-right corner.
 
 // Motor order
 #define MOTOR_BL 2

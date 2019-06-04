@@ -303,22 +303,37 @@ void control( void )
 		mixmax = 0;
 
 		for ( int i = 0; i < 4; ++i ) {
+
 #if defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
 
+			extern int idle_offset;
 #if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
+			static int orig_idle_offset = 0;
+			if ( orig_idle_offset == 0 ) {
+				orig_idle_offset = idle_offset;
+			}
 			if ( aux[ MOTORS_TO_THROTTLE_MODE ] ) {
 #endif
 				mix[ i ] = throttle;
-				if ( i == MOTOR_FL - 1 && ( rx[ ROLL ] > 0.5f || rx[ PITCH ] < -0.5f ) ) { mix[ i ] = 0; }
-				if ( i == MOTOR_BL - 1 && ( rx[ ROLL ] > 0.5f || rx[ PITCH ] > 0.5f ) ) { mix[ i ] = 0; }
-				if ( i == MOTOR_FR - 1 && ( rx[ ROLL ] < -0.5f || rx[ PITCH ] < -0.5f ) ) { mix[ i ] = 0; }
-				if ( i == MOTOR_BR - 1 && ( rx[ ROLL ] < -0.5f || rx[ PITCH ] > 0.5f ) ) { mix[ i ] = 0; }
+				if ( throttle > 0 ) {
+					idle_offset = orig_idle_offset;
+				}
+				if ( ( i == MOTOR_FL - 1 && rxcopy[ ROLL ] < 0 && rxcopy[ PITCH ] > 0 ) ||
+					( i == MOTOR_BL - 1 && rxcopy[ ROLL ] < 0 && rxcopy[ PITCH ] < 0 ) ||
+					( i == MOTOR_FR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] > 0 ) ||
+					( i == MOTOR_BR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] < 0 ) )
+				{
+					idle_offset = 0;
+					mix[ i ] = fabsf( rxcopy[ ROLL ] * rxcopy[ PITCH ] );
+				}
 				ledcommand = 1;
 #if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
+			} else {
+				idle_offset = orig_idle_offset;
 			}
 #endif
 
-#endif
+#endif // defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
 
 #ifdef THRUST_LINEARIZATION
 			// Computationally quite expensive:

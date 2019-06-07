@@ -77,11 +77,11 @@ void gestures( void )
 
 #ifdef PID_GESTURE_TUNING
 		if ( command == GESTURE_UDU ) {
-			ledblink = next_pid_term(); // Cycle to next pid term (P, I, D)
+			ledblink = next_pid_axis(); // Cycle to next axis (Roll, Pitch, Yaw)
 		}
 
 		if ( command == GESTURE_UDD ) {
-			ledblink = next_pid_axis(); // Cycle to next axis (Roll, Pitch, Yaw)
+			ledblink = next_pid_term(); // Cycle to next pid term (P, I, D)
 		}
 
 		if ( command == GESTURE_UDR ) {

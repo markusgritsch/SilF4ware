@@ -105,6 +105,8 @@
 #define DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
 // Send maximum looptime in the telemetry data.
 #define DISPLAY_MAX_USED_LOOP_TIME_INSTEAD_OF_RX_PACKETS
+// Send PID values in the telemetry data.
+#define DISPLAY_PID_VALUES
 
 // Radio module and protocol selection (only Bayang protocol implemented)
 #define RX_BAYANG_PROTOCOL_TELEMETRY // For XN297 radio module harvested from toy TX

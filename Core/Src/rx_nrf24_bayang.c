@@ -285,7 +285,7 @@ static void send_telemetry()
 	txdata[ 1 ] = lowbatt;
 
 	// battery volt filtered
-	int vbatt = vbattfilt * 100 + .5f;
+	int vbatt = vbattfilt * 100 + 0.5f;
 
 #ifndef MOTOR_BEEPS_CHANNEL
 #define MOTOR_BEEPS_CHANNEL CH_OFF
@@ -308,7 +308,7 @@ static void send_telemetry()
 	txdata[ 4 ] = vbatt & 0xff;
 
 	// battery volt compensated
-	vbatt = vbatt_comp * 100 + .5f;
+	vbatt = vbatt_comp * 100 + 0.5f;
 	txdata[ 5 ] = ( vbatt >> 8 ) & 0xff;
 	txdata[ 6 ] = vbatt & 0xff;
 
@@ -330,6 +330,21 @@ static void send_telemetry()
 	if ( lowbatt ) {
 		txdata[ 3 ] |= 1 << 3;
 	}
+
+#ifdef DISPLAY_PID_VALUES
+	extern float pidkp[], pidki[], pidkd[];
+	extern int current_pid_axis, current_pid_term;
+	const bool blink = ( gettime() & 0xFFFFF ) < 200000; // roughly every second (1048575 µs) for 0.2 s
+	const int p_value = ( current_pid_term == 0 && blink ) ? 0 : pidkp[ current_pid_axis ] * 1000 + 0.5f;
+	txdata[ 8 ] = p_value >> 8;
+	txdata[ 9 ] = p_value & 0xff;
+	const int i_value = ( current_pid_term == 1 && blink ) ? 0 : pidki[ current_pid_axis ] * 1000 + 0.5f;
+	txdata[ 10 ] = i_value >> 8;
+	txdata[ 11 ] = i_value & 0xff;
+	const int d_value = ( current_pid_term == 2 && blink ) ? 0 : pidkd[ current_pid_axis ] * 1000 + 0.5f;
+	txdata[ 12 ] = d_value >> 8;
+	txdata[ 13 ] = d_value & 0xff;
+#endif // DISPLAY_PID_VALUES
 
 	int sum = 0;
 	for ( int i = 0; i < 14; ++i ) {

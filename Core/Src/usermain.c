@@ -81,7 +81,7 @@ void usermain()
 // 6 - flash write error
 void failloop( int val )
 {
-	for ( int i = 0; i <= 3; ++i) {
+	for ( int i = 0; i <= 3; ++i ) {
 		pwm_set( i, 0 );
 	}
 	while ( true ) {

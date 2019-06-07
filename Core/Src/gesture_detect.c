@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <math.h> // fabsf
 
+#include "config.h"
 #include "drv_time.h"
 #include "gesture_detect.h"
 #include "gestures.h"
@@ -63,12 +64,12 @@ const uint8_t command6[ GSIZE ] = {
 
 #ifdef PID_GESTURE_TUNING
 
-// U D U - Next PID term
+// U D U - Next PID axis
 const uint8_t command7[ GSIZE ] = {
 	GESTURE_CENTER_IDLE, GESTURE_UP, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER, GESTURE_UP, GESTURE_CENTER
 };
 
-// U D D - Next PID axis
+// U D D - Next PID term
 const uint8_t command8[ GSIZE ] = {
 	GESTURE_CENTER_IDLE, GESTURE_UP, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER
 };

@@ -370,7 +370,7 @@ static int change_pid_value( int increase )
 	current_pid_term_pointer[ current_pid_axis ] *= multiplier;
 #ifdef COMBINE_PITCH_ROLL_PID_TUNING
 	if ( current_pid_axis == 0 ) {
-		current_pid_term_pointer[ current_pid_axis +1 ] *= multiplier;
+		current_pid_term_pointer[ current_pid_axis + 1 ] *= multiplier;
 	}
 #endif
 	return abs( number_of_increments[ current_pid_term ][ current_pid_axis ] );

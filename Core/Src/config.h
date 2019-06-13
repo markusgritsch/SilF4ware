@@ -112,6 +112,9 @@
 #define RX_BAYANG_PROTOCOL_TELEMETRY // For XN297 radio module harvested from toy TX
 // #define RX_NRF24_BAYANG_TELEMETRY // For nRF24L01+ radio module
 
+#define RADIO_XN297 // also enable SOFTSPI_4WIRE in hardware.h
+// #define RADIO_XN297L // also enable SOFTSPI_3WIRE in hardware.h
+
 // led brightness 0 .. 15 (used for solid lights only)
 #define LED_BRIGHTNESS 15
 
@@ -193,5 +196,3 @@
 
 // Disable the check for development without RX module (3 times LED flash).
 #define RADIO_CHECK
-
-#define RADIO_XN297

@@ -40,11 +40,11 @@
 #ifdef RX_NRF24_BAYANG_TELEMETRY
 
 // crc enable - rx side
-#define crc_en 1 // zero or one only
+#define crc_en 0 // zero or one only
+// CRC calculation takes 11.25 us at 168 MHz. We turn it off since it is not used.
 
-// nrf297 to nrf24 emulation based on code from
-// nrf24multipro by goebish
-// deviationTx by various contribuitors
+// xn297 to nrf24 emulation based on code from nrf24multipro by goebish
+// DeviationTx by various contributors
 
 const uint8_t xn297_scramble[] = {
 	0xe3, 0xb1, 0x4b, 0xea, 0x85, 0xbc, 0xe5, 0x66,
@@ -74,7 +74,7 @@ uint16_t crc16_update( uint16_t crc, uint8_t in )
 	return crc;
 }
 
-// crc calculated over address field ( constant)
+// crc calculated over address field (constant)
 uint16_t crc_addr = 0;
 
 // set both rx and tx address to a xn297 address

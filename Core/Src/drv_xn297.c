@@ -1,10 +1,6 @@
 #include "drv_spi.h"
 #include "drv_xn297.h"
-#include "hardware.h"
 #include "main.h"
-
-// all cases except 3 wires radio
-#if !defined (SOFTSPI_3WIRE)
 
 void spi_xn_cson()
 {
@@ -64,7 +60,7 @@ void xn_readpayload( int * data, int size )
 	int index = 0;
 	spi_xn_cson();
 	spi_sendbyte( R_RX_PAYLOAD ); // read rx payload
-	while ( index < size )	{
+	while ( index < size ) {
 		data[ index ] = spi_sendzerorecvbyte();
 		++index;
 	}
@@ -115,5 +111,3 @@ void xn_writeregs( uint8_t data[], uint8_t size )
 	}
 	spi_xn_csoff();
 }
-
-#endif

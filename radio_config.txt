@@ -1,0 +1,46 @@
+=====
+XN297
+=====
+
+* config.h
+#define RX_BAYANG_PROTOCOL_TELEMETRY
+// #define RX_NRF24_BAYANG_TELEMETRY
+
+#define RADIO_XN297
+// #define RADIO_XN297L
+
+* hardware.h
+#define SOFTSPI_4WIRE
+// #define SOFTSPI_3WIRE
+
+
+======
+XN297L
+======
+
+* config.h
+#define RX_BAYANG_PROTOCOL_TELEMETRY
+// #define RX_NRF24_BAYANG_TELEMETRY
+
+// #define RADIO_XN297
+#define RADIO_XN297L
+
+* hardware.h
+// #define SOFTSPI_4WIRE
+ #define SOFTSPI_3WIRE
+
+
+=====
+NRF24
+=====
+
+* config.h
+// #define RX_BAYANG_PROTOCOL_TELEMETRY
+#define RX_NRF24_BAYANG_TELEMETRY
+
+// #define RADIO_XN297
+// #define RADIO_XN297L
+
+* hardware.h
+#define SOFTSPI_4WIRE
+// #define SOFTSPI_3WIRE

@@ -48,7 +48,7 @@ void usermain()
 		// Time measurements with ARMCLANG -O3:
 		// sixaxis_read(): 11 +2 per gyro filter (contains 10 SPI bitbang time)
 		// control(): 23 acro (+3 angle)
-		// checkrx(): 17 us worst case for LOOPTIME < 1000; 39 us otherwise [+12 in case of nrf24 due to scrambling]
+		// checkrx(): 17 us worst case for LOOPTIME < 1000; 39 us otherwise [+1 in case of nrf24 scrambling]
 
 		const uint32_t loop_start_time = gettime();
 		looptime = ( loop_start_time - lastlooptime ) * 1e-6f;

@@ -12,11 +12,6 @@
 
 #define READMISO (SPI_MISO_GPIO_Port->IDR & SPI_MISO_Pin)
 
-// #pragma push
-
-// #pragma Otime
-// #pragma O2
-
 void spi_sendbyte( int data )
 {
 	for ( int i =7; i >= 0; --i ) {
@@ -89,7 +84,5 @@ int spi_sendzerorecvbyte()
 // 	recv = recv >> 8;
 // 	return recv;
 // }
-
-// #pragma pop
 
 #endif

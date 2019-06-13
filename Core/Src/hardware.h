@@ -3,12 +3,13 @@
 // Used for LVC stuff
 #define ENABLE_ADC
 
-// Only available option
-#define SOFTSPI_4WIRE
+// 4 wire or 3 wire SPI
+#define SOFTSPI_4WIRE // used for XN297 and NRF24
+// #define SOFTSPI_3WIRE // used for XN297L; SPI_MOSI is used for data output and input
 
-// Choose between bitbang and DMA version
-// #define DSHOT_DRIVER
+// Choose between DMA or bitbang version
 #define DSHOT_DMA_DRIVER
+// #define DSHOT_DRIVER
 
-// LED is on when pin is low
+// Use this if LED is on when pin is low
 #define LED_INVERT

@@ -45,7 +45,7 @@ float pidkd[ PIDNUMBER ] = { 0.2, 0.2, 0.0 };
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
 //#define ENABLE_SETPOINT_WEIGHTING
-float b[ 3 ] = { 1.0, 1.0, 1.0 };
+float pidb[ 3 ] = { 1.0, 1.0, 1.0 };
 
 // output limit
 const float outlimit[ PIDNUMBER ] = { 0.5, 0.5, 0.25 };
@@ -141,7 +141,7 @@ void pid( int x )
 
 	// P term
 #ifdef ENABLE_SETPOINT_WEIGHTING
-	pidoutput[ x ] = ( setpoint[ x ] * b[ x ] - gyro[ x ] ) * pidkp[ x ] * AA_pidkp;
+	pidoutput[ x ] = ( setpoint[ x ] * pidb[ x ] - gyro[ x ] ) * pidkp[ x ] * AA_pidkp;
 #else // b disabled
 	pidoutput[ x ] = error[ x ] * pidkp[ x ] * AA_pidkp;
 #endif

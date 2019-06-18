@@ -96,11 +96,6 @@
 #define FORWARD 0
 #define REVERSE 1
 
-// With constants as parameters this should be precalculated by the compiler.
-// This is used to calculate 1 - alpha. filtertime = 1 / filter-cutoff-frequency.
-// The approximation is good only for filtertime >> sampleperiod.
-#define FILTERCALC( sampleperiod, filtertime ) ( 1.0f - ( 6.0f * (float)sampleperiod ) / ( 3.0f * (float)sampleperiod + (float)filtertime ) )
-
 #ifdef __GNUC__ // Keil compiler verion 6 is also GCC based (ARMCLANG).
 	#define _NOP_ __asm("nop;");
 #else

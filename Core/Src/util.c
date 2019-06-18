@@ -1,11 +1,5 @@
 #include "util.h"
 
-// coeff is 1 - alpha
-void lpf( float *out, float in, float coeff )
-{
-	*out = ( *out ) * coeff + in * ( 1 - coeff );
-}
-
 float mapf( float x, float in_min, float in_max, float out_min, float out_max )
 {
 	return ( ( x - in_min ) * ( out_max - out_min ) ) / ( in_max - in_min ) + out_min;

@@ -111,7 +111,7 @@ void pid( int x )
 #ifdef TRANSIENT_WINDUP_PROTECTION
 	static float avgSetpoint[ 2 ];
 	if ( x < 2 ) { // Only for roll and pitch.
-		lpf( &avgSetpoint[ x ], setpoint[ x ], FILTERCALC( LOOPTIME, 1e6f / 20.0f ) ); // 20 Hz
+		lpf( &avgSetpoint[ x ], setpoint[ x ], ALPHACALC( LOOPTIME, 1e6f / 20.0f ) ); // 20 Hz
 		const float hpfSetpoint = setpoint[ x ] - avgSetpoint[ x ]; // HPF = input - average_input
 		if ( fabsf( hpfSetpoint ) > 0.1f ) { // 5.7 °/s
 			i_windup = 1;

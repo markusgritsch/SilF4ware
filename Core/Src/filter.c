@@ -7,6 +7,12 @@ extern float aux_analog[ 2 ];
 extern float rxcopy[ 4 ];
 
 
+void lpf( float * out, float in, float alpha )
+{
+	*out += alpha * ( in - *out );
+}
+
+
 // Notch
 
 typedef struct FilterNotchCoeff_s {
@@ -102,10 +108,10 @@ static void filter_lpf2_coeff( FilterLPF2Coeff_t * coeff, float filter_Hz )
 		return;
 	}
 
-	const float one_minus_alpha = FILTERCALC( LOOPTIME, 1e6f / filter_Hz );
+	const float alpha = ALPHACALC( LOOPTIME, 1e6f / filter_Hz );
+	const float one_minus_alpha = 1 - alpha;
 	coeff->one_minus_alpha_sqr = one_minus_alpha * one_minus_alpha;
 	coeff->two_one_minus_alpha = 2 * one_minus_alpha;
-	const float alpha = 1 - one_minus_alpha;
 	coeff->alpha_sqr = alpha * alpha;
 }
 
@@ -174,7 +180,7 @@ float notch_c_filter( float input, int num )
 
 #ifdef DYNAMIC_LPF_1ST_HZ
 
-static float one_minus_alpha;
+static float gyro_lpf_alpha;
 static float gyro_lpf_last[ 3 ];
 
 float gyro_lpf_filter( float in, int num )
@@ -191,10 +197,10 @@ float gyro_lpf_filter( float in, int num )
 			filter_Hz = f_base;
 		}
 		if ( filter_Hz != 0.0f ) {
-			one_minus_alpha = FILTERCALC( LOOPTIME, 1e6f / filter_Hz );
+			gyro_lpf_alpha = ALPHACALC( LOOPTIME, 1e6f / filter_Hz );
 		}
 	}
-	lpf( &gyro_lpf_last[ num ], in, one_minus_alpha );
+	lpf( &gyro_lpf_last[ num ], in, gyro_lpf_alpha );
 	return gyro_lpf_last[ num ];
 }
 
@@ -278,7 +284,7 @@ static FilterHPF_t throttle_hpf1;
 
 float throttle_hpf( float in )
 {
-	lpf( &throttle_hpf1.last_lpf, in, FILTERCALC( LOOPTIME, 1e6f / 16.0f ) ); // 16 Hz
+	lpf( &throttle_hpf1.last_lpf, in, ALPHACALC( LOOPTIME, 1e6f / 16.0f ) ); // 16 Hz
 
 	if ( throttle_hpf1.holdoff_steps > 0 ) {
 		--throttle_hpf1.holdoff_steps;

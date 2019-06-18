@@ -289,7 +289,7 @@ void gyro_cal( void )
 				timestart = gettime();
 				brightness = 1;
 			} else {
-				lpf( &gyrocal[ i ], gyro[ i ], FILTERCALC( LOOPTIME, 6 * 0.5f * 1e6f ) ); // 6 * because FILTERCALC uses 6 instead of 2 * pi
+				lpf( &gyrocal[ i ], gyro[ i ], ALPHACALC( LOOPTIME, 6 * 0.5f * 1e6f ) ); // 6 * because ALPHACALC uses 6 instead of 2 * pi
 			}
 		}
 
@@ -317,7 +317,7 @@ void acc_cal( void )
 		sixaxis_read();
 		#define DELAYTIME 1000 // The accelerometer is updated only at 1 kHz.
 		for ( int x = 0; x < 3; ++x ) {
-			lpf( &accelcal[ x ], accel[ x ], FILTERCALC( DELAYTIME, 0.072e6f ) );
+			lpf( &accelcal[ x ], accel[ x ], ALPHACALC( DELAYTIME, 0.072e6f ) );
 		}
 		delay( DELAYTIME );
 		gettime(); // if it takes too long time will overflow so we call it here

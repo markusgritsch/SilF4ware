@@ -2,7 +2,7 @@
 
 #include "config.h"
 #include "drv_time.h"
-#include "util.h"
+#include "filter.h"
 #include "sixaxis.h"
 
 #define ACC_1G 1.0f
@@ -35,7 +35,7 @@ void imu_init( void )
 		sixaxis_read();
 		#define DELAYTIME 1000 // The accelerometer is updated only at 1 kHz.
 		for ( int x = 0; x < 3; ++x ) {
-			lpf( &GEstG[ x ], accel[ x ] / 2048.0f, FILTERCALC( DELAYTIME, 0.036e6f ) );
+			lpf( &GEstG[ x ], accel[ x ] / 2048.0f, ALPHACALC( DELAYTIME, 0.036e6f ) );
 		}
 		delay( DELAYTIME );
 		gettime(); // if it takes too long time will overflow so we call it here
@@ -98,7 +98,7 @@ void imu( void )
 			accel[ axis ] = accel[ axis ] * ACC_1G / accmag;
 		}
 		for ( int x = 0; x < 3; ++x ) {
-			lpf( &GEstG[ x ], accel[ x ], FILTERCALC( LOOPTIME, 6 * (float)FILTERTIME * 1e6f ) ); // 6 * because FILTERCALC uses 6 instead of 2 * pi
+			lpf( &GEstG[ x ], accel[ x ], ALPHACALC( LOOPTIME, 6 * (float)FILTERTIME * 1e6f ) ); // 6 * because ALPHACALC uses 6 instead of 2 * pi
 		}
 	}
 

@@ -3,7 +3,7 @@
 #include "config.h"
 #include "drv_adc.h"
 #include "drv_time.h"
-#include "util.h"
+#include "filter.h"
 
 float vbattfilt = 4.2; // filtered battery voltage
 float vbatt_comp = 4.2; // compensated for sag by motor sum
@@ -66,7 +66,7 @@ void battery_init( void )
 void battery( void )
 {
 	const float battadc = vbatt_read();
-	lpf( &vbattfilt, battadc, FILTERCALC( LOOPTIME, 2 * PI_F * 0.5e6f ) ); // 0.5 seconds time constant (tau)
+	lpf( &vbattfilt, battadc, ALPHACALC( LOOPTIME, 2 * PI_F * 0.5e6f ) ); // 0.5 seconds time constant (tau)
 
 	// battery low logic
 
@@ -75,10 +75,10 @@ void battery( void )
 	static float thrfilt = 0; // filtered average of all motors
 
 	// filter motorpwm so it has the same delay as the filtered voltage
-	lpf( &thrfilt, thrsum, FILTERCALC( LOOPTIME, 2 * PI_F * 0.5e6f ) );
+	lpf( &thrfilt, thrsum, ALPHACALC( LOOPTIME, 2 * PI_F * 0.5e6f ) );
 
 	// li-ion battery model compensation time decay (18 seconds)
-	lpf( &vbattfilt_corr, vbattfilt, FILTERCALC( LOOPTIME, 18e6f ) );
+	lpf( &vbattfilt_corr, vbattfilt, ALPHACALC( LOOPTIME, 18e6f ) );
 
 	// compensation factor for li-ion internal model
 	// zero to bypass
@@ -106,14 +106,13 @@ void battery( void )
 			}
 			firstrun = 0;
 		}
-		float ans;
 		// y(n) = x(n) - x(n-1) + R * y(n-1)
 		// out = in - lastin + coeff * lastout
 		// hpf
-		ans = vcomp[ z ] - lastin[ z ] + FILTERCALC( LOOPTIME * BINS, 6e6f ) * lastout[ z ];
+		const float ans = vcomp[ z ] - lastin[ z ] + ( 1 - ALPHACALC( LOOPTIME * BINS, 6e6f ) ) * lastout[ z ];
 		lastin[ z ] = vcomp[ z ];
 		lastout[ z ] = ans;
-		lpf( &score[ z ], ans * ans, FILTERCALC( LOOPTIME * BINS, 60e6f ) );
+		lpf( &score[ z ], ans * ans, ALPHACALC( LOOPTIME * BINS, 60e6f ) );
 		++z;
 
 		if ( z >= BINS ) {

@@ -160,6 +160,9 @@ int packet_period = PACKET_PERIOD;
 
 void rx_init()
 {
+	spi_xn_csoff();
+	delay( 1 );
+
 	// always on (CH_ON) channel set 1
 	aux[ AUXNUMBER - 2 ] = 1;
 	// always off (CH_OFF) channel set 0
@@ -169,14 +172,6 @@ void rx_init()
 #endif
 #ifdef AUX2_START_ON
 	aux[ CH_AUX2 ] = 1;
-#endif
-#ifdef RADIO_CHECK
-	int rxcheck = xn_readreg( 0x0f ); // rx address pipe 5
-	// should be 0xc6
-	extern void failloop( int );
-	if ( rxcheck != 0xc6 ) {
-		failloop( 3 );
-	}
 #endif
 
 	delay( 100 );
@@ -198,6 +193,15 @@ void rx_init()
 	xn_writereg( RF_CH, 0 );      // bind on channel 0
 	xn_command( FLUSH_RX );
 	xn_writereg( 0, XN_TO_RX );   // power up, crc disabled, rx mode
+
+#ifdef RADIO_CHECK
+	int rxcheck = xn_readreg( 0x0f ); // rx address pipe 5
+	// should be 0xc6
+	extern void failloop( int );
+	if ( rxcheck != 0xc6 ) {
+		failloop( 3 );
+	}
+#endif
 
 	if ( rx_bind_load ) {
 		// write new rx and tx address
@@ -373,7 +377,7 @@ static char checkpacket()
 	int status = xn_readreg( 7 );
 #if 1
 	if ( status & ( 1 << MASK_RX_DR ) ) { // RX packet received
-		xn_writereg( STATUS, ( 1 << MASK_RX_DR ) ); // rx clear bit
+		xn_writereg( STATUS, 1 << MASK_RX_DR ); // rx clear bit
 		return 1;
 	}
 #else
@@ -539,7 +543,9 @@ void checkrx( void )
 			unsigned long temptime = gettime();
 
 			int pass = nrf24_read_xn297_payload( rxdata, 15 + 2 * crc_en );
-			if ( pass ) pass = decodepacket();
+			if ( pass ) {
+				pass = decodepacket();
+			}
 
 			if ( pass ) {
 				++packetrx;

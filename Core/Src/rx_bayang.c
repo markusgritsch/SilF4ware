@@ -58,6 +58,9 @@ int packet_period = PACKET_PERIOD;
 
 void rx_init()
 {
+	spi_xn_csoff();
+	delay( 1 );
+
 	// always on (CH_ON) channel set 1
 	aux[ AUXNUMBER - 2 ] = 1;
 	// always off (CH_OFF) channel set 0
@@ -338,7 +341,7 @@ static char checkpacket()
 	int status = xn_readreg( 7 );
 #if 1
 	if ( status & ( 1 << MASK_RX_DR ) ) { // RX packet received
-		xn_writereg( STATUS, ( 1 << MASK_RX_DR ) ); // rx clear bit
+		xn_writereg( STATUS, 1 << MASK_RX_DR ); // rx clear bit
 		return 1;
 	}
 #else

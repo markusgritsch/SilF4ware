@@ -12,8 +12,6 @@
 // #define TRAPEZOIDAL_RULE_INTEGRAL
 #define SIMPSON_RULE_INTEGRAL
 
-#define DYNAMIC_DTERM_LPF_2ND_HZ // Only available option
-
 
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
@@ -215,23 +213,19 @@ void pid( int x )
 	pidoutput[ x ] += ierror[ x ];
 
 	// D term
-#ifdef DYNAMIC_DTERM_LPF_2ND_HZ
 	if ( pidkd[ x ] > 0 ) { // skip yaw D term if not set
 		float dterm;
 		static float lastrate[ 3 ];
-		if ( pidkd[ x ] > 0 ) {
 #ifdef CASCADE_GYRO_AND_DTERM_FILTER
-			dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
-			lastrate[ x ] = gyro[ x ];
+		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
+		lastrate[ x ] = gyro[ x ];
 #else
-			dterm = - ( gyro_unfiltered[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
-			lastrate[ x ] = gyro_unfiltered[ x ];
+		dterm = - ( gyro_unfiltered[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
+		lastrate[ x ] = gyro_unfiltered[ x ];
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
-			dterm = dterm_filter( dterm, x );
-			pidoutput[ x ] += dterm;
-		}
+		dterm = dterm_filter( dterm, x );
+		pidoutput[ x ] += dterm;
 	}
-#endif // DYNAMIC_DTERM_LPF_2ND_HZ
 
 #ifdef PID_VOLTAGE_COMPENSATION
 	pidoutput[ x ] *= v_compensation;

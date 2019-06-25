@@ -13,17 +13,17 @@ void lpf( float * out, float in, float alpha )
 }
 
 
-// Notch
+// Biquad
 
-typedef struct FilterNotchCoeff_s {
+typedef struct FilterBiquadCoeff_s {
 	float b0, b1, b2, a1, a2;
-} FilterNotchCoeff_t;
+} FilterBiquadCoeff_t;
 
-typedef struct FilterNotch_s {
+typedef struct FilterBiquad_s {
 	float x1, x2, y1, y2;
-} FilterNotch_t;
+} FilterBiquad_t;
 
-static void filter_notch_coeff( FilterNotchCoeff_t * coeff, float filter_Hz, float filter_Q )
+static void filter_notch_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz, float filter_Q )
 {
 	if ( filter_Hz == 0.0f || filter_Q == 0.0f ) {
 		return;
@@ -51,7 +51,30 @@ static void filter_notch_coeff( FilterNotchCoeff_t * coeff, float filter_Hz, flo
 	coeff->a2 /= a0;
 }
 
-float filter_notch_step( FilterNotch_t * filter, FilterNotchCoeff_t * coeff, float input )
+static void filter_bessel_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz )
+{
+	if ( filter_Hz == 0.0f ) {
+		return;
+	}
+
+	// Bessel coefficients from Beads project.
+	const float omega_halve = PI_F * filter_Hz * LOOPTIME * 1e-6f * 0.5f; // 0.5f is there to empirically match with lpf2.
+	const float tg = fastsin( omega_halve ) / fastcos( omega_halve );
+	coeff->b2 = coeff->b0 = 3 * tg * tg;
+	coeff->b1 = 2 * coeff->b0;
+	const float a0 = 1 + 3 * tg + coeff->b0;
+	coeff->a1 = -2 + coeff->b1;
+	coeff->a2 = 1 - 3 * tg + coeff->b0;
+
+	// precompute the coefficients
+	coeff->b0 /= a0;
+	coeff->b1 /= a0;
+	coeff->b2 /= a0;
+	coeff->a1 /= a0;
+	coeff->a2 /= a0;
+}
+
+float filter_biquad_step( FilterBiquad_t * filter, FilterBiquadCoeff_t * coeff, float input )
 {
 #if 1
 	// Direct Form I
@@ -128,15 +151,15 @@ static void filter_lpf2_reset( FilterLPF2_t * filter, int holdoff_time_ms )
 
 float notch_a_filter( float input, int num )
 {
-	static FilterNotchCoeff_t gyro_notch_coeff;
-	static FilterNotch_t gyro_notch[ 3 ];
+	static FilterBiquadCoeff_t gyro_notch_coeff;
+	static FilterBiquad_t gyro_notch[ 3 ];
 	static float notch_Hz, notch_Q;
 	if ( notch_Hz != BIQUAD_NOTCH_A_HZ || notch_Q != BIQUAD_NOTCH_A_Q ) {
 		notch_Hz = BIQUAD_NOTCH_A_HZ;
 		notch_Q = BIQUAD_NOTCH_A_Q;
 		filter_notch_coeff( &gyro_notch_coeff, notch_Hz, notch_Q );
 	}
-	return filter_notch_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
+	return filter_biquad_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
 }
 
 #endif // BIQUAD_NOTCH_A_HZ
@@ -146,15 +169,15 @@ float notch_a_filter( float input, int num )
 
 float notch_b_filter( float input, int num )
 {
-	static FilterNotchCoeff_t gyro_notch_coeff;
-	static FilterNotch_t gyro_notch[ 3 ];
+	static FilterBiquadCoeff_t gyro_notch_coeff;
+	static FilterBiquad_t gyro_notch[ 3 ];
 	static float notch_Hz, notch_Q;
 	if ( notch_Hz != BIQUAD_NOTCH_B_HZ || notch_Q != BIQUAD_NOTCH_B_Q ) {
 		notch_Hz = BIQUAD_NOTCH_B_HZ;
 		notch_Q = BIQUAD_NOTCH_B_Q;
 		filter_notch_coeff( &gyro_notch_coeff, notch_Hz, notch_Q );
 	}
-	return filter_notch_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
+	return filter_biquad_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
 }
 
 #endif // BIQUAD_NOTCH_B_HZ
@@ -164,21 +187,21 @@ float notch_b_filter( float input, int num )
 
 float notch_c_filter( float input, int num )
 {
-	static FilterNotchCoeff_t gyro_notch_coeff;
-	static FilterNotch_t gyro_notch[ 3 ];
+	static FilterBiquadCoeff_t gyro_notch_coeff;
+	static FilterBiquad_t gyro_notch[ 3 ];
 	static float notch_Hz, notch_Q;
 	if ( notch_Hz != BIQUAD_NOTCH_C_HZ || notch_Q != BIQUAD_NOTCH_C_Q ) {
 		notch_Hz = BIQUAD_NOTCH_C_HZ;
 		notch_Q = BIQUAD_NOTCH_C_Q;
 		filter_notch_coeff( &gyro_notch_coeff, notch_Hz, notch_Q );
 	}
-	return filter_notch_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
+	return filter_biquad_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
 }
 
 #endif // BIQUAD_NOTCH_C_HZ
 
 
-#ifdef DYNAMIC_LPF_1ST_HZ
+#ifdef GYRO_LPF_1ST_HZ_BASE
 
 static float gyro_lpf_alpha;
 static float gyro_lpf_last[ 3 ];
@@ -187,9 +210,9 @@ float gyro_lpf_filter( float in, int num )
 {
 	if ( num == 0 ) { // recalculate coeff
 		const float throttle = rxcopy[ 3 ];
-		const float f_base = DYNAMIC_LPF_1ST_HZ_BASE;
-		const float f_max = DYNAMIC_LPF_1ST_HZ_MAX;
-		const float throttle_breakpoint = DYNAMIC_LPF_1ST_HZ_THROTTLE;
+		const float f_base = GYRO_LPF_1ST_HZ_BASE;
+		const float f_max = GYRO_LPF_1ST_HZ_MAX;
+		const float throttle_breakpoint = GYRO_LPF_1ST_HZ_THROTTLE;
 		float filter_Hz = f_base + throttle / throttle_breakpoint * ( f_max - f_base );
 		if ( filter_Hz > f_max ) {
 			filter_Hz = f_max;
@@ -204,10 +227,10 @@ float gyro_lpf_filter( float in, int num )
 	return gyro_lpf_last[ num ];
 }
 
-#endif // DYNAMIC_LPF_1ST_HZ
+#endif // GYRO_LPF_1ST_HZ_BASE
 
 
-#ifdef DYNAMIC_LPF_2ND_HZ
+#ifdef GYRO_LPF_2ND_HZ_BASE
 
 static FilterLPF2Coeff_t gyro_lpf2_coeff;
 static FilterLPF2_t gyro_lpf2[ 3 ];
@@ -216,9 +239,9 @@ float gyro_lpf2_filter( float in, int num )
 {
 	if ( num == 0 ) { // recalculate coeffs
 		const float throttle = rxcopy[ 3 ];
-		const float f_base = DYNAMIC_LPF_2ND_HZ_BASE;
-		const float f_max = DYNAMIC_LPF_2ND_HZ_MAX;
-		const float throttle_breakpoint = DYNAMIC_LPF_2ND_HZ_THROTTLE;
+		const float f_base = GYRO_LPF_2ND_HZ_BASE;
+		const float f_max = GYRO_LPF_2ND_HZ_MAX;
+		const float throttle_breakpoint = GYRO_LPF_2ND_HZ_THROTTLE;
 		if ( throttle_breakpoint != 0.0f ) {
 #if 1
 			float filter_Hz = f_base + throttle / throttle_breakpoint * ( f_max - f_base );
@@ -238,10 +261,13 @@ float gyro_lpf2_filter( float in, int num )
 	return filter_lpf2_step( &gyro_lpf2[ num ], &gyro_lpf2_coeff, in );
 }
 
-#endif // DYNAMIC_LPF_2ND_HZ
+#endif // GYRO_LPF_2ND_HZ
 
 
 // D-Term
+
+static FilterBiquadCoeff_t dterm_bessel_coeff;
+static FilterBiquad_t dterm_bessel[ 3 ];
 
 static FilterLPF2Coeff_t dterm_lpf2_coeff;
 static FilterLPF2_t dterm_lpf2[ 3 ];
@@ -250,9 +276,9 @@ float dterm_filter( float in, int num )
 {
 	if ( num == 0 ) { // recalculate coeffs
 		const float throttle = rxcopy[ 3 ];
-		const float f_base = DYNAMIC_DTERM_LPF_2ND_HZ_BASE;
-		const float f_max = DYNAMIC_DTERM_LPF_2ND_HZ_MAX;
-		const float throttle_breakpoint = DYNAMIC_DTERM_LPF_2ND_HZ_THROTTLE;
+		const float f_base = DTERM_LPF_2ND_HZ_BASE;
+		const float f_max = DTERM_LPF_2ND_HZ_MAX;
+		const float throttle_breakpoint = DTERM_LPF_2ND_HZ_THROTTLE;
 		if ( throttle_breakpoint != 0.0f ) {
 			float filter_Hz = f_base + throttle / throttle_breakpoint * ( f_max - f_base );
 			if ( filter_Hz > f_max ) {
@@ -260,10 +286,18 @@ float dterm_filter( float in, int num )
 			} else if ( filter_Hz < f_base ) {
 				filter_Hz = f_base;
 			}
+#ifdef DTERM_BESSEL_FILTER
+			filter_bessel_coeff( &dterm_bessel_coeff, filter_Hz );
+#else
 			filter_lpf2_coeff( &dterm_lpf2_coeff, filter_Hz );
+#endif // DTERM_BESSEL_FILTER
 		}
 	}
+#ifdef DTERM_BESSEL_FILTER
+	return filter_biquad_step( &dterm_bessel[ num ], &dterm_bessel_coeff, in );
+#else
 	return filter_lpf2_step( &dterm_lpf2[ num ], &dterm_lpf2_coeff, in );
+#endif // DTERM_BESSEL_FILTER
 }
 
 void dterm_filter_reset( int holdoff_time_ms )

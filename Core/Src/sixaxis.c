@@ -236,10 +236,10 @@ static void process_gyronew_to_gyro( float gyronew[] )
 #ifdef BIQUAD_NOTCH_C_HZ
 		gyro[ i ] = gyro_unfiltered[ i ] = notch_c_filter( gyro[ i ], i );
 #endif
-#ifdef DYNAMIC_LPF_1ST_HZ
+#ifdef GYRO_LPF_1ST_HZ_BASE
 		gyro[ i ] = gyro_lpf_filter( gyro[ i ], i );
 #endif
-#ifdef DYNAMIC_LPF_2ND_HZ
+#ifdef GYRO_LPF_2ND_HZ_BASE
 		gyro[ i ] = gyro_lpf2_filter( gyro[ i ], i );
 #endif
 	}

@@ -162,6 +162,8 @@ static void bitbang_data()
 			gpioreset( ESC4_GPIO_Port, ESC4_Pin );
 		}
 
+		// Note: delay timings for -O3
+
 		// Dshot1200, BLHeli_32 only
 		// _NOP_ _NOP_ _NOP_ _NOP_ _NOP_
 		// _NOP_ _NOP_ _NOP_ _NOP_ _NOP_

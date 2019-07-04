@@ -80,8 +80,7 @@ int calibration_done;
 
 void sixaxis_read( void )
 {
-	uint32_t data[ 16 ];
-
+	uint32_t data[ 14 ];
 	mpu_readdata( 59, data, 14 );
 
 #ifdef SENSOR_ROTATE_90_CW
@@ -145,9 +144,9 @@ void sixaxis_read( void )
 
 	float gyronew[ 3 ];
 	//order
-	gyronew[ 1 ] = (int16_t)( ( data[8] << 8 ) + data[9] );
-	gyronew[ 0 ] = (int16_t)( ( data[10] << 8 ) + data[11] );
-	gyronew[ 2 ] = (int16_t)( ( data[12] << 8 ) + data[13] );
+	gyronew[ 1 ] = (int16_t)( ( data[ 8 ] << 8 ) + data[ 9 ] );
+	gyronew[ 0 ] = (int16_t)( ( data[ 10 ] << 8 ) + data[ 11 ] );
+	gyronew[ 2 ] = (int16_t)( ( data[ 12 ] << 8 ) + data[ 13 ] );
 
 	process_gyronew_to_gyro( gyronew );
 }
@@ -155,7 +154,6 @@ void sixaxis_read( void )
 void gyro_read( void )
 {
 	uint32_t data[ 6 ];
-
 	mpu_readdata( 67, data, 6 );
 
 	float gyronew[ 3 ];
@@ -228,13 +226,13 @@ static void process_gyronew_to_gyro( float gyronew[] )
 		gyronew[ i ] = gyronew[ i ] * 0.061035156f * DEGTORAD;
 		gyro[ i ] = gyro_unfiltered[ i ] = gyronew[ i ];
 #ifdef BIQUAD_NOTCH_A_HZ
-		gyro[ i ] = gyro_unfiltered[ i ] = notch_a_filter( gyro[ i ], i );
+		gyro[ i ] = notch_a_filter( gyro[ i ], i );
 #endif
 #ifdef BIQUAD_NOTCH_B_HZ
-		gyro[ i ] = gyro_unfiltered[ i ] = notch_b_filter( gyro[ i ], i );
+		gyro[ i ] = notch_b_filter( gyro[ i ], i );
 #endif
 #ifdef BIQUAD_NOTCH_C_HZ
-		gyro[ i ] = gyro_unfiltered[ i ] = notch_c_filter( gyro[ i ], i );
+		gyro[ i ] = notch_c_filter( gyro[ i ], i );
 #endif
 #ifdef GYRO_LPF_1ST_HZ_BASE
 		gyro[ i ] = gyro_lpf_filter( gyro[ i ], i );

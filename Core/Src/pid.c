@@ -171,17 +171,34 @@ void pid( int x )
 		}
 #endif
 
-		// // 16 point moving average filter to smooth out the 5 ms steps:
-		// #define MA_SIZE ( 1 << 4 ) // power of two
-		// static float ma_value[ 2 ];
-		// static float ma_array[ 2 ][ MA_SIZE ];
-		// static uint8_t ma_index[ 2 ];
-		// ma_value[ x ] -= ma_array[ x ][ ma_index[ x ] ];
-		// ma_value[ x ] += ff;
-		// ma_array[ x ][ ma_index[ x ] ] = ff;
-		// ++ma_index[ x ];
-		// ma_index[ x ] &= MA_SIZE - 1;
-		// ff = ma_value[ x ] / MA_SIZE; // dividing by a power of two is handled efficiently by the compiler (__ARM_scalbnf)
+		// Distribute ff over a few loops. Otherwise it gets clipped and leads to audible motor clicks:
+#if 0
+		static float avgFF[ 2 ];
+		lpf( &avgFF[ x ], ff, ALPHACALC( LOOPTIME, 1e6f / 200.0f ) ); // 200 Hz
+		ff = avgFF[ x ];
+#else
+		// Moving average filter:
+	#if LOOPTIME >= 1000
+		#define MA_SIZE ( 1 << 1 ) // 2 points are sufficient for 1k loop frequency
+	#elif LOOPTIME >= 500 && LOOPTIME < 1000
+		#define MA_SIZE ( 1 << 2 ) // 4 points are sufficient for 2k loop frequency
+	#elif LOOPTIME >= 250 && LOOPTIME < 500
+		#define MA_SIZE ( 1 << 3 ) // 8 points are sufficient for 4k loop frequency
+	#elif LOOPTIME >= 125 && LOOPTIME < 250
+		#define MA_SIZE ( 1 << 4 ) // 16 points are sufficient for 8k loop frequency
+	#else
+		#define MA_SIZE ( 1 << 5 ) // 32 points
+	#endif
+		static float ma_value[ 2 ];
+		static float ma_array[ 2 ][ MA_SIZE ];
+		static uint8_t ma_index[ 2 ];
+		ma_value[ x ] -= ma_array[ x ][ ma_index[ x ] ];
+		ma_value[ x ] += ff;
+		ma_array[ x ][ ma_index[ x ] ] = ff;
+		++ma_index[ x ];
+		ma_index[ x ] &= MA_SIZE - 1;
+		ff = ma_value[ x ] / MA_SIZE; // dividing by a power of two is handled efficiently by the compiler (__ARM_scalbnf)
+#endif
 
 		// Attenuate FF towards stick center position (aka FF Transition):
 		const float absStickDeflection = fabsf( rxcopy[ x ] );
@@ -260,8 +277,8 @@ void pid_precalc()
 	pdScaleValue = 1.0f; // constant (no throttle dependent scaling)
 
 #ifdef AA_pdScaleYawStabilizer
-	// const float absyaw = fabsf( rxcopy[ 2 ] );
-	const float absyaw = fabsf( gyro[ 2 ] / ( (float)MAX_RATEYAW * DEGTORAD ) );
+	const float absyaw = fabsf( rxcopy[ 2 ] );
+	// const float absyaw = fabsf( gyro[ 2 ] / ( (float)MAX_RATEYAW * DEGTORAD ) );
 	pdScaleValue *= 1 + absyaw * ( AA_pdScaleYawStabilizer - 1 ); // Increase Kp and Kd on high yaw speeds to avoid iTerm Rotation related wobbles.
 #endif
 }

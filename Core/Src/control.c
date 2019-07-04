@@ -1,5 +1,6 @@
 #include <math.h> // fabsf, sqrtf
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "angle_pid.h"
 #include "config.h"
@@ -180,7 +181,8 @@ void control( void )
 		}
 
 		onground = 1;
-		thrsum = 0;
+		thrsum = 0.0f;
+		mixmax = 0.0f;
 	} else { // motors on - normal flight
 		onground = 0;
 
@@ -299,8 +301,8 @@ void control( void )
 		}
 #endif // MIX_SCALING
 
-		thrsum = 0;
-		mixmax = 0;
+		thrsum = 0.0f;
+		mixmax = 0.0f;
 
 		for ( int i = 0; i < 4; ++i ) {
 
@@ -335,6 +337,12 @@ void control( void )
 
 #endif // defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
 
+			if ( mix[ i ] < 0.0f ) {
+				mix[ i ] = 0.0f;
+			} else if ( mix[ i ] > 1.0f )	{
+				mix[ i ] = 1.0f;
+			}
+
 #ifdef THRUST_LINEARIZATION
 			// Computationally quite expensive:
 			static float a, a_reci, b, b_sq;
@@ -346,25 +354,19 @@ void control( void )
 					b_sq = b * b;
 				}
 			}
-			float mix_i = mix[ i ];
-			if ( mix_i > 0.0f && a > 0.0f ) {
-				mix_i = sqrtf( mix[ i ] * a_reci + b_sq ) - b;
+			if ( mix[ i ] > 0.0f && a > 0.0f ) {
+				mix[ i ] = sqrtf( mix[ i ] * a_reci + b_sq ) - b;
 			}
-			pwm_set( i, mix_i );
-#else
-			pwm_set( i, mix[ i ] );
 #endif
 
-			if ( mix[ i ] < 0 ) {
-				mix[ i ] = 0;
-			} else if ( mix[ i ] > 1 )	{
-				mix[ i ] = 1;
-			}
+			pwm_set( i, mix[ i ] );
+
 			thrsum += mix[ i ];
 			if ( mixmax < mix[ i ] ) {
 				mixmax = mix[ i ];
 			}
 		}
-		thrsum = thrsum / 4;
-	}// end motors on
+
+		thrsum = thrsum / 4.0f;
+	} // end motors on
 }

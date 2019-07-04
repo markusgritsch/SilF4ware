@@ -15,7 +15,7 @@
 #define LOW_RATES_MULTI 0.5
 
 // Change this factor to get a correct battery voltage.
-#define ADC_SCALEFACTOR 11.167 // 11.0 for an ideal 10k/1k voltage divider
+#define ADC_SCALEFACTOR 11.111 // 11.0 for an ideal 10k/1k voltage divider
 
 // Make sure to understand CELL_COUNT_UNSCALED in battery.c before enabling this.
 #define BATTERY_CELL_COUNT_DETECTION
@@ -49,22 +49,22 @@
 
 // Software Gyro Filters
 
-#define BIQUAD_NOTCH_A_HZ 213
-#define BIQUAD_NOTCH_A_Q 6
+// #define BIQUAD_NOTCH_A_HZ 270
+// #define BIQUAD_NOTCH_A_Q 6
 
-#define BIQUAD_NOTCH_B_HZ BIQUAD_NOTCH_A_HZ
-#define BIQUAD_NOTCH_B_Q BIQUAD_NOTCH_A_Q
+// #define BIQUAD_NOTCH_B_HZ 310
+// #define BIQUAD_NOTCH_B_Q 6
 
-// #define BIQUAD_NOTCH_C_HZ BIQUAD_NOTCH_A_HZ * 3
-// #define BIQUAD_NOTCH_C_Q BIQUAD_NOTCH_A_Q
+// #define BIQUAD_NOTCH_C_HZ 380
+// #define BIQUAD_NOTCH_C_Q 6
 
-// #define GYRO_LPF_1ST_HZ_BASE 400 // Filter frequency at zero throttle.
-// #define GYRO_LPF_1ST_HZ_MAX 400 // A higher filter frequency than loopfrequency/3 causes ripples.
-// #define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
+#define GYRO_LPF_1ST_HZ_BASE 250 // Filter frequency at zero throttle.
+#define GYRO_LPF_1ST_HZ_MAX 400 // A higher filter frequency than loopfrequency/3 causes ripples.
+#define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
 
-#define GYRO_LPF_2ND_HZ_BASE 400 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
-#define GYRO_LPF_2ND_HZ_MAX 400
-#define GYRO_LPF_2ND_HZ_THROTTLE 0.25
+// #define GYRO_LPF_2ND_HZ_BASE 400 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
+// #define GYRO_LPF_2ND_HZ_MAX 400
+// #define GYRO_LPF_2ND_HZ_THROTTLE 0.25
 
 // D-Term second order LPF (cannot be turned off)
 #define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
@@ -74,7 +74,7 @@
 // Whether to use Bessel type filter for D-Term instead of PT2.
 // #define DTERM_BESSEL_FILTER
 
-// If enabled, the D-Term filter uses the LP filtered gyro signal from above. (Notch filters are always applied.)
+// If enabled, the D-Term filter uses the LP filtered gyro signal from above.
 // #define CASCADE_GYRO_AND_DTERM_FILTER
 
 // Switch function selection
@@ -134,12 +134,11 @@
 
 // Betaflight like mix scaling
 #define MIX_SCALING
-// Mix increasing yields a more crisp response but also a more jumpy quad at low RPM
+// Mix increasing yields a more crisp response but also a more jumpy quad at low RPM (aka Airmode)
 #define ALLOW_MIX_INCREASING
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
-// 0.0f .. no compensation, 1.0f .. full square root curve
-#define THRUST_LINEARIZATION 0.5f
+#define THRUST_LINEARIZATION 0.5f // 0.0f .. no compensation, 1.0f .. full square root curve
 
 // A deadband can be used to eliminate stick center jitter and non-returning to exactly 0.
 #define STICKS_DEADBAND 0.02f

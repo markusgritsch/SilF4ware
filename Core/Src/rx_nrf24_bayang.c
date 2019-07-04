@@ -248,7 +248,7 @@ static void beacon_sequence()
 
 	switch ( beacon_seq_state ) {
 		case 0: // send data
-			if ( send_telemetry_next_loop || LOOPTIME >= 1000 ) {
+			if ( send_telemetry_next_loop || LOOPTIME > 1000 ) {
 				telemetry_send = 1;
 				send_telemetry();
 				++beacon_seq_state;
@@ -550,7 +550,7 @@ void checkrx( void )
 			if ( pass ) {
 				++packetrx;
 				if ( telemetry_enabled ) {
-					if ( LOOPTIME >= 1000 ) {
+					if ( LOOPTIME > 1000 ) {
 						beacon_sequence();
 					} else {
 						send_telemetry_next_loop = 1;

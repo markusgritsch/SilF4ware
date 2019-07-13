@@ -91,6 +91,7 @@
 // enable inverted (3D) flight code (brushless only)
 #define INVERTED_ENABLE
 #define FN_INVERTED DEVO_CHAN_6 // for brushless only
+// #define LEVEL_MODE_INVERTED_ENABLE // be careful when enabling this
 
 // Two switchable channels via gestures: CH_AUX1 and CH_AUX2
 // Channel CH_AUX1 changed via gestures LLU -> 1 and LLD -> 0
@@ -132,10 +133,12 @@
 // Add linear interpolation between the otherwise 5 ms staircase steps of the RX signal
 #define RX_SMOOTHING
 
-// Betaflight like mix scaling
+// Betaflight like mix scaling (aka Airmode)
 #define MIX_SCALING
-// Mix increasing yields a more crisp response but also a more jumpy quad at low RPM (aka Airmode)
+// Mix increasing yields a more crisp response but also a more jumpy quad at low RPM
 #define ALLOW_MIX_INCREASING
+// A higher value means a shorter active increasing period (shorter bouncy period)
+#define TRANSIENT_MIX_INCREASING_HZ 5
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
 #define THRUST_LINEARIZATION 0.5f // 0.0f .. no compensation, 1.0f .. full square root curve

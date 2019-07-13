@@ -34,7 +34,7 @@ void stick_vector( float rx_input[], float maxangle )
 	stickvector[ 0 ] *= mag2;
 	stickvector[ 1 ] *= mag2;
 
-#ifdef INVERTED_ENABLE
+#ifdef LEVEL_MODE_INVERTED_ENABLE
 	extern int pwmdir;
 
 	if ( pwmdir == REVERSE ) {
@@ -42,7 +42,7 @@ void stick_vector( float rx_input[], float maxangle )
 		stickvector[ 1 ] = -stickvector[ 1 ];
 		stickvector[ 2 ] = -stickvector[ 2 ];
 	}
-#endif
+#endif // LEVEL_MODE_INVERTED_ENABLE
 
 	// find error between stick vector and quad orientation
 	// vector cross product
@@ -57,7 +57,7 @@ void stick_vector( float rx_input[], float maxangle )
 // the vector cross product results in zero for opposite vectors, so it's bad at 180 error
 // without this the quad will not invert if angle difference = 180
 
-#ifdef INVERTED_ENABLE
+#ifdef LEVEL_MODE_INVERTED_ENABLE
 
 	static int flip_active_once = 0;
 	static int flipaxis = 0;
@@ -111,6 +111,6 @@ void stick_vector( float rx_input[], float maxangle )
 		errorvect[! flipaxis] = GEstG[! flipaxis];
 	}
 
-#endif // INVERTED_ENABLE
+#endif // LEVEL_MODE_INVERTED_ENABLE
 
 }

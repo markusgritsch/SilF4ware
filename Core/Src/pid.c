@@ -178,17 +178,7 @@ void pid( int x )
 		ff = avgFF[ x ];
 #else
 		// Moving average filter:
-	#if LOOPTIME >= 1000
-		#define MA_SIZE ( 1 << 1 ) // 2 points are sufficient for 1k loop frequency
-	#elif LOOPTIME >= 500 && LOOPTIME < 1000
-		#define MA_SIZE ( 1 << 2 ) // 4 points are sufficient for 2k loop frequency
-	#elif LOOPTIME >= 250 && LOOPTIME < 500
-		#define MA_SIZE ( 1 << 3 ) // 8 points are sufficient for 4k loop frequency
-	#elif LOOPTIME >= 125 && LOOPTIME < 250
-		#define MA_SIZE ( 1 << 4 ) // 16 points are sufficient for 8k loop frequency
-	#else
-		#define MA_SIZE ( 1 << 5 ) // 32 points
-	#endif
+		#define MA_SIZE ( 2000 / LOOPTIME ) // 16 points at 8k loop frequency
 		static float ma_value[ 2 ];
 		static float ma_array[ 2 ][ MA_SIZE ];
 		static uint8_t ma_index[ 2 ];
@@ -196,8 +186,10 @@ void pid( int x )
 		ma_value[ x ] += ff;
 		ma_array[ x ][ ma_index[ x ] ] = ff;
 		++ma_index[ x ];
-		ma_index[ x ] &= MA_SIZE - 1;
-		ff = ma_value[ x ] / MA_SIZE; // dividing by a power of two is handled efficiently by the compiler (__ARM_scalbnf)
+		if ( ma_index[ x ] == MA_SIZE ) {
+			ma_index[ x ] = 0;
+		}
+		ff = ma_value[ x ] / MA_SIZE;
 #endif
 
 		// Attenuate FF towards stick center position (aka FF Transition):

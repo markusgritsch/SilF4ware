@@ -213,18 +213,18 @@ void control( void )
 		float throttle_p = 0.0f;
 
 			if ( vbattfilt < (float)LVC_LOWER_THROTTLE_VOLTAGE_RAW ) {
-				throttle_p = ( (float)LVC_LOWER_THROTTLE_VOLTAGE_RAW - vbattfilt ) *(float)LVC_LOWER_THROTTLE_KP;
+				throttle_p = ( (float)LVC_LOWER_THROTTLE_VOLTAGE_RAW - vbattfilt ) * (float)LVC_LOWER_THROTTLE_KP;
 			}
-			if ( vbatt_comp < (float) LVC_LOWER_THROTTLE_VOLTAGE ) {
-				throttle_p = ((float) LVC_LOWER_THROTTLE_VOLTAGE - vbatt_comp) *(float) LVC_LOWER_THROTTLE_KP;
+			if ( vbatt_comp < (float)LVC_LOWER_THROTTLE_VOLTAGE ) {
+				throttle_p = ( (float)LVC_LOWER_THROTTLE_VOLTAGE - vbatt_comp ) * (float)LVC_LOWER_THROTTLE_KP;
 			}
 			if ( throttle_p > 1.0f ) {
 				throttle_p = 1.0f;
 			}
 			if ( throttle_p > 0 ) {
-				throttle_i += throttle_p * 0.0001f; //ki
+				throttle_i += throttle_p * 0.0001f; // ki
 			} else {
-				throttle_i -= 0.001f;// ki on release
+				throttle_i -= 0.001f; // ki on release
 			}
 
 			if ( throttle_i > 0.5f ) {
@@ -265,6 +265,19 @@ void control( void )
 #endif
 
 #ifdef MIX_SCALING
+	#ifdef TRANSIENT_MIX_INCREASING_HZ
+		float transientMixIncreaseLimit = 0.0f;
+		static float avgSetpoint[ 3 ];
+		for ( int i = 0; i < 3; ++i ) {
+			lpf( &avgSetpoint[ i ], setpoint[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)TRANSIENT_MIX_INCREASING_HZ ) ) );
+			const float hpfSetpoint = setpoint[ i ] - avgSetpoint[ i ]; // HPF = input - average_input
+			if ( fabsf( hpfSetpoint ) > transientMixIncreaseLimit ) {
+				transientMixIncreaseLimit = fabsf( hpfSetpoint );
+			}
+		}
+		transientMixIncreaseLimit /= 8.0f; // some scaling; a power of two is faster than * 0.1f
+	#endif // TRANSIENT_MIX_INCREASING_HZ
+
 		float minMix = 1000.0f;
 		float maxMix = -1000.0f;
 		for ( int i = 0; i < 4; ++i ) {
@@ -288,11 +301,16 @@ void control( void )
 			if ( maxMix > 1.0f ) {
 				reduceAmount = maxMix - 1.0f;
 			}
-#ifdef ALLOW_MIX_INCREASING
+	#ifdef ALLOW_MIX_INCREASING
 			else if ( minMix < 0.0f ) {
 				reduceAmount = minMix;
+		#ifdef TRANSIENT_MIX_INCREASING_HZ
+				if ( reduceAmount < -transientMixIncreaseLimit ) {
+					reduceAmount = -transientMixIncreaseLimit;
+				}
+		#endif // TRANSIENT_MIX_INCREASING_HZ
 			}
-#endif // ALLOW_MIX_INCREASING
+	#endif // ALLOW_MIX_INCREASING
 		}
 		if ( reduceAmount != 0.0f ) {
 			for ( int i = 0; i < 4; ++i ) {

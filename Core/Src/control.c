@@ -164,7 +164,22 @@ void control( void )
 	throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
 #endif
 
-	if ( failsafe || aux[ THROTTLE_KILL_SWITCH ] ) {
+	// Prevent startup if the TX is turned on with the THROTTLE_KILL_SWITCH not activated:
+	static bool tx_just_turned_on = true;
+	bool prevent_start = false;
+	if ( tx_just_turned_on ) {
+		if ( ! aux[ THROTTLE_KILL_SWITCH ] ) {
+			prevent_start = true;
+		} else {
+			tx_just_turned_on = false;
+		}
+	} else {
+		if ( failsafe ) {
+			tx_just_turned_on = true;
+		}
+	}
+
+	if ( failsafe || aux[ THROTTLE_KILL_SWITCH ] || prevent_start ) {
 		static uint32_t counter;
 		++counter;
 		if ( counter % 8 != 0 ) { // Make sure, we send either pwm_set() or motorbeep().
@@ -187,7 +202,8 @@ void control( void )
 		onground = 0;
 
 #ifdef THROTTLE_TRANSIENT_COMPENSATION_FACTOR
-		if ( aux[ RATES ] ) {
+		extern bool lowbatt;
+		if ( aux[ RATES ] && ! lowbatt ) {
 			throttle += (float)THROTTLE_TRANSIENT_COMPENSATION_FACTOR * throttle_hpf( throttle );
 			if ( throttle < 0.0f ) {
 				throttle = 0;
@@ -267,15 +283,15 @@ void control( void )
 #ifdef MIX_SCALING
 	#ifdef TRANSIENT_MIX_INCREASING_HZ
 		float transientMixIncreaseLimit = 0.0f;
-		static float avgSetpoint[ 3 ];
-		for ( int i = 0; i < 3; ++i ) {
-			lpf( &avgSetpoint[ i ], setpoint[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)TRANSIENT_MIX_INCREASING_HZ ) ) );
-			const float hpfSetpoint = setpoint[ i ] - avgSetpoint[ i ]; // HPF = input - average_input
-			if ( fabsf( hpfSetpoint ) > transientMixIncreaseLimit ) {
-				transientMixIncreaseLimit = fabsf( hpfSetpoint );
+		static float avgRxcopy[ 4 ];
+		for ( int i = 0; i < 4; ++i ) {
+			lpf( &avgRxcopy[ i ], rxcopy[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)TRANSIENT_MIX_INCREASING_HZ ) ) );
+			const float hpfRxcopy = rxcopy[ i ] - avgRxcopy[ i ]; // HPF = input - average_input
+			if ( fabsf( hpfRxcopy ) > transientMixIncreaseLimit ) {
+				transientMixIncreaseLimit = fabsf( hpfRxcopy );
 			}
 		}
-		transientMixIncreaseLimit /= 8.0f; // some scaling; a power of two is faster than * 0.1f
+		transientMixIncreaseLimit *= 4.0f; // some scaling
 	#endif // TRANSIENT_MIX_INCREASING_HZ
 
 		float minMix = 1000.0f;

@@ -59,7 +59,7 @@
 // #define BIQUAD_NOTCH_C_Q 6
 
 #define GYRO_LPF_1ST_HZ_BASE 250 // Filter frequency at zero throttle.
-#define GYRO_LPF_1ST_HZ_MAX 400 // A higher filter frequency than loopfrequency/3 causes ripples.
+#define GYRO_LPF_1ST_HZ_MAX 250 // A higher filter frequency than loopfrequency/3 causes ripples.
 #define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
 
 // #define GYRO_LPF_2ND_HZ_BASE 400 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
@@ -75,7 +75,7 @@
 // #define DTERM_BESSEL_FILTER
 
 // If enabled, the D-Term filter uses the LP filtered gyro signal from above.
-// #define CASCADE_GYRO_AND_DTERM_FILTER
+#define CASCADE_GYRO_AND_DTERM_FILTER
 
 // Switch function selection
 

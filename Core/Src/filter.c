@@ -1,6 +1,7 @@
 #include "config.h"
 #include "filter.h"
 #include "util.h"
+#include "stdbool.h"
 
 extern char aux[ AUXNUMBER ];
 extern float aux_analog[ 2 ];
@@ -208,7 +209,9 @@ static float gyro_lpf_last[ 3 ];
 
 float gyro_lpf_filter( float in, int num )
 {
-	if ( num == 0 ) { // recalculate coeff
+	static bool base_and_max_differ = true; // initialize with true so we enter at least once
+	if ( base_and_max_differ && num == 0 ) { // recalculate coeff
+		base_and_max_differ = GYRO_LPF_1ST_HZ_BASE != GYRO_LPF_1ST_HZ_MAX;
 		const float throttle = rxcopy[ 3 ];
 		const float f_base = GYRO_LPF_1ST_HZ_BASE;
 		const float f_max = GYRO_LPF_1ST_HZ_MAX;
@@ -237,7 +240,9 @@ static FilterLPF2_t gyro_lpf2[ 3 ];
 
 float gyro_lpf2_filter( float in, int num )
 {
-	if ( num == 0 ) { // recalculate coeffs
+	static bool base_and_max_differ = true; // initialize with true so we enter at least once
+	if ( base_and_max_differ && num == 0 ) { // recalculate coeffs
+		base_and_max_differ = GYRO_LPF_2ND_HZ_BASE != GYRO_LPF_2ND_HZ_MAX;
 		const float throttle = rxcopy[ 3 ];
 		const float f_base = GYRO_LPF_2ND_HZ_BASE;
 		const float f_max = GYRO_LPF_2ND_HZ_MAX;
@@ -274,7 +279,9 @@ static FilterLPF2_t dterm_lpf2[ 3 ];
 
 float dterm_filter( float in, int num )
 {
-	if ( num == 0 ) { // recalculate coeffs
+	static bool base_and_max_differ = true; // initialize with true so we enter at least once
+	if ( base_and_max_differ && num == 0 ) { // recalculate coeffs
+		base_and_max_differ = DTERM_LPF_2ND_HZ_BASE != DTERM_LPF_2ND_HZ_MAX;
 		const float throttle = rxcopy[ 3 ];
 		const float f_base = DTERM_LPF_2ND_HZ_BASE;
 		const float f_max = DTERM_LPF_2ND_HZ_MAX;

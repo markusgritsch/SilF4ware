@@ -22,6 +22,7 @@ uint32_t lastlooptime;
 uint32_t used_loop_time;
 uint32_t max_used_loop_time;
 
+extern char aux[ AUXNUMBER ];
 extern int onground; // control.c
 
 void failloop( int val );
@@ -54,9 +55,13 @@ void usermain()
 		looptime = ( loop_start_time - lastlooptime ) * 1e-6f;
 		lastlooptime = loop_start_time;
 
-		sixaxis_read(); // read gyro and accelerometer data
+		if ( aux[ LEVELMODE ] ) {
+			sixaxis_read(); // read gyro and accelerometer data
+			imu(); // attitude calculations for level mode
+		} else {
+			gyro_read(); // read gyro data
+		}
 		control(); // all flight calculations and motors
-		imu(); // attitude calculations for level mode
 		battery();
 		if ( onground ) {
 			gestures(); // check gestures

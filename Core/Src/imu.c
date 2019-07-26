@@ -7,7 +7,7 @@
 
 #define ACC_1G 1.0f
 
-// disable drift correction ( for testing)
+// disable drift correction (for testing)
 #define DISABLE_ACC 0
 
 // filter time in seconds
@@ -63,7 +63,7 @@ extern float looptime;
 
 void imu( void )
 {
-// remove bias
+	// remove bias
 	accel[ 0 ] = accel[ 0 ] - accelcal[ 0 ];
 	accel[ 1 ] = accel[ 1 ] - accelcal[ 1 ];
 
@@ -93,12 +93,9 @@ void imu( void )
 	accmag = calcmagnitude( &accel[ 0 ] );
 
 	if ( ( accmag > ACC_MIN * ACC_1G ) && ( accmag < ACC_MAX * ACC_1G ) && ! DISABLE_ACC ) {
-		// normalize acc
 		for ( int axis = 0; axis < 3; ++axis ) {
-			accel[ axis ] = accel[ axis ] * ACC_1G / accmag;
-		}
-		for ( int x = 0; x < 3; ++x ) {
-			lpf( &GEstG[ x ], accel[ x ], ALPHACALC( LOOPTIME, 6 * (float)FILTERTIME * 1e6f ) ); // 6 * because ALPHACALC uses 6 instead of 2 * pi
+			accel[ axis ] = accel[ axis ] * ACC_1G / accmag; // normalize acc
+			lpf( &GEstG[ axis ], accel[ axis ], ALPHACALC( LOOPTIME, 2 * PI_F * (float)FILTERTIME * 1e6f ) );
 		}
 	}
 

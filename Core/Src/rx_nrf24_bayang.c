@@ -295,18 +295,18 @@ static void send_telemetry()
 #define MOTOR_BEEPS_CHANNEL CH_OFF
 #endif
 
-#ifdef DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
-	extern float accel[ 3 ];
-	extern int calibration_done;
-	static float maxg = 0.0f;
-	if ( fabsf( accel[ 2 ] ) > maxg && calibration_done ) {
-		maxg = fabsf( accel[ 2 ] );
+	if ( aux[ LEVELMODE ] ) {
+		extern float accel[ 3 ];
+		extern int calibration_done;
+		static float maxg = 0.0f;
+		if ( fabsf( accel[ 2 ] ) > maxg && calibration_done ) {
+			maxg = fabsf( accel[ 2 ] );
+		}
+		if ( aux[ MOTOR_BEEPS_CHANNEL ] ) { // reset displayed maxg
+			maxg = 0.0f;
+		}
+		vbatt = maxg * 100;
 	}
-	if ( aux[ MOTOR_BEEPS_CHANNEL ] ) { // reset displayed maxg
-		maxg = 0.0f;
-	}
-	vbatt = maxg * 100;
-#endif // DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
 
 	txdata[ 3 ] = ( vbatt >> 8 ) & 0xff;
 	txdata[ 4 ] = vbatt & 0xff;

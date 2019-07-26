@@ -164,18 +164,30 @@ static void bitbang_data()
 
 		// Note: delay timings for -O3
 
-		// Dshot1200, BLHeli_32 only
-		// _NOP_ _NOP_ _NOP_ _NOP_ _NOP_
-		// _NOP_ _NOP_ _NOP_ _NOP_ _NOP_
-		// _NOP_ _NOP_ _NOP_ _NOP_ _NOP_
-
 		volatile static uint32_t count;
-#if 1
+#if defined(STM32F405xx)
+		// Dshot1200, BLHeli_32 only
+		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
+		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
+		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
+
+	#if 1
+		// Dshot600, BLHeli_S BB2 (not supported by BB1)
+		count = 5; while ( count-- ); // 4 to 6 is recognized as Dshot600
+	#else
+		// Dshot300, works on BB1
+		count = 19; while ( count-- ); // 16 to 23 is recognized as Dshot300
+	#endif
+#elif defined(STM32F411xE)
+	#if 1
 		// Dshot600, BLHeli_S BB2 (not supported by BB1)
 		count = 2; while ( count-- ); // 2 to 3 (barely) is recognized as Dshot600
-#else
+	#else
 		// Dshot300, works on BB1
 		count = 10; while ( count-- ); // 8 to 12 is recognized as Dshot300
+	#endif
+#else
+	#error "Unknown MCU"
 #endif
 	}
 }

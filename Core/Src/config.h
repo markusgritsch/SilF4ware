@@ -103,8 +103,6 @@
 #define MOTOR_BEEPS
 #define MOTOR_BEEPS_CHANNEL DEVO_CHAN_12
 
-// Send maximum measured g-force in the telemetry data.
-#define DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
 // Send maximum looptime in the telemetry data.
 #define DISPLAY_MAX_USED_LOOP_TIME_INSTEAD_OF_RX_PACKETS
 // Send PID values in the telemetry data.

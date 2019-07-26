@@ -11,5 +11,5 @@ void throttle_hpf_reset( int holdoff_time_ms );
 
 // With constants as parameters this should be precalculated by the compiler.
 // This is used to calculate alpha. filtertime = 1 / filter-cutoff-frequency.
-// The approximation is good only for filtertime >> dT.
-#define ALPHACALC( dT, filtertime ) ( ( 6.0f * (float)dT ) / ( 3.0f * (float)dT + (float)filtertime ) )
+// The approximation is good only for filtertime >> dT, maybe filtertime > dT * 5.
+#define ALPHACALC( dT, filtertime ) ( ( 6.6f * (float)dT ) / ( 4.2f * (float)dT + (float)filtertime ) )

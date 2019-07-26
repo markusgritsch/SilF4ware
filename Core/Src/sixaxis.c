@@ -287,7 +287,7 @@ void gyro_cal( void )
 				timestart = gettime();
 				brightness = 1;
 			} else {
-				lpf( &gyrocal[ i ], gyro[ i ], ALPHACALC( LOOPTIME, 6 * 0.5f * 1e6f ) ); // 6 * because ALPHACALC uses 6 instead of 2 * pi
+				lpf( &gyrocal[ i ], gyro[ i ], ALPHACALC( LOOPTIME, 2 * PI_F * 0.5f * 1e6f ) );
 			}
 		}
 

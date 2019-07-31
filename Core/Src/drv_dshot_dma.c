@@ -31,7 +31,6 @@ extern bool failsafe;
 extern int onground;
 
 int pwmdir = FORWARD;
-static unsigned long pwm_failsafe_time = 1;
 
 volatile int dshot_dma_phase = 0; // 1: portA, 2: portB, 0: idle
 uint16_t dshot_packet[ 4 ]; // 16bits dshot data for 4 motors
@@ -76,9 +75,6 @@ void pwm_init()
 
 	*dshot_portA_off = ( *dshot_portA ) << 16;
 	*dshot_portB_off = ( *dshot_portB ) << 16;
-
-	// set failsafetime so signal is off at start
-	pwm_failsafe_time = gettime() - 100000;
 }
 
 static void dshot_dma_portA()
@@ -265,19 +261,6 @@ void pwm_set( uint8_t number, float pwm )
 
 	if ( onground ) {
 		value = 0; // stop the motors
-	}
-
-	if ( failsafe ) {
-		if ( ! pwm_failsafe_time ) {
-			pwm_failsafe_time = gettime();
-		} else {
-			// 100ms after failsafe we turn off the signal (for safety while flashing)
-			if ( gettime() - pwm_failsafe_time > 100000 ) {
-				value = 0;
-			}
-		}
-	} else {
-		pwm_failsafe_time = 0;
 	}
 
 	make_packet( number, value, false );

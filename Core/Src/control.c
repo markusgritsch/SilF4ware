@@ -180,24 +180,31 @@ void control( void )
 	}
 
 	if ( failsafe || aux[ THROTTLE_KILL_SWITCH ] || prevent_start ) {
-		static uint32_t counter;
-		++counter;
-		if ( counter % 8 != 0 ) { // Make sure, we send either pwm_set() or motorbeep().
-			for ( int i = 0; i < 4; ++i ) {
-				pwm_set( i, 0 );
-			}
-		} else {
-#ifdef MOTOR_BEEPS
-#ifndef MOTOR_BEEPS_CHANNEL
-#define MOTOR_BEEPS_CHANNEL CH_OFF
-#endif
-			motorbeep( MOTOR_BEEPS_CHANNEL );
-#endif
-		}
-
-		onground = 1;
+		onground = 1; // This stops the motors.
 		thrsum = 0.0f;
 		mixmax = 0.0f;
+
+		static int count;
+		if ( count > 0 ) {
+			--count;
+		} else {
+			// Call motorbeep() only every millisecond, otherwise the beeps get slowed down by the ESC.
+			count = 500 / LOOPTIME - 1; // So we enter only every 0.5 ms and
+			static bool send_beep; // alternate between pwm_set() and motorbeep().
+			if ( send_beep ) {
+#ifdef MOTOR_BEEPS
+	#ifndef MOTOR_BEEPS_CHANNEL
+		#define MOTOR_BEEPS_CHANNEL CH_OFF
+	#endif
+				motorbeep( MOTOR_BEEPS_CHANNEL );
+#endif
+			} else {
+				for ( int i = 0; i < 4; ++i ) {
+					pwm_set( i, 0 );
+				}
+			}
+			send_beep = ! send_beep;
+		}
 	} else { // motors on - normal flight
 		onground = 0;
 

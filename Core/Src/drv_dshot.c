@@ -21,7 +21,6 @@ extern bool failsafe;
 extern int onground;
 
 int pwmdir = 0;
-static unsigned long pwm_failsafe_time = 1;
 static uint32_t motor_data[ 48 ] = { 0 }; // Access to uint32_t array is overall 4 us faster than uint8_t.
 
 static void make_packet( uint8_t number, uint16_t value, bool telemetry );
@@ -29,9 +28,6 @@ static void bitbang_data( void );
 
 void pwm_init()
 {
-	// set failsafetime so signal is off at start
-	pwm_failsafe_time = gettime() - 100000;
-
 	for ( int i = 0; i <= 3; ++i ) {
 		pwm_set( i, 0 );
 	}
@@ -68,19 +64,6 @@ void pwm_set( uint8_t number, float pwm )
 
 	if ( onground ) {
 		value = 0; // stop the motors
-	}
-
-	if ( failsafe ) {
-		if ( ! pwm_failsafe_time ) {
-			pwm_failsafe_time = gettime();
-		} else {
-			// 100ms after failsafe we turn off the signal (for safety while flashing)
-			if ( gettime() - pwm_failsafe_time > 100000 ) {
-				value = 0;
-			}
-		}
-	} else {
-		pwm_failsafe_time = 0;
 	}
 
 	make_packet( number, value, false );

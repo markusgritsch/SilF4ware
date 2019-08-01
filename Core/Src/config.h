@@ -167,11 +167,13 @@
 #define FEED_FORWARD_STRENGTH 1.0f
 //#define SMART_FF
 
-// loop time in us
+// Loop time in us
 #define LOOPTIME 125
 
-// failsafe time in us. Shut motors down after FAILSAFETIME no RX signal.
-#define FAILSAFETIME 1000000 // one second
+// Failsafe time in us. Sets stick inputs to zero after FAILSAFETIME no RX signal. Keeps quad stabilized.
+#define FAILSAFETIME 500000 // 0.5 seconds
+// Motors failsafe time in us. Shuts motors down after additional MOTORS_FAILSAFETIME.
+#define MOTORS_FAILSAFETIME 2000000 // 2 seconds
 
 // Gyro orientation:
 // The expected orientation is with the dot on the chip in the front-left corner.

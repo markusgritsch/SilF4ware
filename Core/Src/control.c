@@ -5,6 +5,7 @@
 #include "angle_pid.h"
 #include "config.h"
 #include "drv_dshot.h"
+#include "drv_time.h"
 #include "filter.h"
 #include "pid.h"
 #include "stick_vector.h"
@@ -164,6 +165,19 @@ void control( void )
 	throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
 #endif
 
+	static unsigned long motors_failsafe_time = 1;
+	bool motors_failsafe = false;
+	if ( failsafe ) {
+		if ( motors_failsafe_time == 0 ) {
+			motors_failsafe_time = gettime();
+		}
+		if ( gettime() - motors_failsafe_time > MOTORS_FAILSAFETIME ) {
+			motors_failsafe = true; // MOTORS_FAILSAFETIME after failsafe we turn off the motors.
+		}
+	} else {
+		motors_failsafe_time = 0;
+	}
+
 	// Prevent startup if the TX is turned on with the THROTTLE_KILL_SWITCH not activated:
 	static bool tx_just_turned_on = true;
 	bool prevent_start = false;
@@ -174,12 +188,12 @@ void control( void )
 			tx_just_turned_on = false;
 		}
 	} else {
-		if ( failsafe ) {
-			tx_just_turned_on = true;
-		}
+		// if ( motors_failsafe ) {
+		// 	tx_just_turned_on = true;
+		// }
 	}
 
-	if ( failsafe || aux[ THROTTLE_KILL_SWITCH ] || prevent_start ) {
+	if ( motors_failsafe || aux[ THROTTLE_KILL_SWITCH ] || prevent_start ) {
 		onground = 1; // This stops the motors.
 		thrsum = 0.0f;
 		mixmax = 0.0f;

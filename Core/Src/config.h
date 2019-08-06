@@ -59,7 +59,7 @@
 // #define BIQUAD_NOTCH_C_Q 6
 
 #define GYRO_LPF_1ST_HZ_BASE 250 // Filter frequency at zero throttle.
-#define GYRO_LPF_1ST_HZ_MAX 250 // A higher filter frequency than loopfrequency/3 causes ripples.
+#define GYRO_LPF_1ST_HZ_MAX 250 // A higher filter frequency than loopfrequency/2.4 causes ripples.
 #define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
 
 // #define GYRO_LPF_2ND_HZ_BASE 400 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
@@ -88,9 +88,9 @@
 // To stop the motors on ground a switch on the remote control is necessary.
 #define THROTTLE_KILL_SWITCH DEVO_CHAN_5
 
-// enable inverted (3D) flight code (brushless only)
+// enable inverted (3D) flight code
 #define INVERTED_ENABLE
-#define FN_INVERTED DEVO_CHAN_6 // for brushless only
+#define FN_INVERTED DEVO_CHAN_6
 // #define LEVEL_MODE_INVERTED_ENABLE // be careful when enabling this
 
 // Two switchable channels via gestures: CH_AUX1 and CH_AUX2
@@ -122,7 +122,7 @@
 #define PID_GESTURE_TUNING
 #define COMBINE_PITCH_ROLL_PID_TUNING
 
-// a filter which makes throttle feel faster (aka Throttle Boost) (not active in LOW_RATES)
+// a filter which makes throttle feel faster (aka Throttle Boost) (not active in LOW_RATES or lowbatt)
 #define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 
 // For smoother motor reversing in 3D flight

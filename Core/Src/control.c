@@ -52,8 +52,8 @@ void control( void )
 	}
 
 #ifdef INVERTED_ENABLE
-	if ( ( aux[ FN_INVERTED ] && pwmdir != REVERSE ) || ( ! aux[ FN_INVERTED ] && pwmdir != FORWARD ) ) {
-		// On motor direction changed:
+	const bool motor_direction_changed = ( aux[ FN_INVERTED ] && pwmdir != REVERSE ) || ( ! aux[ FN_INVERTED ] && pwmdir != FORWARD );
+	if ( motor_direction_changed ) {
 		ierror[ 0 ] = ierror[ 1 ] = ierror[ 2 ] = 0.0f;
 		throttle_hpf_reset( 200 ); // ms
 		dterm_filter_reset( 0 ); // ms
@@ -235,12 +235,10 @@ void control( void )
 #endif
 
 #ifdef THROTTLE_REVERSING_KICK
-		// throttle = 0;
-		// pidoutput[ 0 ] = pidoutput[ 1 ] = pidoutput[ 2 ] = 0;
 		if ( throttle_reversing_kick > 0 ) {
-			if ( throttle < throttle_reversing_kick ) {
+			// if ( throttle < throttle_reversing_kick ) {
 				throttle = throttle_reversing_kick;
-			}
+			// }
 			throttle_reversing_kick -= throttle_reversing_kick_decrement;
 		}
 #endif

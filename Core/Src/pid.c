@@ -222,7 +222,7 @@ void pid( int x )
 	pidoutput[ x ] += ierror[ x ];
 
 	// D term
-	if ( pidkd[ x ] > 0 ) { // skip yaw D term if not set
+	if ( pidkd[ x ] > 0.0f ) { // skip yaw D term if not set
 		float dterm;
 		static float lastrate[ 3 ];
 #ifdef CASCADE_GYRO_AND_DTERM_FILTER

@@ -115,7 +115,7 @@
 #define RADIO_XN297 // also enable SOFTSPI_4WIRE in hardware.h
 // #define RADIO_XN297L // also enable SOFTSPI_3WIRE in hardware.h
 
-#define TX_POWER 1 // 0 .. 4
+#define TX_POWER 3 // 0 .. 3
 
 // led brightness 0 .. 15 (used for solid lights only)
 #define LED_BRIGHTNESS 15

@@ -25,6 +25,7 @@ float setpoint[ PIDNUMBER ];
 
 extern float vbattfilt; // battery.c
 extern float vbatt_comp;
+extern float battery_scale_factor;
 
 extern float gyro[ 3 ]; // sixaxis.c
 
@@ -58,8 +59,8 @@ void control( void )
 		throttle_hpf_reset( 200 ); // ms
 		dterm_filter_reset( 0 ); // ms
 #ifdef THROTTLE_REVERSING_KICK
-		throttle_reversing_kick = THROTTLE_REVERSING_KICK;
-		throttle_reversing_kick_decrement = THROTTLE_REVERSING_KICK * (float)LOOPTIME / 100000.0f; // 100 ms
+		throttle_reversing_kick = THROTTLE_REVERSING_KICK * battery_scale_factor;
+		throttle_reversing_kick_decrement = throttle_reversing_kick * (float)LOOPTIME / 100000.0f; // 100 ms
 #endif
 	}
 
@@ -270,8 +271,6 @@ void control( void )
 
 		throttle -= throttle_p + throttle_i;
 #endif
-
-		// throttle *= 2.0f /3.0f; // Limit throttle when flying with 3S because the motors cannot take more than 2S.
 
 #ifdef INVERT_YAW_PID
 		pidoutput[ 2 ] = -pidoutput[ 2 ];

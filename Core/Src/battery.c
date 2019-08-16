@@ -101,7 +101,7 @@ void battery( void )
 		vcomp[ z ] = tempvolt + (float)z * 0.1f * thrfilt;
 
 		if ( firstrun ) {
-			for ( int y = 0; y < BINS; ++y) {
+			for ( int y = 0; y < BINS; ++y ) {
 				lastin[ y ] = vcomp[ z ];
 			}
 			firstrun = 0;

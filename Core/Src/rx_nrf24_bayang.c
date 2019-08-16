@@ -30,6 +30,10 @@
 
 //#define RX_DATARATE_250K
 
+#ifndef TX_POWER
+#define TX_POWER 3
+#endif
+
 #define XN_TO_TX B00000010
 #define XN_TO_RX B00000011
 
@@ -184,7 +188,8 @@ void rx_init()
 #ifdef RX_DATARATE_250K
 	xn_writereg( RF_SETUP, B00100110 );     // power / data rate 250K
 #else
-	xn_writereg( RF_SETUP, B00000110 );    // power / data rate 1000K
+	// xn_writereg( RF_SETUP, B00000110 );    // power / data rate 1000K
+	xn_writereg( RF_SETUP, ( TX_POWER & 3 ) << 1 );    // power / data rate 1000K
 #endif
 
 	xn_writereg( RX_PW_P0, 15 + crc_en * 2 );  // payload size

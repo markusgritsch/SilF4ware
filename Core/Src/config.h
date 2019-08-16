@@ -74,7 +74,7 @@
 // Whether to use Bessel type filter for D-Term instead of PT2.
 // #define DTERM_BESSEL_FILTER
 
-// If enabled, the D-Term filter uses the LP filtered gyro signal from above.
+// If enabled, the D-Term filter uses the filtered gyro signal from above.
 #define CASCADE_GYRO_AND_DTERM_FILTER
 
 // Switch function selection
@@ -109,11 +109,13 @@
 #define DISPLAY_PID_VALUES
 
 // Radio module and protocol selection (only Bayang protocol implemented)
-#define RX_BAYANG_PROTOCOL_TELEMETRY // For XN297 radio module harvested from toy TX
-// #define RX_NRF24_BAYANG_TELEMETRY // For nRF24L01+ radio module
+#define RX_NRF24_BAYANG_TELEMETRY // For nRF24L01+ radio module
+// #define RX_BAYANG_PROTOCOL_TELEMETRY // For XN297 radio module harvested from toy TX
 
 #define RADIO_XN297 // also enable SOFTSPI_4WIRE in hardware.h
 // #define RADIO_XN297L // also enable SOFTSPI_3WIRE in hardware.h
+
+#define TX_POWER 1 // 0 .. 4
 
 // led brightness 0 .. 15 (used for solid lights only)
 #define LED_BRIGHTNESS 15
@@ -126,7 +128,7 @@
 #define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 
 // For smoother motor reversing in 3D flight
-#define THROTTLE_REVERSING_KICK 0.1f
+#define THROTTLE_REVERSING_KICK 0.2f
 
 // Add linear interpolation between the otherwise 5 ms staircase steps of the RX signal
 #define RX_SMOOTHING
@@ -171,9 +173,9 @@
 #define LOOPTIME 125
 
 // Failsafe time in us. Sets stick inputs to zero after FAILSAFETIME no RX signal. Keeps quad stabilized.
-#define FAILSAFETIME 500000 // 0.5 seconds
+#define FAILSAFETIME 100000 // 0.1 seconds
 // Motors failsafe time in us. Shuts motors down after additional MOTORS_FAILSAFETIME.
-#define MOTORS_FAILSAFETIME 2000000 // 2 seconds
+#define MOTORS_FAILSAFETIME 3000000 // 3 seconds
 
 // Gyro orientation:
 // The expected orientation is with the dot on the chip in the front-left corner.

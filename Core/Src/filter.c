@@ -210,11 +210,13 @@ static float gyro_lpf_last[ 3 ];
 float gyro_lpf_filter( float in, int num )
 {
 	static bool base_and_max_differ = true; // initialize with true so we enter at least once
-	if ( base_and_max_differ && num == 0 ) { // recalculate coeff
+	static float f_base, f_max;
+	const bool base_or_max_changed = f_base != GYRO_LPF_1ST_HZ_BASE || f_max != GYRO_LPF_1ST_HZ_MAX;
+	if ( ( base_and_max_differ || base_or_max_changed ) && num == 0 ) { // recalculate coeffs
 		base_and_max_differ = GYRO_LPF_1ST_HZ_BASE != GYRO_LPF_1ST_HZ_MAX;
 		const float throttle = rxcopy[ 3 ];
-		const float f_base = GYRO_LPF_1ST_HZ_BASE;
-		const float f_max = GYRO_LPF_1ST_HZ_MAX;
+		f_base = GYRO_LPF_1ST_HZ_BASE;
+		f_max = GYRO_LPF_1ST_HZ_MAX;
 		const float throttle_breakpoint = GYRO_LPF_1ST_HZ_THROTTLE;
 		float filter_Hz = f_base + throttle / throttle_breakpoint * ( f_max - f_base );
 		if ( filter_Hz > f_max ) {
@@ -241,11 +243,13 @@ static FilterLPF2_t gyro_lpf2[ 3 ];
 float gyro_lpf2_filter( float in, int num )
 {
 	static bool base_and_max_differ = true; // initialize with true so we enter at least once
-	if ( base_and_max_differ && num == 0 ) { // recalculate coeffs
+	static float f_base, f_max;
+	const bool base_or_max_changed = f_base != GYRO_LPF_2ND_HZ_BASE || f_max != GYRO_LPF_2ND_HZ_MAX;
+	if ( ( base_and_max_differ || base_or_max_changed ) && num == 0 ) { // recalculate coeffs
 		base_and_max_differ = GYRO_LPF_2ND_HZ_BASE != GYRO_LPF_2ND_HZ_MAX;
 		const float throttle = rxcopy[ 3 ];
-		const float f_base = GYRO_LPF_2ND_HZ_BASE;
-		const float f_max = GYRO_LPF_2ND_HZ_MAX;
+		f_base = GYRO_LPF_2ND_HZ_BASE;
+		f_max = GYRO_LPF_2ND_HZ_MAX;
 		const float throttle_breakpoint = GYRO_LPF_2ND_HZ_THROTTLE;
 		if ( throttle_breakpoint != 0.0f ) {
 #if 1
@@ -280,11 +284,13 @@ static FilterLPF2_t dterm_lpf2[ 3 ];
 float dterm_filter( float in, int num )
 {
 	static bool base_and_max_differ = true; // initialize with true so we enter at least once
-	if ( base_and_max_differ && num == 0 ) { // recalculate coeffs
+	static float f_base, f_max;
+	const bool base_or_max_changed = f_base != DTERM_LPF_2ND_HZ_BASE || f_max != DTERM_LPF_2ND_HZ_MAX;
+	if ( ( base_and_max_differ || base_or_max_changed ) && num == 0 ) { // recalculate coeffs
 		base_and_max_differ = DTERM_LPF_2ND_HZ_BASE != DTERM_LPF_2ND_HZ_MAX;
 		const float throttle = rxcopy[ 3 ];
-		const float f_base = DTERM_LPF_2ND_HZ_BASE;
-		const float f_max = DTERM_LPF_2ND_HZ_MAX;
+		f_base = DTERM_LPF_2ND_HZ_BASE;
+		f_max = DTERM_LPF_2ND_HZ_MAX;
 		const float throttle_breakpoint = DTERM_LPF_2ND_HZ_THROTTLE;
 		if ( throttle_breakpoint != 0.0f ) {
 			float filter_Hz = f_base + throttle / throttle_breakpoint * ( f_max - f_base );

@@ -300,16 +300,20 @@ void control( void )
 
 #ifdef MIX_SCALING
 	#ifdef TRANSIENT_MIX_INCREASING_HZ
-		float transientMixIncreaseLimit = 0.0f;
-		static float avgRxcopy[ 4 ];
+		float maxSpeedRxcopy = 0.0f;
+		static float lastRxcopy[ 4 ];
 		for ( int i = 0; i < 4; ++i ) {
-			lpf( &avgRxcopy[ i ], rxcopy[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)TRANSIENT_MIX_INCREASING_HZ ) ) );
-			const float hpfRxcopy = rxcopy[ i ] - avgRxcopy[ i ]; // HPF = input - average_input
-			if ( fabsf( hpfRxcopy ) > transientMixIncreaseLimit ) {
-				transientMixIncreaseLimit = fabsf( hpfRxcopy );
+			const float absSpeedRxcopy = fabsf( rxcopy[ i ] - lastRxcopy[ i ] ) / LOOPTIME * 1e6f * 0.1f;
+			lastRxcopy[ i ] = rxcopy[ i ];
+			if ( absSpeedRxcopy > maxSpeedRxcopy ) {
+				maxSpeedRxcopy = absSpeedRxcopy;
 			}
 		}
-		transientMixIncreaseLimit *= 4.0f; // some scaling
+		static float transientMixIncreaseLimit;
+		lpf( &transientMixIncreaseLimit, maxSpeedRxcopy, ALPHACALC( LOOPTIME, 1e6f / (float)TRANSIENT_MIX_INCREASING_HZ ) );
+		if ( transientMixIncreaseLimit > 1.0f ) {
+			transientMixIncreaseLimit = 1.0f;
+		}
 	#endif // TRANSIENT_MIX_INCREASING_HZ
 
 		float minMix = 1000.0f;
@@ -335,18 +339,20 @@ void control( void )
 			if ( maxMix > 1.0f ) {
 				reduceAmount = maxMix - 1.0f;
 			}
-	#ifdef ALLOW_MIX_INCREASING
 			else if ( minMix < 0.0f ) {
 				reduceAmount = minMix;
-		#ifdef TRANSIENT_MIX_INCREASING_HZ
-				if ( reduceAmount < -transientMixIncreaseLimit ) {
-					reduceAmount = -transientMixIncreaseLimit;
-				}
-		#endif // TRANSIENT_MIX_INCREASING_HZ
 			}
-	#endif // ALLOW_MIX_INCREASING
 		}
+	#ifdef ALLOW_MIX_INCREASING
 		if ( reduceAmount != 0.0f ) {
+	#else
+		if ( reduceAmount > 0.0f ) {
+	#endif	 // ALLOW_MIX_INCREASING
+	#ifdef TRANSIENT_MIX_INCREASING_HZ
+			if ( reduceAmount < -transientMixIncreaseLimit ) {
+				reduceAmount = -transientMixIncreaseLimit;
+			}
+	#endif // TRANSIENT_MIX_INCREASING_HZ
 			for ( int i = 0; i < 4; ++i ) {
 				mix[ i ] -= reduceAmount;
 			}
@@ -361,8 +367,8 @@ void control( void )
 #if defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
 
 			extern int idle_offset;
-#if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
 			static int orig_idle_offset = 0;
+#if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
 			if ( orig_idle_offset == 0 ) {
 				orig_idle_offset = idle_offset;
 			}

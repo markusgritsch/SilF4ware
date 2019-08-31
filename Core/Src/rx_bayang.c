@@ -246,6 +246,10 @@ extern float vbatt_comp;
 
 static void send_telemetry()
 {
+	xn_command( FLUSH_TX );
+
+	xn_writereg( 0, XN_TO_TX );
+
 	int txdata[ 15 ];
 	for ( int i = 0; i < 15; ++i ) {
 		txdata[ i ] = i;
@@ -326,10 +330,6 @@ static void send_telemetry()
 	}
 
 	txdata[ 14 ] = sum;
-
-	xn_command( FLUSH_TX );
-
-	xn_writereg( 0, XN_TO_TX );
 
 	xn_writepayload( txdata, 15 );
 

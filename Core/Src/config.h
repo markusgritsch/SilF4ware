@@ -49,7 +49,7 @@
 
 // Software Gyro Filters
 
-// #define BIQUAD_NOTCH_A_HZ 270
+// #define BIQUAD_NOTCH_A_HZ 260
 // #define BIQUAD_NOTCH_A_Q 6
 
 // #define BIQUAD_NOTCH_B_HZ 310
@@ -68,7 +68,7 @@
 
 // D-Term second order LPF (cannot be turned off)
 #define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
-#define DTERM_LPF_2ND_HZ_MAX 80
+#define DTERM_LPF_2ND_HZ_MAX 60
 #define DTERM_LPF_2ND_HZ_THROTTLE 0.5
 
 // Whether to use Bessel type filter for D-Term instead of PT2.
@@ -138,7 +138,7 @@
 // Mix increasing yields a more crisp response but also a more jumpy quad at low RPM
 #define ALLOW_MIX_INCREASING
 // A higher value means a shorter active increasing period (shorter bouncy period)
-#define TRANSIENT_MIX_INCREASING_HZ 5
+#define TRANSIENT_MIX_INCREASING_HZ 2.0
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
 #define THRUST_LINEARIZATION 0.5f // 0.0f .. no compensation, 1.0f .. full square root curve

@@ -338,8 +338,7 @@ void control( void )
 		} else {
 			if ( maxMix > 1.0f ) {
 				reduceAmount = maxMix - 1.0f;
-			}
-			else if ( minMix < 0.0f ) {
+			} else if ( minMix < 0.0f ) {
 				reduceAmount = minMix;
 			}
 		}
@@ -347,7 +346,7 @@ void control( void )
 		if ( reduceAmount != 0.0f ) {
 	#else
 		if ( reduceAmount > 0.0f ) {
-	#endif	 // ALLOW_MIX_INCREASING
+	#endif // ALLOW_MIX_INCREASING
 	#ifdef TRANSIENT_MIX_INCREASING_HZ
 			if ( reduceAmount < -transientMixIncreaseLimit ) {
 				reduceAmount = -transientMixIncreaseLimit;

@@ -39,7 +39,7 @@ static float pdScaleValue; // updated in pid_precalc()
 // unscaled PID values tuned for 4S
 //                         { roll, pitch, yaw }
 float pidkp[ PIDNUMBER ] = { 0.04, 0.04, 0.05 };
-float pidki[ PIDNUMBER ] = { 0.5, 0.5, 2.0 };
+float pidki[ PIDNUMBER ] = { 0.5, 0.5, 3.0 };
 float pidkd[ PIDNUMBER ] = { 0.2, 0.2, 0.0 };
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
@@ -325,8 +325,13 @@ int next_pid_term( void )
 			current_pid_term = 1;
 			break;
 		case 1:
-			current_pid_term_pointer = pidkd;
-			current_pid_term = 2;
+			if ( pidkd[ current_pid_axis ] == 0.0f ) { // Skip a zero D term, and go directly to P
+				current_pid_term_pointer = pidkp;
+				current_pid_term = 0;
+			} else {
+				current_pid_term_pointer = pidkd;
+				current_pid_term = 2;
+			}
 			break;
 		case 2:
 			current_pid_term_pointer = pidkp;

@@ -29,8 +29,8 @@ extern float battery_scale_factor;
 
 extern float gyro[ 3 ]; // sixaxis.c
 
+extern int pwmdir; // drv_dshot.c
 extern float pidoutput[ PIDNUMBER ]; // pid.c
-extern int pwmdir; // pid.c
 extern float ierror[ PIDNUMBER ]; // pid.c
 
 extern bool failsafe; // rx.c
@@ -99,6 +99,7 @@ void control( void )
 			static int step_count = 5000 / LOOPTIME; // Spread it evenly over 5 ms (PACKET_PERIOD)
 			stepRX[ i ] = ( rxcopy[ i ] - lastRXcopy[ i ] ) / step_count;
 			countRX[ i ] = step_count;
+			rxsmooth[ i ] = lastRXcopy[ i ];
 			lastRXcopy[ i ] = rxcopy[ i ];
 		}
 		if ( countRX[ i ] > 0 ) {
@@ -248,28 +249,31 @@ void control( void )
 		static float throttle_i = 0.0f;
 		float throttle_p = 0.0f;
 
-			if ( vbattfilt < (float)LVC_LOWER_THROTTLE_VOLTAGE_RAW ) {
-				throttle_p = ( (float)LVC_LOWER_THROTTLE_VOLTAGE_RAW - vbattfilt ) * (float)LVC_LOWER_THROTTLE_KP;
-			}
-			if ( vbatt_comp < (float)LVC_LOWER_THROTTLE_VOLTAGE ) {
-				throttle_p = ( (float)LVC_LOWER_THROTTLE_VOLTAGE - vbatt_comp ) * (float)LVC_LOWER_THROTTLE_KP;
-			}
-			if ( throttle_p > 1.0f ) {
-				throttle_p = 1.0f;
-			}
-			if ( throttle_p > 0 ) {
-				throttle_i += throttle_p * 0.0001f; // ki
-			} else {
-				throttle_i -= 0.001f; // ki on release
-			}
+		if ( vbattfilt < (float)LVC_LOWER_THROTTLE_VOLTAGE_RAW ) {
+			throttle_p = ( (float)LVC_LOWER_THROTTLE_VOLTAGE_RAW - vbattfilt ) * (float)LVC_LOWER_THROTTLE_KP;
+		}
+		if ( vbatt_comp < (float)LVC_LOWER_THROTTLE_VOLTAGE ) {
+			throttle_p = ( (float)LVC_LOWER_THROTTLE_VOLTAGE - vbatt_comp ) * (float)LVC_LOWER_THROTTLE_KP;
+		}
+		if ( throttle_p > 1.0f ) {
+			throttle_p = 1.0f;
+		}
+		if ( throttle_p > 0 ) {
+			throttle_i += throttle_p * 0.0001f; // ki
+		} else {
+			throttle_i -= 0.001f; // ki on release
+		}
 
-			if ( throttle_i > 0.5f ) {
-				throttle_i = 0.5f;
-			} else if ( throttle_i < 0.0f ) {
-				throttle_i = 0.0f;
-			}
+		if ( throttle_i > 0.5f ) {
+			throttle_i = 0.5f;
+		} else if ( throttle_i < 0.0f ) {
+			throttle_i = 0.0f;
+		}
 
 		throttle -= throttle_p + throttle_i;
+		if ( throttle < 0.0f ) {
+			throttle = 0.0f;
+		}
 #endif
 
 #ifdef INVERT_YAW_PID

@@ -41,6 +41,8 @@ extern float aux_analog[ 2 ];
 extern bool ledcommand; // led.c
 
 float rxcopy[ 4 ];
+float bb_throttle;
+float bb_mix[ 4 ];
 
 void control( void )
 {
@@ -281,6 +283,7 @@ void control( void )
 #endif
 
 		float mix[ 4 ];
+		bb_throttle = throttle;
 
 #ifdef INVERTED_ENABLE
 		if ( pwmdir == REVERSE ) { // inverted flight
@@ -421,6 +424,7 @@ void control( void )
 #endif
 
 			pwm_set( i, mix[ i ] );
+			bb_mix[ i ] = mix[ i ];
 
 			thrsum += mix[ i ];
 			if ( mixmax < mix[ i ] ) {

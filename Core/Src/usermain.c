@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include "battery.h"
+#include "blackbox.h"
 #include "config.h"
 #include "control.h"
 #include "drv_adc.h"
@@ -42,6 +43,7 @@ void usermain()
 	battery_init(); // Must be called before gyro_cal() to send initial battery voltage there.
 	gyro_cal();
 	imu_init();
+	blackbox_init();
 
 	lastlooptime = gettime() - LOOPTIME;
 
@@ -59,9 +61,11 @@ void usermain()
 			sixaxis_read(); // read gyro and accelerometer data
 			imu(); // attitude calculations for level mode
 		} else {
-			gyro_read(); // read gyro data
+			// gyro_read(); // read just gyro data
+			sixaxis_read(); // read gyro and accelerometer data for blackbox logging
 		}
 		control(); // all flight calculations and motors
+		blackbox_log();
 		battery();
 		if ( onground ) {
 			gestures(); // check gestures

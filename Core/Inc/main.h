@@ -66,10 +66,6 @@ void Error_Handler(void);
 #define PA0_GPIO_Port GPIOA
 #define ESC1_Pin GPIO_PIN_1
 #define ESC1_GPIO_Port GPIOA
-#define PA2_Pin GPIO_PIN_2
-#define PA2_GPIO_Port GPIOA
-#define PA3_Pin GPIO_PIN_3
-#define PA3_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_4
 #define LED_GPIO_Port GPIOA
 #define VOLTAGE_DIVIDER_Pin GPIO_PIN_5

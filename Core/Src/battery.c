@@ -5,6 +5,7 @@
 #include "drv_time.h"
 #include "filter.h"
 
+float bb_battadc;
 float vbattfilt = 4.2; // filtered battery voltage
 float vbatt_comp = 4.2; // compensated for sag by motor sum
 static float vbattfilt_corr = 4.2; // Huge time constant filtered, used in Li-Ion model
@@ -66,6 +67,7 @@ void battery_init( void )
 void battery( void )
 {
 	const float battadc = vbatt_read();
+	bb_battadc = battadc;
 	lpf( &vbattfilt, battadc, ALPHACALC( LOOPTIME, 2 * PI_F * 0.5e6f ) ); // 0.5 seconds time constant (tau)
 
 	// battery low logic

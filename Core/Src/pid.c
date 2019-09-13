@@ -87,6 +87,11 @@ static float lasterror2[ PIDNUMBER ];
 float timefactor;
 static float v_compensation = 1.0f;
 
+float bb_p[ 3 ];
+float bb_i[ 3 ];
+float bb_d[ 2 ];
+float bb_ff[ 3 ];
+
 // pid calculation for acro ( rate ) mode
 // input: error[ x ] = setpoint - gyro
 // output: pidoutput[ x ] = change required from motors
@@ -144,6 +149,7 @@ void pid( int x )
 #else // b disabled
 	pidoutput[ x ] = error[ x ] * pidkp[ x ] * AA_pidkp;
 #endif
+	bb_p[ x ] = pidoutput[ x ];
 
 // https://www.rcgroups.com/forums/showpost.php?p=39606684&postcount=13846
 // https://www.rcgroups.com/forums/showpost.php?p=39667667&postcount=13956
@@ -216,11 +222,13 @@ void pid( int x )
 #else
 		pidoutput[ x ] += ff;
 #endif
+		bb_ff[ x ] = ff;
 	}
 #endif
 
 	// I term
 	pidoutput[ x ] += ierror[ x ];
+	bb_i[ x ] = ierror[ x ];
 
 	// D term
 	if ( pidkd[ x ] > 0.0f ) { // skip yaw D term if not set
@@ -235,6 +243,7 @@ void pid( int x )
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
 		dterm = dterm_filter( dterm, x );
 		pidoutput[ x ] += dterm;
+		bb_d[ x ] = dterm;
 	}
 
 #ifdef PID_VOLTAGE_COMPENSATION

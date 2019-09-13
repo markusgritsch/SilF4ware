@@ -11,6 +11,8 @@
 #define SCKLOW gpioreset(SPI_CLK_GPIO_Port, SPI_CLK_Pin);
 
 #define READMISO (SPI_MISO_GPIO_Port->IDR & SPI_MISO_Pin)
+// #define DELAY_O3 _NOP_ _NOP_ // necessary when the loop is unrolled i.e. with -O3
+#define DELAY_O3
 
 void spi_sendbyte( int data )
 {
@@ -22,7 +24,7 @@ void spi_sendbyte( int data )
 			MOSILOW;
 		}
 		SCKHIGH;
-		_NOP_ _NOP_
+		DELAY_O3
 	}
 	SCKLOW;
 }
@@ -34,12 +36,12 @@ int spi_sendzerorecvbyte()
 	for ( int i = 7; i >= 0; --i ) {
 		recv = recv << 1;
 		SCKHIGH;
-		_NOP_ _NOP_
+		DELAY_O3
 		if ( READMISO ) {
 			recv = recv | 1;
 		}
 		SCKLOW;
-		_NOP_ _NOP_
+		DELAY_O3
 	}
 	return recv;
 }

@@ -1,6 +1,6 @@
 import os, struct, datetime
 
-craftOrientationMode = 2 # 0 .. use gyro and accelerometer, 1 .. use gyro only, 2 .. do not rotate craft display
+craftOrientationMode = 0 # 0 .. use gyro and accelerometer, 1 .. use gyro only, 2 .. do not rotate craft display
 
 def writeLogStartMarker( f ):
 	f.write( 'H Product:Blackbox flight data recorder by Nicholas Sherlock\n' ) # log start marker

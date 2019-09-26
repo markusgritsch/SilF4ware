@@ -52,7 +52,7 @@
 // #define BIQUAD_NOTCH_A_HZ 260
 // #define BIQUAD_NOTCH_A_Q 6
 
-// #define BIQUAD_NOTCH_B_HZ 310
+// #define BIQUAD_NOTCH_B_HZ 330
 // #define BIQUAD_NOTCH_B_Q 6
 
 // #define BIQUAD_NOTCH_C_HZ 380
@@ -130,6 +130,8 @@
 // For smoother motor reversing in 3D flight
 #define THROTTLE_REVERSING_KICK 0.2f
 
+// Continue stick movement with the current stick velocity in case of lost packets
+#define RX_PREDICTOR
 // Add linear interpolation between the otherwise 5 ms staircase steps of the RX signal
 #define RX_SMOOTHING
 
@@ -173,7 +175,7 @@
 #define LOOPTIME 125
 
 // Failsafe time in us. Sets stick inputs to zero after FAILSAFETIME no RX signal. Keeps quad stabilized.
-#define FAILSAFETIME 100000 // 0.1 seconds
+#define FAILSAFETIME 150000 // 0.15 seconds
 // Motors failsafe time in us. Shuts motors down after additional MOTORS_FAILSAFETIME.
 #define MOTORS_FAILSAFETIME 3000000 // 3 seconds
 

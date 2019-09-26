@@ -197,7 +197,7 @@ def parseFile( f, f_out ):
 					nextFramestartFound = False
 					f.seek( -9, 1 )
 			if iteration % 2000 == 0:
-				print '  %i%%' % ( f.tell() / float( size ) * 100 )
+				print '  %4.1f%%' % ( f.tell() / float( size ) * 100 )
 
 	writeLogEndMarker( f_out )
 
@@ -205,11 +205,11 @@ for filename in os.listdir( '.' ):
 	if ( filename[ : 3 ] == 'LOG' and filename[ -4 : ] == '.TXT' ):
 		print 'converting file "%s"' % filename
 		f_in = open( filename, 'rb' )
-		f_out = open( filename[ : -4 ] + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.bbl', 'wb' )
+		f_out = open( datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S') + ' SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
 		parseFile( f_in, f_out )
 		f_out.close()
 		f_in.close()
-		# os.remove( filename )
+		os.remove( filename )
 		print
 
 print 'all done'

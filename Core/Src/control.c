@@ -227,9 +227,10 @@ void control( void )
 		onground = 0;
 
 #ifdef THROTTLE_TRANSIENT_COMPENSATION_FACTOR
+		const float transient_value = throttle_hpf( throttle ); // Keep the HPF call in the loop to keep its state updated.
 		extern bool lowbatt;
 		if ( aux[ RATES ] && ! lowbatt ) {
-			throttle += (float)THROTTLE_TRANSIENT_COMPENSATION_FACTOR * throttle_hpf( throttle );
+			throttle += (float)THROTTLE_TRANSIENT_COMPENSATION_FACTOR * transient_value;
 			if ( throttle < 0.0f ) {
 				throttle = 0;
 			} else if ( throttle > 1.0f ) {

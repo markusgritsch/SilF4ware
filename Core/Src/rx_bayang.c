@@ -341,8 +341,8 @@ static char checkpacket()
 {
 	int status = xn_readreg( 7 );
 #if 1
-	if ( status & ( 1 << MASK_RX_DR ) ) { // RX packet received
-		xn_writereg( STATUS, 1 << MASK_RX_DR ); // rx clear bit
+	if ( status & ( 1 << RX_DR ) ) { // RX packet received
+		xn_writereg( STATUS, 1 << RX_DR ); // rx clear bit
 		return 1;
 	}
 #else
@@ -466,6 +466,11 @@ void checkrx( void )
 
 	const int packetreceived = checkpacket();
 
+	static unsigned long last_good_rx_time;
+	static unsigned long next_predictor_time;
+	static float last_good_rx[ 4 ];
+	static float rx_velocity[ 4 ];
+
 	if ( packetreceived ) {
 		if ( rxmode == RX_MODE_BIND ) { // rx startup, bind mode
 			xn_readpayload( rxdata, 15 );
@@ -532,6 +537,16 @@ void checkrx( void )
 				// if ( ! telemetry_send && ! send_telemetry_next_loop ) {
 				// 	nextchannel();
 				// }
+
+#ifdef RX_PREDICTOR
+				const float timefactor = 1.0f / ( temptime - last_good_rx_time );
+				last_good_rx_time = temptime;
+				next_predictor_time = last_good_rx_time + packet_period;
+				for ( int i = 0; i < 4; ++i ) {
+					rx_velocity[ i ] = ( rx[ i ] - last_good_rx[ i ] ) * timefactor;
+					last_good_rx[ i ] = rx[ i ];
+				}
+#endif // RX_PREDICTOR
 			} else {
 #ifdef RXDEBUG
 				++failcount;
@@ -572,12 +587,45 @@ void checkrx( void )
 		}
 	}
 
+	// The RX FIFO needs to be flushed, otherwise we may read an outdated packet when regaining the signal.
+	static bool rx_already_flushed = false;
+	if ( time - lastrxtime > packet_period ) {
+		if ( ! rx_already_flushed ) {
+			xn_command( FLUSH_RX );
+			rx_already_flushed = true;
+		}
+	} else {
+		rx_already_flushed = false;
+	}
+
+#ifdef RX_PREDICTOR
+	if ( time >= next_predictor_time &&
+		next_predictor_time - last_good_rx_time <= 10 * packet_period ) // Stop predicting after noo many missed packets in a row.
+	{
+		next_predictor_time += packet_period; // Predict new values only at packet_period intervals.
+		for ( int i = 0; i < 4; ++i ) {
+			// Check for sane stick velocity
+			if ( fabsf( rx_velocity[ i ] ) < 50.0f / 500.0f / 5000.0f ) { // v < 20.0/sec i.e. 0.05 sec from 0.0 to 1.0
+				rx[ i ] = last_good_rx[ i ] + rx_velocity[ i ] * ( time - last_good_rx_time );
+				if ( ( last_good_rx[ i ] > 0.0f && rx[ i ] < 0.0f ) || ( last_good_rx[ i ] < 0.0f && rx[ i ] > 0.0f ) ) {
+					rx[ i ] = 0.0f;
+				} else if ( rx[ i ] > 1.0f ) {
+					rx[ i ] = 1.0f;
+				} else if ( rx[ i ] < -1.0f ) {
+					rx[ i ] = -1.0f;
+				}
+			}
+		}
+	}
+#endif // RX_PREDICTOR
+
 	if ( time - failsafetime > FAILSAFETIME ) { // failsafe
 		failsafe = true;
-		rx[ 0 ] = 0;
-		rx[ 1 ] = 0;
-		rx[ 2 ] = 0;
-		rx[ 3 ] = 0;
+		for ( int i = 0; i < 4; ++i ) {
+			rx[ i ] = 0.0f;
+			last_good_rx[ i ] = 0.0f;
+			rx_velocity[ i ] = 0.0f;
+		}
 	}
 
 	if ( ! failsafe ) {

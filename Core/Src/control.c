@@ -161,14 +161,6 @@ void control( void )
 	pid( 1 );
 	pid( 2 );
 
-	float throttle = rxcopy[ 3 ];
-
-#ifdef THRUST_LINEARIZATION
-	#define AA_motorCurve THRUST_LINEARIZATION // 0 .. linear, 1 .. quadratic
-	const float aa = AA_motorCurve;
-	throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
-#endif
-
 	static unsigned long motors_failsafe_time = 1;
 	bool motors_failsafe = false;
 	if ( failsafe ) {
@@ -226,11 +218,19 @@ void control( void )
 	} else { // motors on - normal flight
 		onground = 0;
 
+		float throttle = rxcopy[ 3 ];
+
+#ifdef THRUST_LINEARIZATION
+		#define AA_motorCurve THRUST_LINEARIZATION // 0 .. linear, 1 .. quadratic
+		const float aa = AA_motorCurve;
+		throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
+#endif
+
 #ifdef THROTTLE_TRANSIENT_COMPENSATION_FACTOR
-		const float transient_value = throttle_hpf( throttle ); // Keep the HPF call in the loop to keep its state updated.
+		const float throttle_boost = throttle_hpf( throttle ); // Keep the HPF call in the loop to keep its state updated.
 		extern bool lowbatt;
 		if ( aux[ RATES ] && ! lowbatt ) {
-			throttle += (float)THROTTLE_TRANSIENT_COMPENSATION_FACTOR * transient_value;
+			throttle += (float)THROTTLE_TRANSIENT_COMPENSATION_FACTOR * throttle_boost;
 			if ( throttle < 0.0f ) {
 				throttle = 0;
 			} else if ( throttle > 1.0f ) {

@@ -323,7 +323,8 @@ void dterm_filter_reset( int holdoff_time_ms )
 
 // 16 Hz hpf filter for throttle boost
 typedef struct FilterHPF_s {
-	float last_lpf;
+	float in_lpf;
+	float avg_boost;
 	int holdoff_steps;
 } FilterHPF_t;
 
@@ -331,18 +332,20 @@ static FilterHPF_t throttle_hpf1;
 
 float throttle_hpf( float in )
 {
-	lpf( &throttle_hpf1.last_lpf, in, ALPHACALC( LOOPTIME, 1e6f / 16.0f ) ); // 16 Hz
+	lpf( &throttle_hpf1.in_lpf, in, ALPHACALC( LOOPTIME, 1e6f / 16.0f ) ); // 16 Hz for HPF
 
 	if ( throttle_hpf1.holdoff_steps > 0 ) {
 		--throttle_hpf1.holdoff_steps;
 		return 0.0f;
 	}
 
-	return in - throttle_hpf1.last_lpf; // HPF = input - average_input
+	const float boost = in - throttle_hpf1.in_lpf; // HPF = input - average_input
+	lpf( &throttle_hpf1.avg_boost, boost, ALPHACALC( LOOPTIME, 1e6f / 8.0f ) ); // 8 Hz for LPF
+	return throttle_hpf1.avg_boost;
 }
 
 void throttle_hpf_reset( int holdoff_time_ms )
 {
-	throttle_hpf1.last_lpf = 0.0f;
+	throttle_hpf1.in_lpf = 0.0f;
 	throttle_hpf1.holdoff_steps = holdoff_time_ms * 1000 / LOOPTIME;
 }

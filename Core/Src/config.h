@@ -58,13 +58,13 @@
 // #define BIQUAD_NOTCH_C_HZ 380
 // #define BIQUAD_NOTCH_C_Q 6
 
-#define GYRO_LPF_1ST_HZ_BASE 250 // Filter frequency at zero throttle.
-#define GYRO_LPF_1ST_HZ_MAX 250 // A higher filter frequency than loopfrequency/2.4 causes ripples.
-#define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
+// #define GYRO_LPF_1ST_HZ_BASE 250 // Filter frequency at zero throttle.
+// #define GYRO_LPF_1ST_HZ_MAX 250 // A higher filter frequency than loopfrequency/2.4 causes ripples.
+// #define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
 
-// #define GYRO_LPF_2ND_HZ_BASE 400 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
-// #define GYRO_LPF_2ND_HZ_MAX 400
-// #define GYRO_LPF_2ND_HZ_THROTTLE 0.25
+#define GYRO_LPF_2ND_HZ_BASE 120 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
+#define GYRO_LPF_2ND_HZ_MAX 120
+#define GYRO_LPF_2ND_HZ_THROTTLE 0.25
 
 // D-Term second order LPF (cannot be turned off)
 #define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )

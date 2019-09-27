@@ -640,7 +640,7 @@ void checkrx( void )
 
 #ifdef RX_PREDICTOR
 	if ( time >= next_predictor_time &&
-		next_predictor_time - last_good_rx_time <= 10 * packet_period ) // Stop predicting after noo many missed packets in a row.
+		next_predictor_time - last_good_rx_time <= 15 * packet_period ) // Stop predicting after noo many missed packets in a row.
 	{
 		next_predictor_time += packet_period; // Predict new values only at packet_period intervals.
 		for ( int i = 0; i < 4; ++i ) {

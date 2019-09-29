@@ -58,24 +58,26 @@
 // #define BIQUAD_NOTCH_C_HZ 380
 // #define BIQUAD_NOTCH_C_Q 6
 
-// #define GYRO_LPF_1ST_HZ_BASE 250 // Filter frequency at zero throttle.
-// #define GYRO_LPF_1ST_HZ_MAX 250 // A higher filter frequency than loopfrequency/2.4 causes ripples.
-// #define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
+#define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.
+#define GYRO_LPF_1ST_HZ_MAX 120 // A higher filter frequency than loopfrequency/2.4 causes ripples.
+#define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
 
-#define GYRO_LPF_2ND_HZ_BASE 120 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
-#define GYRO_LPF_2ND_HZ_MAX 120
-#define GYRO_LPF_2ND_HZ_THROTTLE 0.25
+// #define GYRO_LPF_2ND_HZ_BASE 240 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
+// #define GYRO_LPF_2ND_HZ_MAX 240
+// #define GYRO_LPF_2ND_HZ_THROTTLE 0.25
 
 // D-Term second order LPF (cannot be turned off)
 #define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
 #define DTERM_LPF_2ND_HZ_MAX 60
 #define DTERM_LPF_2ND_HZ_THROTTLE 0.5
 
+#define DTERM_LPF_1ST_HZ 60
+
 // Whether to use Bessel type filter for D-Term instead of PT2.
 // #define DTERM_BESSEL_FILTER
 
 // If enabled, the D-Term filter uses the filtered gyro signal from above.
-#define CASCADE_GYRO_AND_DTERM_FILTER
+//#define CASCADE_GYRO_AND_DTERM_FILTER
 
 // Switch function selection
 
@@ -168,7 +170,7 @@
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response
 // 0.0f (or commented out) equates D-term on measurement, 1.0f equates D-term on error.
-#define FEED_FORWARD_STRENGTH 1.0f
+//#define FEED_FORWARD_STRENGTH 1.0f
 //#define SMART_FF
 
 // Loop time in us

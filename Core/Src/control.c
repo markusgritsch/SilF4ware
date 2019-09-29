@@ -318,7 +318,7 @@ void control( void )
 			}
 		}
 		static float transientMixIncreaseLimit;
-		lpf( &transientMixIncreaseLimit, maxSpeedRxcopy, ALPHACALC( LOOPTIME, 1e6f / (float)TRANSIENT_MIX_INCREASING_HZ ) );
+		lpf( &transientMixIncreaseLimit, maxSpeedRxcopy, ALPHACALC( LOOPTIME, 1e6f / (float)( TRANSIENT_MIX_INCREASING_HZ ) ) );
 		if ( transientMixIncreaseLimit > 1.0f ) {
 			transientMixIncreaseLimit = 1.0f;
 		}

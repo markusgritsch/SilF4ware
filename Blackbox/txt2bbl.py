@@ -1,3 +1,5 @@
+#! python2.7
+
 import os, struct, datetime
 
 craftOrientationMode = 0 # 0 .. use gyro and accelerometer, 1 .. use gyro only, 2 .. do not rotate craft display
@@ -155,12 +157,7 @@ def parseFile( f, f_out ):
 			f.read( 1 ) == 'S' and f.read( 1 ) == 'T' and f.read( 1 ) == 'A' and f.read( 1 ) == 'R' and f.read( 1 ) == 'T' ):
 			try:
 			# h .. int16_t, H .. uint16_t, i .. int32_t, I .. uint32_t
-				i, = struct.unpack( '<I', f.read( 4 ) )
-				if i < iteration:
-					print '  new logging session'
-					writeLogEndMarker( f_out )
-					writeLogStartMarker( f_out )
-				iteration = i
+				iter, = struct.unpack( '<I', f.read( 4 ) )
 				time, = struct.unpack( '<I', f.read( 4 ) )
 				axisP = list( struct.unpack( '<hhh', f.read( 6 ) ) )
 				axisI = list( struct.unpack( '<hhh', f.read( 6 ) ) )
@@ -184,6 +181,11 @@ def parseFile( f, f_out ):
 				else:
 					print 'struct.error:', message
 			if f.read( 10 ) == 'FRAMESTART':
+				if iter < iteration:
+					print '  new logging session'
+					writeLogEndMarker( f_out )
+					writeLogStartMarker( f_out )
+				iteration = iter
 				writeData()
 				nextFramestartFound = True
 			else:
@@ -198,6 +200,10 @@ def parseFile( f, f_out ):
 					f.seek( -9, 1 )
 			if iteration % 2000 == 0:
 				print '  %4.1f%%' % ( f.tell() / float( size ) * 100 )
+		else:
+			if f.tell() == size:
+				print 'no FRAMESTART found'
+				break
 
 	writeLogEndMarker( f_out )
 
@@ -205,7 +211,7 @@ for filename in os.listdir( '.' ):
 	if ( filename[ : 3 ] == 'LOG' and filename[ -4 : ] == '.TXT' ):
 		print 'converting file "%s"' % filename
 		f_in = open( filename, 'rb' )
-		f_out = open( datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S') + ' SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
+		f_out = open( datetime.datetime.now().strftime('%Y-%m-%d  %H-%M-%S') + '  SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
 		parseFile( f_in, f_out )
 		f_out.close()
 		f_in.close()

@@ -39,8 +39,8 @@ static float pdScaleValue; // updated in pid_precalc()
 // unscaled PID values tuned for 4S
 //                         { roll, pitch, yaw }
 float pidkp[ PIDNUMBER ] = { 0.04, 0.04, 0.05 };
-float pidki[ PIDNUMBER ] = { 0.5, 0.5, 3.0 };
-float pidkd[ PIDNUMBER ] = { 0.2, 0.2, 0.0 };
+float pidki[ PIDNUMBER ] = { 0.50, 0.50, 3.0 };
+float pidkd[ PIDNUMBER ] = { 0.25, 0.25, 0.0 };
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
 //#define ENABLE_SETPOINT_WEIGHTING
@@ -179,9 +179,9 @@ void pid( int x )
 #endif
 
 		// Distribute ff over a few loops. Otherwise it gets clipped and leads to audible motor clicks:
-#if 0
+#if 1
 		static float avgFF[ 2 ];
-		lpf( &avgFF[ x ], ff, ALPHACALC( LOOPTIME, 1e6f / 200.0f ) ); // 200 Hz
+		lpf( &avgFF[ x ], ff, ALPHACALC( LOOPTIME, 1e6f / 20.0f ) ); // 20 Hz
 		ff = avgFF[ x ];
 #else
 		// Moving average filter:
@@ -242,6 +242,11 @@ void pid( int x )
 		lastrate[ x ] = gyro_unfiltered[ x ];
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
 		dterm = dterm_filter( dterm, x );
+#ifdef DTERM_LPF_1ST_HZ
+		static float dterm1st[ 3 ];
+		lpf( &dterm1st[ x ], dterm, ALPHACALC( LOOPTIME, 1e6f / (float)( DTERM_LPF_1ST_HZ ) ) );
+		dterm = dterm1st[ x ];
+#endif // DTERM_LPF_1ST_HZ
 		pidoutput[ x ] += dterm;
 		bb_d[ x ] = dterm;
 	}

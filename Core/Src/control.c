@@ -118,6 +118,7 @@ void control( void )
 
 	// flight control
 
+#ifdef LEVELMODE
 	if ( aux[ LEVELMODE ] ) { // level mode
 		extern float angleerror[];
 		extern float errorvect[]; // level mode angle error calculated by stick_vector.c
@@ -143,7 +144,9 @@ void control( void )
 
 		// Set ierror to zero, otherwise it builds up and causes bounce back.
 		ierror[ 0 ] = 0.0f; ierror[ 1 ] = 0.0f;
-	} else { // rate mode
+	} else
+#endif // LEVELMODE
+	{ // rate mode
 		setpoint[ 0 ] = rxcopy[ 0 ] * (float)MAX_RATE * DEGTORAD;
 		setpoint[ 1 ] = rxcopy[ 1 ] * (float)MAX_RATE * DEGTORAD;
 		setpoint[ 2 ] = rxcopy[ 2 ] * (float)MAX_RATEYAW * DEGTORAD;

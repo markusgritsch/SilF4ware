@@ -57,10 +57,13 @@ void usermain()
 		looptime = ( loop_start_time - lastlooptime ) * 1e-6f;
 		lastlooptime = loop_start_time;
 
+#ifdef LEVELMODE
 		if ( aux[ LEVELMODE ] ) {
 			sixaxis_read(); // read gyro and accelerometer data
 			imu(); // attitude calculations for level mode
-		} else {
+		} else
+#endif // LEVELMODE
+		{
 			// gyro_read(); // read just gyro data
 			sixaxis_read(); // read gyro and accelerometer data for blackbox logging
 		}
@@ -88,6 +91,7 @@ void usermain()
 // 4 - Gyro not found
 // 5 - clock, interrupts, systick, bad code
 // 6 - flash write error
+// 7 - ESC pins on more than two distinct GPIO ports
 void failloop( int val )
 {
 	for ( int i = 0; i <= 3; ++i ) {

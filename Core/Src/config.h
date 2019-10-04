@@ -83,7 +83,7 @@
 
 #define RATES DEVO_CHAN_9 // LOW_RATES_MULTI gets applied when RATES is 0.
 
-#define LEVELMODE DEVO_CHAN_10
+#define LEVELMODE DEVO_CHAN_10 // Set this to CH_ON for level mode always on. Comment it out for just acro.
 
 #define LEDS_ON DEVO_CHAN_7
 
@@ -91,7 +91,7 @@
 #define THROTTLE_KILL_SWITCH DEVO_CHAN_5
 
 // enable inverted (3D) flight code
-#define INVERTED_ENABLE
+#define INVERTED_ENABLE // goes together with BIDIRECTIONAL in drv_dshot.c and drv_dshot_dma.c
 #define FN_INVERTED DEVO_CHAN_6
 // #define LEVEL_MODE_INVERTED_ENABLE // be careful when enabling this
 
@@ -145,7 +145,7 @@
 #define TRANSIENT_MIX_INCREASING_HZ 2.0
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
-#define THRUST_LINEARIZATION 0.5f // 0.0f .. no compensation, 1.0f .. full square root curve
+#define THRUST_LINEARIZATION 0.33f // 0.0f .. no compensation, 1.0f .. full square root curve
 
 // A deadband can be used to eliminate stick center jitter and non-returning to exactly 0.
 #define STICKS_DEADBAND 0.02f

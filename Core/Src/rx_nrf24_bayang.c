@@ -307,6 +307,7 @@ static void send_telemetry()
 #define MOTOR_BEEPS_CHANNEL CH_OFF
 #endif
 
+#ifdef LEVELMODE
 	if ( aux[ LEVELMODE ] ) {
 		extern float accel[ 3 ];
 		extern int calibration_done;
@@ -319,6 +320,7 @@ static void send_telemetry()
 		}
 		vbatt = maxg * 100;
 	}
+#endif // LEVELMODE
 
 	txdata[ 3 ] = ( vbatt >> 8 ) & 0xff;
 	txdata[ 4 ] = vbatt & 0xff;

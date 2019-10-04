@@ -253,7 +253,8 @@ void gyro_cal( void )
 	uint32_t timestart = time;
 	uint32_t timemax = time;
 
-	float gyro[ 3 ];
+	float gyro_data[ 3 ];
+	float gyro_data_lpf[ 3 ];
 
 	for ( int i = 0; i < 3; i++) {
 		limit[ i ] = gyrocal[ i ];
@@ -263,9 +264,9 @@ void gyro_cal( void )
 	while ( time - timestart < CAL_TIME && time - timemax < 15e6f ) {
 		mpu_readdata( 67, data, 6 );
 
-		gyro[ 1 ] = (int16_t)( ( data[ 0 ] << 8 ) + data[ 1 ] );
-		gyro[ 0 ] = (int16_t)( ( data[ 2 ] << 8 ) + data[ 3 ] );
-		gyro[ 2 ] = (int16_t)( ( data[ 4 ] << 8 ) + data[ 5 ] );
+		gyro_data[ 1 ] = (int16_t)( ( data[ 0 ] << 8 ) + data[ 1 ] );
+		gyro_data[ 0 ] = (int16_t)( ( data[ 2 ] << 8 ) + data[ 3 ] );
+		gyro_data[ 2 ] = (int16_t)( ( data[ 4 ] << 8 ) + data[ 5 ] );
 
 		#define GLOW_TIME 62500
 		static int brightness = 0;
@@ -277,17 +278,20 @@ void gyro_cal( void )
 		brightness &= 0xF;
 
 		for ( int i = 0; i < 3; ++i ) {
-			if ( gyro[ i ] > limit[ i ] ) { limit[ i ] += 0.1f; } // 100 gyro bias / second change
-			if ( gyro[ i ] < limit[ i ] ) { limit[ i ] -= 0.1f; }
+			// Apply some basic filtering to eliminate excessive amounts of noise:
+			lpf( &gyro_data_lpf[ i ], gyro_data[ i ], ALPHACALC( LOOPTIME, 1e6f / 100.0f ) ); // 100 Hz
+
+			if ( gyro_data_lpf[ i ] > limit[ i ] ) { limit[ i ] += 0.1f; } // 100 gyro bias / second change
+			if ( gyro_data_lpf[ i ] < limit[ i ] ) { limit[ i ] -= 0.1f; }
 
 			limitf( &limit[ i ], 800 );
 
 			#define ALLOWED_MOTION_LIMIT 100
-			if ( fabsf( gyro[ i ] ) > ALLOWED_MOTION_LIMIT + fabsf( limit[ i ] ) ) {
+			if ( fabsf( gyro_data_lpf[ i ] ) > ALLOWED_MOTION_LIMIT + fabsf( limit[ i ] ) ) {
 				timestart = gettime();
 				brightness = 1;
 			} else {
-				lpf( &gyrocal[ i ], gyro[ i ], ALPHACALC( LOOPTIME, 2 * PI_F * 0.5f * 1e6f ) );
+				lpf( &gyrocal[ i ], gyro_data_lpf[ i ], ALPHACALC( LOOPTIME, 2 * PI_F * 0.5f * 1e6f ) );
 			}
 		}
 

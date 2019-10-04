@@ -21,7 +21,7 @@
 #include "hardware.h"
 #include "main.h"
 
-#define DSHOT_BIT_TIME 	( ( SYS_CLOCK_FREQ_MHZ * 1000 / DSHOT ) - 1 )
+#define DSHOT_BIT_TIME ( ( SYS_CLOCK_FREQ_MHZ * 1000 / DSHOT ) - 1 )
 #define DSHOT_T0H_TIME ( DSHOT_BIT_TIME * 0.30 )
 #define DSHOT_T1H_TIME ( DSHOT_BIT_TIME * 0.60 )
 
@@ -32,16 +32,19 @@ extern int onground;
 
 int pwmdir = FORWARD;
 
-volatile int dshot_dma_phase = 0; // 1: portA, 2: portB, 0: idle
+volatile int dshot_dma_phase = 0; // 1: port1st, 2: port2nd, 0: idle
 uint16_t dshot_packet[ 4 ]; // 16bits dshot data for 4 motors
 
-uint32_t motor_data_portA[ 16 ] = { 0 }; // DMA buffer: reset output when bit data=0 at TOH timing
-uint32_t motor_data_portB[ 16 ] = { 0 };
+uint32_t motor_data_port1st[ 16 ] = { 0 }; // DMA buffer: reset output when bit data=0 at TOH timing
+uint32_t motor_data_port2nd[ 16 ] = { 0 };
 
-uint32_t dshot_portA[ 1 ] = { 0 }; // sum of all motor pins at portA
-uint32_t dshot_portA_off[ 1 ] = { 0 };
-uint32_t dshot_portB[ 1 ] = { 0 }; // sum of all motor pins at portB
-uint32_t dshot_portB_off[ 1 ] = { 0 };
+uint32_t dshot_port1st[ 1 ] = { 0 }; // sum of all motor pins at port1st
+uint32_t dshot_port1st_off[ 1 ] = { 0 };
+uint32_t dshot_port2nd[ 1 ] = { 0 }; // sum of all motor pins at port2nd
+uint32_t dshot_port2nd_off[ 1 ] = { 0 };
+
+GPIO_TypeDef * GPIO1st = 0;
+GPIO_TypeDef * GPIO2nd = 0;
 
 void pwm_init()
 {
@@ -52,32 +55,51 @@ void pwm_init()
 	TIM1->CCR1 = DSHOT_T0H_TIME;
 	TIM1->CCR2 = DSHOT_T1H_TIME;
 
-	if ( ESC1_GPIO_Port == GPIOA ) {
-		*dshot_portA |= ESC1_Pin;
-	} else{
-		*dshot_portB |= ESC1_Pin;
+	// This driver supports Dshot pins being located on up to two distinct GPIO ports.
+	GPIO1st = ESC1_GPIO_Port;
+	if ( ESC2_GPIO_Port != GPIO1st ) {
+		GPIO2nd = ESC2_GPIO_Port;
 	}
-	if ( ESC2_GPIO_Port == GPIOA ) {
-		*dshot_portA |= ESC2_Pin;
-	} else{
-		*dshot_portB |= ESC2_Pin;
+	if ( ESC3_GPIO_Port != GPIO1st ) {
+		GPIO2nd = ESC3_GPIO_Port;
 	}
-	if ( ESC3_GPIO_Port == GPIOA ) {
-		*dshot_portA |= ESC3_Pin;
-	} else{
-		*dshot_portB |= ESC3_Pin;
+	if ( ESC4_GPIO_Port != GPIO1st ) {
+		GPIO2nd = ESC4_GPIO_Port;
 	}
-	if ( ESC4_GPIO_Port == GPIOA ) {
-		*dshot_portA |= ESC4_Pin;
-	} else{
-		*dshot_portB |= ESC4_Pin;
+	if ( ( ESC2_GPIO_Port != GPIO1st && ESC2_GPIO_Port != GPIO2nd ) ||
+		( ESC3_GPIO_Port != GPIO1st && ESC3_GPIO_Port != GPIO2nd ) ||
+		( ESC4_GPIO_Port != GPIO1st && ESC4_GPIO_Port != GPIO2nd ) )
+	{
+		extern void failloop( int );
+		failloop( 7 );
 	}
 
-	*dshot_portA_off = ( *dshot_portA ) << 16;
-	*dshot_portB_off = ( *dshot_portB ) << 16;
+	if ( ESC1_GPIO_Port == GPIO1st ) {
+		*dshot_port1st |= ESC1_Pin;
+	} else {
+		*dshot_port2nd |= ESC1_Pin;
+	}
+	if ( ESC2_GPIO_Port == GPIO1st ) {
+		*dshot_port1st |= ESC2_Pin;
+	} else {
+		*dshot_port2nd |= ESC2_Pin;
+	}
+	if ( ESC3_GPIO_Port == GPIO1st ) {
+		*dshot_port1st |= ESC3_Pin;
+	} else {
+		*dshot_port2nd |= ESC3_Pin;
+	}
+	if ( ESC4_GPIO_Port == GPIO1st ) {
+		*dshot_port1st |= ESC4_Pin;
+	} else {
+		*dshot_port2nd |= ESC4_Pin;
+	}
+
+	*dshot_port1st_off = ( *dshot_port1st ) << 16;
+	*dshot_port2nd_off = ( *dshot_port2nd ) << 16;
 }
 
-static void dshot_dma_portA()
+static void dshot_dma_port1st()
 {
 	extern TIM_HandleTypeDef htim1;
 	extern DMA_HandleTypeDef hdma_tim1_up;
@@ -101,15 +123,15 @@ static void dshot_dma_portA()
 
 	__HAL_DMA_ENABLE_IT( &hdma_tim1_ch2, DMA_IT_TC );
 
-	HAL_DMA_Start( &hdma_tim1_up, (uint32_t)dshot_portA, (uint32_t)&GPIOA->BSRR, 16 );
-	HAL_DMA_Start( &hdma_tim1_ch1, (uint32_t)motor_data_portA, (uint32_t)&GPIOA->BSRR, 16 );
-	HAL_DMA_Start( &hdma_tim1_ch2, (uint32_t)dshot_portA_off, (uint32_t)&GPIOA->BSRR, 16 );
+	HAL_DMA_Start( &hdma_tim1_up, (uint32_t)dshot_port1st, (uint32_t)&GPIO1st->BSRR, 16 );
+	HAL_DMA_Start( &hdma_tim1_ch1, (uint32_t)motor_data_port1st, (uint32_t)&GPIO1st->BSRR, 16 );
+	HAL_DMA_Start( &hdma_tim1_ch2, (uint32_t)dshot_port1st_off, (uint32_t)&GPIO1st->BSRR, 16 );
 
 	__HAL_TIM_SetCounter( &htim1, DSHOT_BIT_TIME );
 	HAL_TIM_Base_Start( &htim1 );
 }
 
-static void dshot_dma_portB()
+static void dshot_dma_port2nd()
 {
 	extern TIM_HandleTypeDef htim1;
 	extern DMA_HandleTypeDef hdma_tim1_up;
@@ -133,9 +155,9 @@ static void dshot_dma_portB()
 
 	__HAL_DMA_ENABLE_IT( &hdma_tim1_ch2, DMA_IT_TC );
 
-	HAL_DMA_Start( &hdma_tim1_up, (uint32_t)dshot_portB, (uint32_t)&GPIOB->BSRR, 16 );
-	HAL_DMA_Start( &hdma_tim1_ch1, (uint32_t)motor_data_portB, (uint32_t)&GPIOB->BSRR, 16 );
-	HAL_DMA_Start( &hdma_tim1_ch2, (uint32_t)dshot_portB_off, (uint32_t)&GPIOB->BSRR, 16 );
+	HAL_DMA_Start( &hdma_tim1_up, (uint32_t)dshot_port2nd, (uint32_t)&GPIO2nd->BSRR, 16 );
+	HAL_DMA_Start( &hdma_tim1_ch1, (uint32_t)motor_data_port2nd, (uint32_t)&GPIO2nd->BSRR, 16 );
+	HAL_DMA_Start( &hdma_tim1_ch2, (uint32_t)dshot_port2nd_off, (uint32_t)&GPIO2nd->BSRR, 16 );
 
 	__HAL_TIM_SetCounter( &htim1, DSHOT_BIT_TIME );
 	HAL_TIM_Base_Start( &htim1 );
@@ -164,35 +186,35 @@ static void dshot_dma_start()
 {
 	// generate dshot dma packet
 	for ( uint8_t i = 0; i < 16; ++i ) {
-		motor_data_portA[ i ] = 0;
-		motor_data_portB[ i ] = 0;
+		motor_data_port1st[ i ] = 0;
+		motor_data_port2nd[ i ] = 0;
 
 		if ( ! ( dshot_packet[0] & 0x8000 ) ) {
-			if ( ESC1_GPIO_Port == GPIOA ) {
-				motor_data_portA[ i ] |= ESC1_Pin << 16;
+			if ( ESC1_GPIO_Port == GPIO1st ) {
+				motor_data_port1st[ i ] |= ESC1_Pin << 16;
 			} else {
-				motor_data_portB[ i ] |= ESC1_Pin << 16;
+				motor_data_port2nd[ i ] |= ESC1_Pin << 16;
 			}
 		}
 		if ( ! ( dshot_packet[1] & 0x8000 ) ) {
-			if ( ESC2_GPIO_Port == GPIOA ) {
-				motor_data_portA[ i ] |= ESC2_Pin << 16;
+			if ( ESC2_GPIO_Port == GPIO1st ) {
+				motor_data_port1st[ i ] |= ESC2_Pin << 16;
 			} else {
-				motor_data_portB[ i ] |= ESC2_Pin << 16;
+				motor_data_port2nd[ i ] |= ESC2_Pin << 16;
 			}
 		}
 		if ( ! ( dshot_packet[2] & 0x8000 ) ) {
-			if ( ESC3_GPIO_Port == GPIOA ) {
-				motor_data_portA[ i ] |= ESC3_Pin << 16;
+			if ( ESC3_GPIO_Port == GPIO1st ) {
+				motor_data_port1st[ i ] |= ESC3_Pin << 16;
 			} else {
-				motor_data_portB[ i ] |= ESC3_Pin << 16;
+				motor_data_port2nd[ i ] |= ESC3_Pin << 16;
 			}
 		}
 		if ( ! ( dshot_packet[3] & 0x8000 ) ) {
-			if ( ESC4_GPIO_Port == GPIOA ) {
-				motor_data_portA[ i ] |= ESC4_Pin << 16;
+			if ( ESC4_GPIO_Port == GPIO1st ) {
+				motor_data_port1st[ i ] |= ESC4_Pin << 16;
 			} else {
-				motor_data_portB[ i ] |= ESC4_Pin << 16;
+				motor_data_port2nd[ i ] |= ESC4_Pin << 16;
 			}
 		}
 
@@ -202,13 +224,13 @@ static void dshot_dma_start()
 		dshot_packet[ 3 ] <<= 1;
 	}
 
-	if ( ESC1_GPIO_Port == GPIOB || ESC2_GPIO_Port == GPIOB || ESC3_GPIO_Port == GPIOB || ESC4_GPIO_Port == GPIOB ) {
+	if ( ESC1_GPIO_Port == GPIO2nd || ESC2_GPIO_Port == GPIO2nd || ESC3_GPIO_Port == GPIO2nd || ESC4_GPIO_Port == GPIO2nd ) {
 		dshot_dma_phase = 2;
 	} else {
 		dshot_dma_phase = 1;
 	}
 
-	dshot_dma_portA();
+	dshot_dma_port1st();
 }
 
 void DMA2_Stream2_IRQHandler(void)
@@ -219,7 +241,7 @@ void DMA2_Stream2_IRQHandler(void)
 	switch ( dshot_dma_phase ) {
 		case 2:
 			dshot_dma_phase = 1;
-			dshot_dma_portB();
+			dshot_dma_port2nd();
 			break;
 		case 1:
 			dshot_dma_phase = 0;

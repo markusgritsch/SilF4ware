@@ -21,7 +21,7 @@ extern float bb_battadc;
 extern int packetrx;
 extern float gyro[ 3 ];
 extern float gyro_unfiltered[ 3 ];
-extern float accel[ 3 ];
+extern float bb_accel[ 3 ];
 extern float bb_mix[ 4 ];
 
 void blackbox_init( void )
@@ -94,9 +94,9 @@ void blackbox_log( void )
 	*(int16_t *)( &bb_buffer[ pos ] ) = gyro[ 1 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = -gyro[ 2 ] * RADTODEG; pos += 2;
 	// accSmooth
-	*(int16_t *)( &bb_buffer[ pos ] ) = -accel[ 1 ]; pos += 2;
-	*(int16_t *)( &bb_buffer[ pos ] ) = accel[ 0 ]; pos += 2;
-	*(int16_t *)( &bb_buffer[ pos ] ) = accel[ 2 ]; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = -bb_accel[ 1 ]; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = bb_accel[ 0 ]; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = bb_accel[ 2 ]; pos += 2;
 	// debug
 	*(int16_t *)( &bb_buffer[ pos ] ) = gyro_unfiltered[ 0 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = gyro_unfiltered[ 1 ] * RADTODEG; pos += 2;

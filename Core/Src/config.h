@@ -47,7 +47,7 @@
 // gyro filter 3: 42 Hz, delay 4.8 ms
 #define GYRO_LOW_PASS_FILTER 0
 
-// Software Gyro Filters
+// Gyro Notch Filters
 
 // #define BIQUAD_NOTCH_A_HZ 260
 // #define BIQUAD_NOTCH_A_Q 6
@@ -58,6 +58,8 @@
 // #define BIQUAD_NOTCH_C_HZ 380
 // #define BIQUAD_NOTCH_C_Q 6
 
+// Gyro first and second order LPFs
+
 #define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.
 #define GYRO_LPF_1ST_HZ_MAX 120 // A higher filter frequency than loopfrequency/2.4 causes ripples.
 #define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
@@ -66,15 +68,19 @@
 // #define GYRO_LPF_2ND_HZ_MAX 240
 // #define GYRO_LPF_2ND_HZ_THROTTLE 0.25
 
+// Additional Gyro yaw first order LPF
+#define GYRO_YAW_LPF_1ST_HZ 30
+
 // D-Term second order LPF (cannot be turned off)
 #define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
 #define DTERM_LPF_2ND_HZ_MAX 60
 #define DTERM_LPF_2ND_HZ_THROTTLE 0.5
 
-#define DTERM_LPF_1ST_HZ 60
+// Additional D-Term first order LPF
+//#define DTERM_LPF_1ST_HZ 60
 
 // Whether to use Bessel type filter for D-Term instead of PT2.
-// #define DTERM_BESSEL_FILTER
+//#define DTERM_BESSEL_FILTER
 
 // If enabled, the D-Term filter uses the filtered gyro signal from above.
 //#define CASCADE_GYRO_AND_DTERM_FILTER
@@ -117,7 +123,7 @@
 #define RADIO_XN297 // also enable SOFTSPI_4WIRE in hardware.h
 // #define RADIO_XN297L // also enable SOFTSPI_3WIRE in hardware.h
 
-#define TX_POWER 3 // 0 .. 3
+#define TX_POWER 3 // 0 .. 3 (try 1 when using an nRF24L01+PA+LNA module)
 
 // led brightness 0 .. 15 (used for solid lights only)
 #define LED_BRIGHTNESS 15
@@ -207,4 +213,4 @@
 #define RADIO_CHECK
 
 // Logs various information to an externally connected OpenLager logger
-#define BLACKBOX_LOGGING
+//#define BLACKBOX_LOGGING

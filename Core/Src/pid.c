@@ -22,7 +22,7 @@ static float pdScaleValue; // updated in pid_precalc()
 #define AA_pidki 1.0f
 #define AA_pidkd ( x < 2 ? pdScaleValue * aux_analog[ 1 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
 
-#define AA_pidScaleInverted 1.1f // multiply by this value when flying inverted
+#define AA_pidScaleInverted 1.2f // multiply by this value when flying inverted
 
 // if ( aux[ DEVO_CHAN_11 ] ) { // 3S
 // } else { // 4S
@@ -40,7 +40,7 @@ static float pdScaleValue; // updated in pid_precalc()
 //                         { roll, pitch, yaw }
 float pidkp[ PIDNUMBER ] = { 0.04, 0.04, 0.05 };
 float pidki[ PIDNUMBER ] = { 0.50, 0.50, 3.0 };
-float pidkd[ PIDNUMBER ] = { 0.25, 0.25, 0.0 };
+float pidkd[ PIDNUMBER ] = { 0.20, 0.20, 0.0 };
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
 //#define ENABLE_SETPOINT_WEIGHTING

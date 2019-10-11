@@ -63,10 +63,6 @@ extern float looptime;
 
 void imu( void )
 {
-	// remove bias
-	accel[ 0 ] = accel[ 0 ] - accelcal[ 0 ];
-	accel[ 1 ] = accel[ 1 ] - accelcal[ 1 ];
-
 	// reduce to accel in G
 	for ( int i = 0; i < 3; ++i ) {
 		accel[ i ] /= 2048.0f;

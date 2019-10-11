@@ -23,7 +23,7 @@ def writeLogStartMarker( f ):
 	f.write( 'H Field P encoding:9,0,0,0,0,7,7,7,0,0,0,0,0,8,8,8,8,8,8,8,8,6,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n' )
 
 	# f.write( 'H minthrottle:1000\n' )
-	# f.write( 'H maxthrottle:2000\n' )
+	f.write( 'H maxthrottle:2000\n' ) # to make Plasmatree/PID-Analyzer happy
 	f.write( 'H gyro_scale:0x3f800000\n' ) # for Gyro scaling; 3e8: 250, 3f8: 1000,
 	f.write( 'H motorOutput:0,1000\n' ) # for motor range
 	f.write( 'H acc_1G:2048\n' ) # for Accelerometer range
@@ -38,6 +38,10 @@ def writeLogStartMarker( f ):
 	# f.write( 'H rc_expo:0,0,0\n' )
 	f.write( 'H rates:50,50,50\n' ) # for setpoint scaling
 	# f.write( 'H rate_limits:1998,1998,1998\n' )
+
+	f.write( 'H rollPID:1,1,1\n' )  # Also to make Plasmatree/PID-Analyzer happy. Since we do not know the
+	f.write( 'H pitchPID:1,1,1\n' ) # equivalent Betaflight PID values, the response.png plot is of no use.
+	f.write( 'H yawPID:1,1,0\n' )   # However the noise.png plot seems to be independent of those numbers.
 
 	f.write( 'H debug_mode:3\n' ) # 3 .. "Gyro Filtered"
 
@@ -107,7 +111,7 @@ def writeData():
 	# Battery volt., Amperage, rssi
 	vbatLatest = unsignedVariableByte( vbatLatest ) # 0.01 V/unit
 	amperageLatest = signedVariableByte( amperageLatest ) # 0.01 A/unit
-	rssi = unsignedVariableByte( rssi )
+	rssi = unsignedVariableByte( rssi * 5 )
 	# Gyros
 	gyroADC[0] = signedVariableByte( gyroADC[0] ) # -2000 .. 2000 deg/s
 	gyroADC[1] = signedVariableByte( gyroADC[1] )

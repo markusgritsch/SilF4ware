@@ -57,16 +57,11 @@ void usermain()
 		looptime = ( loop_start_time - lastlooptime ) * 1e-6f;
 		lastlooptime = loop_start_time;
 
+		// gyro_read(); // read just gyro data
+		sixaxis_read(); // read gyro and accelerometer data for blackbox logging
 #ifdef LEVELMODE
-		if ( aux[ LEVELMODE ] ) {
-			sixaxis_read(); // read gyro and accelerometer data
-			imu(); // attitude calculations for level mode
-		} else
+		imu(); // attitude calculations for level mode
 #endif // LEVELMODE
-		{
-			// gyro_read(); // read just gyro data
-			sixaxis_read(); // read gyro and accelerometer data for blackbox logging
-		}
 		control(); // all flight calculations and motors
 		blackbox_log();
 		battery();

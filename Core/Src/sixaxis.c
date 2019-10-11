@@ -69,6 +69,7 @@ void sixaxis_init( void )
 	mpu_writereg( 26, GYRO_LOW_PASS_FILTER );
 }
 
+float bb_accel[ 3 ];
 float accel[ 3 ];
 float gyro[ 3 ];
 float gyro_unfiltered[ 3 ];
@@ -83,17 +84,16 @@ void sixaxis_read( void )
 	uint32_t data[ 14 ];
 	mpu_readdata( 59, data, 14 );
 
-#ifdef SENSOR_ROTATE_90_CW
-	accel[ 0 ] = (int16_t)( ( data[ 2 ] << 8 ) + data[ 3 ] );
-	accel[ 1 ] = -(int16_t)( ( data[ 0 ] << 8 ) + data[ 1 ] );
-	accel[ 2 ] = (int16_t)( ( data[ 4 ] << 8 ) + data[ 5 ] );
-#else
 	accel[ 0 ] = -(int16_t)( ( data[ 0 ] << 8 ) + data[ 1 ] );
 	accel[ 1 ] = -(int16_t)( ( data[ 2 ] << 8 ) + data[ 3 ] );
 	accel[ 2 ] = (int16_t)( ( data[ 4 ] << 8 ) + data[ 5 ] );
-#endif
 
-#ifdef SENSOR_ROTATE_90_CW_deleted
+	// remove bias
+	accel[ 0 ] = accel[ 0 ] - accelcal[ 0 ];
+	accel[ 1 ] = accel[ 1 ] - accelcal[ 1 ];
+	accel[ 2 ] = accel[ 2 ] - accelcal[ 2 ];
+
+#ifdef SENSOR_ROTATE_90_CW
 {
 	float temp = accel[ 1 ];
 	accel[ 1 ] = accel[ 0 ];
@@ -141,6 +141,12 @@ void sixaxis_read( void )
 	accel[ 0 ] = -accel[ 0 ];
 }
 #endif
+
+	bb_accel[ 0 ] = accel[ 0 ];
+	bb_accel[ 1 ] = accel[ 1 ];
+	bb_accel[ 2 ] = accel[ 2 ];
+
+	// Gyro:
 
 	float gyronew[ 3 ];
 	//order
@@ -221,10 +227,12 @@ static void process_gyronew_to_gyro( float gyronew[] )
 	gyronew[ 1 ] = -gyronew[ 1 ];
 	gyronew[ 2 ] = -gyronew[ 2 ];
 
-	// 16 bit, +-2000°/s -> 4000°/s / 2**16 * reading = °/s
 	for ( int i = 0; i < 3; ++i ) {
+		// 16 bit, +-2000°/s -> 4000°/s / 2**16 * reading = °/s
 		gyronew[ i ] = gyronew[ i ] * 0.061035156f * DEGTORAD;
+
 		gyro[ i ] = gyro_unfiltered[ i ] = gyronew[ i ];
+
 #ifdef BIQUAD_NOTCH_A_HZ
 		gyro[ i ] = notch_a_filter( gyro[ i ], i );
 #endif
@@ -234,11 +242,21 @@ static void process_gyronew_to_gyro( float gyronew[] )
 #ifdef BIQUAD_NOTCH_C_HZ
 		gyro[ i ] = notch_c_filter( gyro[ i ], i );
 #endif
+
 #ifdef GYRO_LPF_1ST_HZ_BASE
 		gyro[ i ] = gyro_lpf_filter( gyro[ i ], i );
 #endif
 #ifdef GYRO_LPF_2ND_HZ_BASE
 		gyro[ i ] = gyro_lpf2_filter( gyro[ i ], i );
+#endif
+
+#ifdef GYRO_YAW_LPF_1ST_HZ
+		extern float aux_analog[ 2 ];
+		if ( i == 2 ) { // yaw
+			static float yaw1st;
+			lpf( &yaw1st, gyro[ 2 ], ALPHACALC( LOOPTIME, 1e6f / (float)( GYRO_YAW_LPF_1ST_HZ ) ) );
+			gyro[ 2 ] = yaw1st;
+		}
 #endif
 	}
 }
@@ -316,7 +334,13 @@ void acc_cal( void )
 {
 	accelcal[ 2 ] = 2048;
 	for ( int i = 0; i < 100; ++i ) {
-		sixaxis_read();
+		uint32_t data[ 6 ];
+		mpu_readdata( 59, data, 6 );
+
+		accel[ 0 ] = -(int16_t)( ( data[ 0 ] << 8 ) + data[ 1 ] );
+		accel[ 1 ] = -(int16_t)( ( data[ 2 ] << 8 ) + data[ 3 ] );
+		accel[ 2 ] = (int16_t)( ( data[ 4 ] << 8 ) + data[ 5 ] );
+
 		#define DELAYTIME 1000 // The accelerometer is updated only at 1 kHz.
 		for ( int x = 0; x < 3; ++x ) {
 			lpf( &accelcal[ x ], accel[ x ], ALPHACALC( DELAYTIME, 0.072e6f ) );

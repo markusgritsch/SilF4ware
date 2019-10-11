@@ -32,8 +32,8 @@ static void filter_notch_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz, fl
 
 	// setup variables
 	const float omega = 2.0f * PI_F * filter_Hz * LOOPTIME * 1e-6f;
-	const float sn = fastsin( omega );
-	const float cs = fastcos( omega );
+	const float sn = sin_approx( omega );
+	const float cs = cos_approx( omega );
 	const float alpha = sn / ( 2.0f * filter_Q );
 
 	// notch coefficients
@@ -60,7 +60,7 @@ static void filter_bessel_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz )
 
 	// Bessel coefficients from Beads project.
 	const float omega_halve = PI_F * filter_Hz * LOOPTIME * 1e-6f * 0.5f; // 0.5f is there to empirically match with lpf2.
-	const float tg = fastsin( omega_halve ) / fastcos( omega_halve );
+	const float tg = sin_approx( omega_halve ) / cos_approx( omega_halve );
 	coeff->b2 = coeff->b0 = 3 * tg * tg;
 	coeff->b1 = 2 * coeff->b0;
 	const float a0 = 1 + 3 * tg + coeff->b0;

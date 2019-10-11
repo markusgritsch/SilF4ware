@@ -69,7 +69,7 @@
 // #define GYRO_LPF_2ND_HZ_THROTTLE 0.25
 
 // Additional Gyro yaw first order LPF
-#define GYRO_YAW_LPF_1ST_HZ 30
+//#define GYRO_YAW_LPF_1ST_HZ 60
 
 // D-Term second order LPF (cannot be turned off)
 #define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )

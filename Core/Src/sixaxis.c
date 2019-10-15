@@ -146,6 +146,11 @@ void sixaxis_read( void )
 	bb_accel[ 1 ] = accel[ 1 ];
 	bb_accel[ 2 ] = accel[ 2 ];
 
+	// reduce to accel in G
+	accel[ 0 ] /= 2048.0f;
+	accel[ 1 ] /= 2048.0f;
+	accel[ 2 ] /= 2048.0f;
+
 	// Gyro:
 
 	float gyronew[ 3 ];
@@ -231,7 +236,7 @@ static void process_gyronew_to_gyro( float gyronew[] )
 		// 16 bit, +-2000°/s -> 4000°/s / 2**16 * reading = °/s
 		gyronew[ i ] = gyronew[ i ] * 0.061035156f * DEGTORAD;
 
-		gyro[ i ] = gyro_unfiltered[ i ] = gyronew[ i ];
+		gyro[ i ] = gyronew[ i ];
 
 #ifdef BIQUAD_NOTCH_A_HZ
 		gyro[ i ] = notch_a_filter( gyro[ i ], i );
@@ -242,6 +247,8 @@ static void process_gyronew_to_gyro( float gyronew[] )
 #ifdef BIQUAD_NOTCH_C_HZ
 		gyro[ i ] = notch_c_filter( gyro[ i ], i );
 #endif
+
+		gyro_unfiltered[ i ] = gyro[ i ];
 
 #ifdef GYRO_LPF_1ST_HZ_BASE
 		gyro[ i ] = gyro_lpf_filter( gyro[ i ], i );

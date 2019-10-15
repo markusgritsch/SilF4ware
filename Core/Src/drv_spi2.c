@@ -11,6 +11,9 @@
 // #define DELAY_O3 _NOP_ _NOP_ // necessary when the loop is unrolled i.e. with -O3
 #define DELAY_O3
 
+// 11 does not always work right after flashing, 13 seems to work fine, so 15 should be on the safe side.
+#define DELAY_SLOW count = 15; while ( count-- );
+
 volatile static uint32_t count;
 
 void spi2_sendbyte_slow( int data )
@@ -22,12 +25,12 @@ void spi2_sendbyte_slow( int data )
 		} else {
 			MOSILOW;
 		}
-		count = 11; while ( count-- );
+		DELAY_SLOW
 		SCKHIGH;
-		count = 11; while ( count-- );
+		DELAY_SLOW
 	}
 	SCKLOW;
-	count = 11; while ( count-- );
+	DELAY_SLOW
 }
 
 void spi2_sendbyte( int data )
@@ -52,12 +55,12 @@ int spi2_sendzerorecvbyte_slow()
 	for ( int i = 7; i >= 0; --i ) {
 		recv = recv << 1;
 		SCKHIGH;
-		count = 11; while ( count-- );
+		DELAY_SLOW
 		if ( READMISO ) {
 			recv = recv | 1;
 		}
 		SCKLOW;
-		count = 11; while ( count-- );
+		DELAY_SLOW
 	}
 	return recv;
 }

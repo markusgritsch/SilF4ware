@@ -22,6 +22,7 @@ float looptime; // in seconds
 uint32_t lastlooptime;
 uint32_t used_loop_time;
 uint32_t max_used_loop_time;
+bool telemetry_transmitted;
 
 extern char aux[ AUXNUMBER ];
 extern int onground; // control.c
@@ -57,8 +58,16 @@ void usermain()
 		looptime = ( loop_start_time - lastlooptime ) * 1e-6f;
 		lastlooptime = loop_start_time;
 
-		// gyro_read(); // read just gyro data
-		sixaxis_read(); // read gyro and accelerometer data for blackbox logging
+		static uint32_t last_accel_read_time;
+		if ( telemetry_transmitted // This way we sync gyro reading to the subsequent loop after sending telemetry.
+			|| loop_start_time - last_accel_read_time > 950 ) // The accel sensor gets updated only once every 1 ms.
+		{
+			telemetry_transmitted = false;
+			last_accel_read_time = loop_start_time;
+			sixaxis_read(); // read gyro (and accelerometer data for blackbox logging)
+		} else {
+			gyro_read(); // read just gyro data
+		}
 #ifdef LEVELMODE
 		imu(); // attitude calculations for level mode
 #endif // LEVELMODE

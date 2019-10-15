@@ -82,7 +82,7 @@
 // Whether to use Bessel type filter for D-Term instead of PT2.
 //#define DTERM_BESSEL_FILTER
 
-// If enabled, the D-Term filter uses the filtered gyro signal from above.
+// If enabled, the D-Term filter uses the filtered gyro signal from above. (Notch filters are always applied.)
 //#define CASCADE_GYRO_AND_DTERM_FILTER
 
 // Switch function selection

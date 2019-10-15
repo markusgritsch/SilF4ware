@@ -63,11 +63,6 @@ extern float looptime;
 
 void imu( void )
 {
-	// reduce to accel in G
-	for ( int i = 0; i < 3; ++i ) {
-		accel[ i ] /= 2048.0f;
-	}
-
 	float deltaGyroAngle[ 3 ];
 
 	for ( int i = 0 ; i < 3 ; ++i ) {
@@ -84,14 +79,12 @@ void imu( void )
 	GEstG[ 1 ] = deltaGyroAngle[ 2 ] * GEstG[ 0 ] + GEstG[ 1 ];
 
 	// calc acc mag
-	float accmag;
-
-	accmag = calcmagnitude( &accel[ 0 ] );
+	const float accmag = calcmagnitude( accel );
 
 	if ( ( accmag > ACC_MIN * ACC_1G ) && ( accmag < ACC_MAX * ACC_1G ) && ! DISABLE_ACC ) {
 		for ( int axis = 0; axis < 3; ++axis ) {
-			accel[ axis ] = accel[ axis ] * ACC_1G / accmag; // normalize acc
-			lpf( &GEstG[ axis ], accel[ axis ], ALPHACALC( LOOPTIME, 2 * PI_F * (float)FILTERTIME * 1e6f ) );
+			const float accel_norm = accel[ axis ] * ACC_1G / accmag; // normalize acc
+			lpf( &GEstG[ axis ], accel_norm, ALPHACALC( LOOPTIME, 2 * PI_F * (float)FILTERTIME * 1e6f ) );
 		}
 	}
 

@@ -286,6 +286,7 @@ extern bool lowbatt;
 extern int onground;
 extern float vbattfilt;
 extern float vbatt_comp;
+extern bool telemetry_transmitted; // usermain.c
 
 static void send_telemetry()
 {
@@ -379,6 +380,8 @@ static void send_telemetry()
 	nrf24_write_xn297_payload( txdata, 15 );
 
 	send_time = gettime();
+
+	telemetry_transmitted = true;
 }
 
 static char checkpacket()

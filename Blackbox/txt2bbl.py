@@ -39,9 +39,9 @@ def writeLogStartMarker( f ):
 	f.write( 'H rates:50,50,50\n' ) # for setpoint scaling
 	# f.write( 'H rate_limits:1998,1998,1998\n' )
 
-	f.write( 'H rollPID:1,1,1\n' )  # Also to make Plasmatree/PID-Analyzer happy. Since we do not know the
-	f.write( 'H pitchPID:1,1,1\n' ) # equivalent Betaflight PID values, the response.png plot is of no use.
-	f.write( 'H yawPID:1,1,0\n' )   # However the noise.png plot seems to be independent of those numbers.
+	f.write( 'H rollPID:31.22,1,1\n' )  # Also to make Plasmatree/PID-Analyzer happy. Since we do not know the
+	f.write( 'H pitchPID:31.22,1,1\n' ) # equivalent Betaflight PID values, the response.png plot is of no use.
+	f.write( 'H yawPID:31.22,1,0\n' )   # However the noise.png plot seems to be independent of those numbers.
 
 	f.write( 'H debug_mode:3\n' ) # 3 .. "Gyro Filtered"
 

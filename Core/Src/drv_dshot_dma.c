@@ -8,8 +8,8 @@
 
 // Select Dshot1200, Dshot600, Dshot300, or Dshot150
 // #define DSHOT 1200 // BLHeli_32 only
-#define DSHOT 600 // BLHeli_S BB2 (not supported by BB1)
-// #define DSHOT 300 // works on BB1
+// #define DSHOT 600 // BLHeli_S BB2 (not supported by BB1)
+#define DSHOT 300 // works on BB1
 // #define DSHOT 150 // Dshot150 is too slow if the motors are on two different ports and 8k loop frequency is used.
 
 

@@ -145,29 +145,27 @@ static void bitbang_data()
 			gpioreset( ESC4_GPIO_Port, ESC4_Pin );
 		}
 
-		// Note: delay timings for -O3
+		// Note: delay timings for -Os
 
 		volatile static uint32_t count;
 #if defined(STM32F405xx)
-		// Dshot1200, BLHeli_32 only
-		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
-		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
-		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
-
 	#if 1
 		// Dshot600, BLHeli_S BB2 (not supported by BB1)
-		count = 5; while ( count-- ); // 4 to 6 is recognized as Dshot600
+		count = 6; while ( count-- ); // 5 to 7 is recognized as Dshot600
 	#else
 		// Dshot300, works on BB1
-		count = 19; while ( count-- ); // 16 to 23 is recognized as Dshot300
+		count = 18; while ( count-- ); // 14 to 23 is recognized as Dshot300
 	#endif
 #elif defined(STM32F411xE)
 	#if 1
 		// Dshot600, BLHeli_S BB2 (not supported by BB1)
-		count = 2; while ( count-- ); // 2 to 3 (barely) is recognized as Dshot600
+		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
+		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
+		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
+		_NOP_ _NOP_ _NOP_ _NOP_ _NOP_
 	#else
 		// Dshot300, works on BB1
-		count = 10; while ( count-- ); // 8 to 12 is recognized as Dshot300
+		count = 7; while ( count-- ); // 6 to 9 is recognized as Dshot300
 	#endif
 #else
 	#error "Unknown MCU"

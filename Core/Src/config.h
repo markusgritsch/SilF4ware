@@ -107,7 +107,7 @@
 // #define AUX1_START_ON // CH_AUX1 channel starts on if this is defined, otherwise off.
 // #define AUX2_START_ON // CH_AUX2 channel starts on if this is defined, otherwise off.
 
-// lost quad beeps using motors (60 sec timeout)
+// lost quad beeps using motors (60 sec timeout or via channel)
 #define MOTOR_BEEPS
 #define MOTOR_BEEPS_CHANNEL DEVO_CHAN_12
 

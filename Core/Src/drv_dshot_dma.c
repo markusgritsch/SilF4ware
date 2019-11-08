@@ -27,7 +27,6 @@
 
 #ifdef DSHOT_DMA_DRIVER
 
-extern bool failsafe;
 extern int onground;
 
 int pwmdir = FORWARD;
@@ -298,12 +297,12 @@ void pwm_set( uint8_t number, float pwm )
 #define DSHOT_CMD_BEEP4 4
 #define DSHOT_CMD_BEEP5 5 // 5 currently uses the same tone as 4 in BLHeli_S.
 
-void motorbeep( int channel )
+void motorbeep( bool motors_failsafe, int channel )
 {
 	static unsigned long motor_beep_time = 0;
 	unsigned long time = gettime();
 	extern char aux[];
-	if ( ( failsafe && time > 60e6f ) || aux[ channel ] ) {
+	if ( ( motors_failsafe && time > 60e6f ) || aux[ channel ] ) {
 		if ( motor_beep_time == 0 ) {
 			motor_beep_time = time;
 		}

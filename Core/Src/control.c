@@ -61,7 +61,7 @@ void control( void )
 		throttle_hpf_reset( 200 ); // ms
 		dterm_filter_reset( 0 ); // ms
 #ifdef THROTTLE_REVERSING_KICK
-		throttle_reversing_kick = THROTTLE_REVERSING_KICK * battery_scale_factor;
+		throttle_reversing_kick = THROTTLE_REVERSING_KICK * ( ( battery_scale_factor - 1.0f ) * 1.5f + 1.0f );
 		throttle_reversing_kick_decrement = throttle_reversing_kick * (float)LOOPTIME / 100000.0f; // 100 ms
 #endif
 	}
@@ -209,7 +209,7 @@ void control( void )
 	#ifndef MOTOR_BEEPS_CHANNEL
 		#define MOTOR_BEEPS_CHANNEL CH_OFF
 	#endif
-				motorbeep( MOTOR_BEEPS_CHANNEL );
+				motorbeep( motors_failsafe, MOTOR_BEEPS_CHANNEL );
 #endif
 			} else {
 				for ( int i = 0; i < 4; ++i ) {

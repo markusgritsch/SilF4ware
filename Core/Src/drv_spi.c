@@ -5,7 +5,7 @@
 
 #ifdef SOFTSPI_4WIRE
 
-#define MOSIHIGH gpioset(SPI_MOSI_GPIO_Port, SPI_MOSI_Pin)
+#define MOSIHIGH gpioset(SPI_MOSI_GPIO_Port, SPI_MOSI_Pin);
 #define MOSILOW gpioreset(SPI_MOSI_GPIO_Port, SPI_MOSI_Pin);
 #define SCKHIGH gpioset(SPI_CLK_GPIO_Port, SPI_CLK_Pin);
 #define SCKLOW gpioreset(SPI_CLK_GPIO_Port, SPI_CLK_Pin);
@@ -17,30 +17,31 @@
 void spi_sendbyte( int data )
 {
 	for ( int i =7; i >= 0; --i ) {
-		SCKLOW;
+		SCKLOW
 		if ( ( data >> i ) & 1 ) {
-			MOSIHIGH;
+			MOSIHIGH
 		} else {
-			MOSILOW;
+			MOSILOW
 		}
-		SCKHIGH;
+		SCKHIGH
 		DELAY_O3
 	}
-	SCKLOW;
+	SCKLOW
+	MOSILOW
 }
 
 int spi_sendzerorecvbyte()
 {
 	int recv = 0;
-	MOSILOW;
+	MOSILOW
 	for ( int i = 7; i >= 0; --i ) {
 		recv = recv << 1;
-		SCKHIGH;
+		SCKHIGH
 		DELAY_O3
 		if ( READMISO ) {
 			recv = recv | 1;
 		}
-		SCKLOW;
+		SCKLOW
 		DELAY_O3
 	}
 	return recv;
@@ -52,16 +53,16 @@ int spi_sendzerorecvbyte()
 // 	for ( int i = 7; i >= 0; --i ) {
 // 		recv = recv << 1;
 // 		if ( data & ( 1 << 7 ) ) {
-// 			MOSIHIGH;
+// 			MOSIHIGH
 // 		} else {
-// 			MOSILOW;
+// 			MOSILOW
 // 		}
 // 		data = data << 1;
-// 		SCKHIGH;
+// 		SCKHIGH
 // 		if ( READMISO ) {
 // 			recv = recv | 1;
 // 		}
-// 		SCKLOW;
+// 		SCKLOW
 // 	}
 // 	return recv;
 // }
@@ -71,17 +72,17 @@ int spi_sendzerorecvbyte()
 // 	int recv = 0;
 // 	for ( int i = 7; i >= 0; --i ) {
 // 		if ( data & (1 << 7 ) ) {
-// 			MOSIHIGH;
+// 			MOSIHIGH
 // 		} else {
-// 			MOSILOW;
+// 			MOSILOW
 // 		}
-// 		SCKHIGH;
+// 		SCKHIGH
 // 		data = data << 1;
 // 		if ( READMISO ) {
 // 			recv = recv | ( 1 << 7 );
 // 		}
 // 		recv = recv << 1;
-// 		SCKLOW;
+// 		SCKLOW
 // 	}
 // 	recv = recv >> 8;
 // 	return recv;

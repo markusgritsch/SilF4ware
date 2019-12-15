@@ -141,7 +141,7 @@ void pid( int x )
 #endif
 	}
 
-	limitf( &ierror[ x ], integrallimit[ x ] );
+	limitf( &ierror[ x ], integrallimit[ x ] * battery_scale_factor );
 
 	// P term
 #ifdef ENABLE_SETPOINT_WEIGHTING

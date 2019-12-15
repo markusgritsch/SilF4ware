@@ -149,6 +149,8 @@
 #define ALLOW_MIX_INCREASING
 // A higher value means a shorter active increasing period (shorter bouncy period)
 #define TRANSIENT_MIX_INCREASING_HZ 2.0
+// Can be used to limit maximum motor RPM, i.e. tone down a too fast quad.
+#define MIX_RANGE_LIMIT 1.0f // aux[ DEVO_CHAN_11 ] ? 0.75f : 1.0f
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
 #define THRUST_LINEARIZATION 0.33f // 0.0f .. no compensation, 1.0f .. full square root curve

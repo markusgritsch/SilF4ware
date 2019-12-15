@@ -91,6 +91,9 @@ void control( void )
 
 	rxcopy[ 3 ] = rx[ 3 ]; // throttle
 
+	const float mixRangeLimit = MIX_RANGE_LIMIT;
+	rxcopy[ 3 ] *= mixRangeLimit;
+
 #ifdef RX_SMOOTHING
 	static float rxsmooth[ 4 ];
 	static float lastRXcopy[ 4 ];
@@ -339,16 +342,16 @@ void control( void )
 		}
 		const float mixRange = maxMix - minMix;
 		float reduceAmount = 0.0f;
-		if ( mixRange > 1.0f ) {
-			const float scale = 1.0f / mixRange;
+		if ( mixRange > mixRangeLimit ) {
+			const float scale = mixRangeLimit / mixRange;
 			for ( int i = 0; i < 4; ++i ) {
 				mix[ i ] *= scale;
 			}
 			minMix *= scale;
 			reduceAmount = minMix;
 		} else {
-			if ( maxMix > 1.0f ) {
-				reduceAmount = maxMix - 1.0f;
+			if ( maxMix > mixRangeLimit ) {
+				reduceAmount = maxMix - mixRangeLimit;
 			} else if ( minMix < 0.0f ) {
 				reduceAmount = minMix;
 			}

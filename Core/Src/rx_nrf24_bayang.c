@@ -226,14 +226,16 @@ void rx_init()
 
 //#define RXDEBUG
 
+// https://www.rcgroups.com/forums/showpost.php?p=42198187&postcount=535
 #ifdef RXDEBUG
 unsigned long packettime;
-int channelcount[ 4 ];
-int failcount;
-int skipstats[ 12 ];
-int afterskip[ 12 ];
+int channelcount[ 4 ]; // counts divided per channel (these are totals but should be similar)
+int failcount; // packets that fail some check, should be 0 or very low
+int skipstats[ 12 ]; // these 2 are hard to explain
+int afterskip[ 12 ]; // they have to do with how many chan hops before the rx recovers
 #warning "RX debug enabled"
 #endif
+// anyway if you look at channelcount you could figure out if it's some particular channel without reception.
 
 int packetrx;
 int packetpersecond;
@@ -645,7 +647,7 @@ void checkrx( void )
 
 #ifdef RX_PREDICTOR
 	if ( time >= next_predictor_time &&
-		next_predictor_time - last_good_rx_time <= 15 * packet_period ) // Stop predicting after noo many missed packets in a row.
+		next_predictor_time - last_good_rx_time <= 15 * packet_period ) // Stop predicting after too many missed packets in a row.
 	{
 		next_predictor_time += packet_period; // Predict new values only at packet_period intervals.
 		for ( int i = 0; i < 4; ++i ) {

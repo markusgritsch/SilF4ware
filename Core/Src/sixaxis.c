@@ -72,6 +72,7 @@ void sixaxis_init( void )
 float bb_accel[ 3 ];
 float accel[ 3 ];
 float gyro[ 3 ];
+float gyro_notch_filtered[ 3 ];
 float gyro_unfiltered[ 3 ];
 
 float accelcal[ 3 ];
@@ -238,6 +239,8 @@ static void process_gyronew_to_gyro( float gyronew[] )
 
 		gyro[ i ] = gyronew[ i ];
 
+		gyro_unfiltered[ i ] = gyro[ i ];
+
 #ifdef RPM_FILTER
 		gyro[ i ] = rpm_filter( gyro[ i ], i );
 #endif
@@ -252,7 +255,7 @@ static void process_gyronew_to_gyro( float gyronew[] )
 		gyro[ i ] = notch_c_filter( gyro[ i ], i );
 #endif
 
-		gyro_unfiltered[ i ] = gyro[ i ];
+		gyro_notch_filtered[ i ] = gyro[ i ];
 
 #ifdef GYRO_LPF_1ST_HZ_BASE
 		gyro[ i ] = gyro_lpf_filter( gyro[ i ], i );

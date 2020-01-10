@@ -24,7 +24,7 @@
 #define DSHOT_BIT_TIME_THIRD ( ( SYS_CLOCK_FREQ_MHZ * 1000 / DSHOT / 3 ) - 1 )
 #define GCR_FREQUENCY ( DSHOT * 5 / 4 ) // 375, 750 .. according to specification
 #define GCR_BIT_TIME_THIRD ( ( SYS_CLOCK_FREQ_MHZ * 1000 / GCR_FREQUENCY / 3 ) - 1 )
-#define GCR_BUFFER_SIZE ( ( 30 + 10 ) * GCR_FREQUENCY * 3 / 1000 + 21 * 3 ) // 30 us delay, 21 bits, 10 us post
+#define GCR_BUFFER_SIZE ( ( 30 + 5 ) * GCR_FREQUENCY * 3 / 1000 + 21 * 3 ) // 30 us delay, 21 bits, 5 us post
 
 #ifdef DSHOT_DMA_BIDIR
 
@@ -380,7 +380,7 @@ uint32_t rpm_telemetry_sample_stats[ 12 ];
 
 float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 {
-	uint32_t index = 20 * GCR_FREQUENCY * 3 / 1000; // Start looking at 20 us.
+	uint32_t index = 23 * GCR_FREQUENCY * 3 / 1000; // Start looking at 23 us.
 	while ( index < GCR_BUFFER_SIZE && ( ( gcr_data[ index ] & pin ) != 0 ) ) { // Find the start bit.
 		++index;
 	}

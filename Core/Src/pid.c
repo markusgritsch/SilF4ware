@@ -70,7 +70,7 @@ extern float looptime;
 extern float setpoint[ PIDNUMBER ];
 extern float error[ PIDNUMBER ];
 extern float gyro[ 3 ];
-extern float gyro_unfiltered[ 3 ];
+extern float gyro_notch_filtered[ 3 ];
 extern int onground;
 extern float vbattfilt;
 extern float battery_scale_factor;
@@ -238,8 +238,8 @@ void pid( int x )
 		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
 		lastrate[ x ] = gyro[ x ];
 #else
-		dterm = - ( gyro_unfiltered[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
-		lastrate[ x ] = gyro_unfiltered[ x ];
+		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
+		lastrate[ x ] = gyro_notch_filtered[ x ];
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
 		dterm = dterm_filter( dterm, x );
 #ifdef DTERM_LPF_1ST_HZ

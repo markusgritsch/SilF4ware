@@ -17,7 +17,7 @@ void lpf( float * out, float in, float alpha )
 // Biquad
 
 typedef struct FilterBiquadCoeff_s {
-	float b0, b1, b2, a1, a2;
+	float b0, b1, b2, a1, a2, f_Hz;
 } FilterBiquadCoeff_t;
 
 typedef struct FilterBiquad_s {
@@ -50,6 +50,9 @@ static void filter_notch_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz, fl
 	coeff->b2 /= a0;
 	coeff->a1 /= a0;
 	coeff->a2 /= a0;
+
+	// filter frequency for the above coefficients
+	coeff->f_Hz = filter_Hz;
 }
 
 static void filter_bessel_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz )
@@ -73,6 +76,9 @@ static void filter_bessel_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz )
 	coeff->b2 /= a0;
 	coeff->a1 /= a0;
 	coeff->a2 /= a0;
+
+	// filter frequency for the above coefficients
+	coeff->f_Hz = filter_Hz;
 }
 
 float filter_biquad_step( FilterBiquad_t * filter, FilterBiquadCoeff_t * coeff, float input )
@@ -147,6 +153,32 @@ static void filter_lpf2_reset( FilterLPF2_t * filter, int holdoff_time_ms )
 
 
 // Gyro
+
+#ifdef RPM_FILTER
+
+float rpm_filter( float input, int axis )
+{
+	extern float motor_hz[ 4 ]; // drv_dshot_bidir.c
+	static FilterBiquadCoeff_t gyro_notch_coeff[ 4 ][ RPM_FILTER_HARMONICS ];
+	static FilterBiquad_t gyro_notch[ 3 ][ 4 ][ RPM_FILTER_HARMONICS ];
+	float output = input;
+	for ( int motor = 0; motor < 4; ++motor ) {
+		for ( int harmonic = 0; harmonic < RPM_FILTER_HARMONICS; ++harmonic ) {
+			const float filter_hz_harmonic = motor_hz[ motor ] * ( harmonic + 1 );
+			if ( axis == 0 && filter_hz_harmonic != 0.0f ) {
+				filter_notch_coeff( &gyro_notch_coeff[ motor ][ harmonic ], filter_hz_harmonic, RPM_FILTER_Q );
+			}
+			const float filtered = filter_biquad_step( &gyro_notch[ axis ][ motor ][ harmonic ], &gyro_notch_coeff[ motor ][ harmonic ], output );
+			if ( gyro_notch_coeff[ motor ][ harmonic ].f_Hz >= RPM_FILTER_HZ_MIN ) {
+				output = filtered;
+			}
+		}
+	}
+	return output;
+}
+
+#endif // RPM_FILTER
+
 
 #ifdef BIQUAD_NOTCH_A_HZ
 

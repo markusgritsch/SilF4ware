@@ -49,10 +49,15 @@
 
 // Gyro Notch Filters
 
-// #define BIQUAD_NOTCH_A_HZ 260
+#define RPM_FILTER // requires DSHOT_DMA_BIDIR in hardware.h -- also ensure MOTOR_POLE_COUNT in drv_dshot_bidir.c is correct
+#define RPM_FILTER_HZ_MIN 100
+#define RPM_FILTER_HARMONICS 3 // note, that there are 12 notch filters (4 motors * 3 axes) per harmonic
+#define RPM_FILTER_Q 6 // -3dB bandwidth = f0 / Q -- but a higher Q also results in a longer settling time
+
+// #define BIQUAD_NOTCH_A_HZ 260 // Dalprop Cyclone T5249C
 // #define BIQUAD_NOTCH_A_Q 6
 
-// #define BIQUAD_NOTCH_B_HZ 330
+// #define BIQUAD_NOTCH_B_HZ 300 // T-Motor T5147
 // #define BIQUAD_NOTCH_B_Q 6
 
 // #define BIQUAD_NOTCH_C_HZ 380
@@ -182,7 +187,7 @@
 //#define SMART_FF
 
 // Loop time in us
-#define LOOPTIME 125
+#define LOOPTIME 250
 
 // Failsafe time in us. Sets stick inputs to zero after FAILSAFETIME no RX signal. Keeps quad stabilized.
 #define FAILSAFETIME 150000 // 0.15 seconds

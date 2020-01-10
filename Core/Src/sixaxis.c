@@ -29,7 +29,7 @@ void sixaxis_init( void )
 	delay( 1 );
 
 	// gyro soft reset
-	mpu_writereg( 107, 128 );
+	// mpu_writereg( 107, 128 );
 
 	delay( 40000 ); // 30 ms gyro start up time, 10 ms PLL settling time
 
@@ -237,6 +237,10 @@ static void process_gyronew_to_gyro( float gyronew[] )
 		gyronew[ i ] = gyronew[ i ] * 0.061035156f * DEGTORAD;
 
 		gyro[ i ] = gyronew[ i ];
+
+#ifdef RPM_FILTER
+		gyro[ i ] = rpm_filter( gyro[ i ], i );
+#endif
 
 #ifdef BIQUAD_NOTCH_A_HZ
 		gyro[ i ] = notch_a_filter( gyro[ i ], i );

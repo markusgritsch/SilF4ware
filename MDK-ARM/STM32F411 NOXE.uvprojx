@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F411xE</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;           ../Drivers/STM32F4xx_HAL_Driver/Inc;           ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;           ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;           ../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc;            ../Drivers/STM32F4xx_HAL_Driver/Inc;            ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;            ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;            ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -533,6 +533,11 @@
               <FilePath>..\Core\Src\drv_reset.c</FilePath>
             </File>
             <File>
+              <FileName>blackbox.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\blackbox.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>
@@ -548,9 +553,9 @@
               <FilePath>../Core/Src/stm32f4xx_hal_msp.c</FilePath>
             </File>
             <File>
-              <FileName>blackbox.c</FileName>
+              <FileName>drv_dshot_bidir.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\blackbox.c</FilePath>
+              <FilePath>..\Core\Src\drv_dshot_bidir.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -38,9 +38,9 @@ uint32_t motor_data_port1st[ 16 ] = { 0 }; // DMA buffer: reset output when bit 
 uint32_t motor_data_port2nd[ 16 ] = { 0 };
 
 uint32_t dshot_port1st[ 1 ] = { 0 }; // sum of all motor pins at port1st
-uint32_t dshot_port1st_off[ 1 ] = { 0 };
+uint32_t dshot_port1st_off[ 16 ] = { 0 };
 uint32_t dshot_port2nd[ 1 ] = { 0 }; // sum of all motor pins at port2nd
-uint32_t dshot_port2nd_off[ 1 ] = { 0 };
+uint32_t dshot_port2nd_off[ 16 ] = { 0 };
 
 GPIO_TypeDef * GPIO1st = 0;
 GPIO_TypeDef * GPIO2nd = 0;
@@ -94,8 +94,13 @@ void pwm_init()
 		*dshot_port2nd |= ESC4_Pin;
 	}
 
-	*dshot_port1st_off = ( *dshot_port1st ) << 16;
-	*dshot_port2nd_off = ( *dshot_port2nd ) << 16;
+	// The bidir DMA driver needs to also inclrement the memory address associated with the
+	// TIM1_CH2 DMA stream, so we also provide an array of 16 values here to be able to use
+	// the same CubeMX initialization code.
+	for ( uint8_t i = 0; i < 16; ++i ) {
+		dshot_port1st_off[ i ] = ( *dshot_port1st ) << 16;
+		dshot_port2nd_off[ i ] = ( *dshot_port2nd ) << 16;
+	}
 }
 
 static void dshot_dma_port1st()
@@ -188,28 +193,28 @@ static void dshot_dma_start()
 		motor_data_port1st[ i ] = 0;
 		motor_data_port2nd[ i ] = 0;
 
-		if ( ! ( dshot_packet[0] & 0x8000 ) ) {
+		if ( ! ( dshot_packet[ 0 ] & 0x8000 ) ) {
 			if ( ESC1_GPIO_Port == GPIO1st ) {
 				motor_data_port1st[ i ] |= ESC1_Pin << 16;
 			} else {
 				motor_data_port2nd[ i ] |= ESC1_Pin << 16;
 			}
 		}
-		if ( ! ( dshot_packet[1] & 0x8000 ) ) {
+		if ( ! ( dshot_packet[ 1 ] & 0x8000 ) ) {
 			if ( ESC2_GPIO_Port == GPIO1st ) {
 				motor_data_port1st[ i ] |= ESC2_Pin << 16;
 			} else {
 				motor_data_port2nd[ i ] |= ESC2_Pin << 16;
 			}
 		}
-		if ( ! ( dshot_packet[2] & 0x8000 ) ) {
+		if ( ! ( dshot_packet[ 2 ] & 0x8000 ) ) {
 			if ( ESC3_GPIO_Port == GPIO1st ) {
 				motor_data_port1st[ i ] |= ESC3_Pin << 16;
 			} else {
 				motor_data_port2nd[ i ] |= ESC3_Pin << 16;
 			}
 		}
-		if ( ! ( dshot_packet[3] & 0x8000 ) ) {
+		if ( ! ( dshot_packet[ 3 ] & 0x8000 ) ) {
 			if ( ESC4_GPIO_Port == GPIO1st ) {
 				motor_data_port1st[ i ] |= ESC4_Pin << 16;
 			} else {

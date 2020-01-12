@@ -10,7 +10,9 @@
 #define DSHOT 300 // works on BB1
 // #define DSHOT 150
 
-#define MOTOR_POLE_COUNT 14 // number of magnets on the motor bell
+// Number of magnets on the motor bell. A correct value is of paramount importance for motor RPM calculation.
+#define MOTOR_POLE_COUNT 14 // usually on 22xx motors and above
+// #define MOTOR_POLE_COUNT 12 // usually on 18xx motors and below
 
 
 #include <stdbool.h>

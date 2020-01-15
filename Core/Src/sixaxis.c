@@ -264,6 +264,12 @@ static void process_gyronew_to_gyro( float gyronew[] )
 		gyro[ i ] = gyro_lpf2_filter( gyro[ i ], i );
 #endif
 
+#ifdef GYRO_LPF_1ST_HZ
+		static float gyro1st[ 3 ];
+		lpf( &gyro1st[ i ], gyro[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( GYRO_LPF_1ST_HZ ) ) );
+		gyro[ i ] = gyro1st[ i ];
+#endif
+
 #ifdef GYRO_YAW_LPF_1ST_HZ
 		extern float aux_analog[ 2 ];
 		if ( i == 2 ) { // yaw

@@ -63,7 +63,7 @@
 // #define BIQUAD_NOTCH_C_HZ 380
 // #define BIQUAD_NOTCH_C_Q 6
 
-// Gyro first and second order LPFs
+// Dynamic Gyro first and second order LPFs
 
 #define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.
 #define GYRO_LPF_1ST_HZ_MAX 120 // A higher filter frequency than loopfrequency/2.4 causes ripples.
@@ -73,15 +73,18 @@
 // #define GYRO_LPF_2ND_HZ_MAX 240
 // #define GYRO_LPF_2ND_HZ_THROTTLE 0.25
 
-// Additional Gyro yaw first order LPF
-//#define GYRO_YAW_LPF_1ST_HZ 60
+// Static Gyro first order LPF
+//#define GYRO_LPF_1ST_HZ 240
 
-// D-Term second order LPF (cannot be turned off)
+// Additional static Gyro first order LPF on yaw only
+//#define GYRO_YAW_LPF_1ST_HZ 240
+
+// Dynamic D-Term second order LPF (cannot be turned off)
 #define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
 #define DTERM_LPF_2ND_HZ_MAX 60
 #define DTERM_LPF_2ND_HZ_THROTTLE 0.5
 
-// Additional D-Term first order LPF
+// Additional static D-Term first order LPF
 //#define DTERM_LPF_1ST_HZ 60
 
 // Whether to use Bessel type filter for D-Term instead of PT2.

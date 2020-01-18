@@ -16,7 +16,8 @@ float apidkd[ APIDNUMBER ] = { 0.0 };
 // rate limit
 #define OUTLIMIT_FLOAT (float)LEVEL_MAX_RATE
 
-extern float timefactor; // pid.c
+// 0.0032f is there for legacy purposes, should be 0.001f = looptime
+#define TIMEFACTOR ( 0.0032f / ( LOOPTIME * 1E-6f ) )
 
 float apidoutput[ APIDNUMBER ];
 float angleerror[ APIDNUMBER ];
@@ -28,7 +29,7 @@ float angle_pid( int x )
 	apidoutput[ x ] = angleerror[ x ] * apidkp[ 0 ];
 
 	// D term
-	apidoutput[ x ] = apidoutput[ x ] - ( angleerror[ x ] - lasterror[ x ] ) * apidkd[ 0 ] * timefactor;
+	apidoutput[ x ] = apidoutput[ x ] - ( angleerror[ x ] - lasterror[ x ] ) * apidkd[ 0 ] * TIMEFACTOR;
 	lasterror[ x ] = angleerror[ x ];
 
 	limitf( &apidoutput[ x ], OUTLIMIT_FLOAT );

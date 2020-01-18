@@ -38,8 +38,8 @@ static float pdScaleValue; // updated in pid_precalc()
 
 // unscaled PID values tuned for 4S
 //                         { roll, pitch, yaw }
-float pidkp[ PIDNUMBER ] = { 0.04, 0.04, 0.05 };
-float pidki[ PIDNUMBER ] = { 0.50, 0.50, 3.0 };
+float pidkp[ PIDNUMBER ] = { 0.04, 0.04, 0.01 };
+float pidki[ PIDNUMBER ] = { 0.50, 0.50, 1.0 };
 float pidkd[ PIDNUMBER ] = { 0.20, 0.20, 0.0 };
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
@@ -66,7 +66,6 @@ float * current_pid_term_pointer = pidkp;
 
 float ierror[ PIDNUMBER ] = { 0, 0, 0 };
 float pidoutput[ PIDNUMBER ];
-extern float looptime;
 extern float setpoint[ PIDNUMBER ];
 extern float error[ PIDNUMBER ];
 extern float gyro[ 3 ];
@@ -84,7 +83,8 @@ static float lasterror[ PIDNUMBER ];
 static float lasterror2[ PIDNUMBER ];
 #endif
 
-float timefactor;
+// 0.0032f is there for legacy purposes, should be 0.001f = looptime
+#define TIMEFACTOR ( 0.0032f / ( LOOPTIME * 1E-6f ) )
 static float v_compensation = 1.0f;
 
 float bb_p[ 3 ];
@@ -121,25 +121,33 @@ void pid( int x )
 			i_windup = 1;
 		}
 	}
-#endif
+#endif // TRANSIENT_WINDUP_PROTECTION
+
+#ifdef YAW_WINDUP_RESET
+	if ( x == 2 ) { // Only for yaw.
+		static float lastGyro;
+		if ( fabsf( ierror[ x ] ) > 0.05f * battery_scale_factor && ( gyro[ x ] < 0.0f != lastGyro < 0.0f ) ) { // gyro crossed zero
+			ierror[ x ] *= 0.2f;
+		}
+		lastGyro = gyro[ x ];
+	}
+#endif // YAW_WINDUP_RESET
 
 	if ( ! i_windup ) {
 #ifdef RECTANGULAR_RULE_INTEGRAL
-		ierror[ x ] = ierror[ x ] + error[ x ] * pidki[ x ] * looptime * AA_pidki;
-		lasterror[ x ] = error[ x ];
+		ierror[ x ] = ierror[ x ] + error[ x ] * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
 #endif
 
 #ifdef TRAPEZOIDAL_RULE_INTEGRAL
-		ierror[ x ] = ierror[ x ] + ( error[ x ] + lasterror[ x ] ) * 0.5f * pidki[ x ] * looptime * AA_pidki;
-		lasterror[ x ] = error[ x ];
+		ierror[ x ] = ierror[ x ] + ( error[ x ] + lasterror[ x ] ) * 0.5f * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
 #endif
 
 #ifdef SIMPSON_RULE_INTEGRAL
-		ierror[ x ] = ierror[ x ] + 0.166666f * ( lasterror2[ x ] + 4 * lasterror[ x ] + error[ x ] ) * pidki[ x ] * looptime * AA_pidki;
-		lasterror2[ x ] = lasterror[ x ];
-		lasterror[ x ] = error[ x ];
+		ierror[ x ] = ierror[ x ] + 0.166666f * ( lasterror2[ x ] + 4 * lasterror[ x ] + error[ x ] ) * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
 #endif
 	}
+	lasterror2[ x ] = lasterror[ x ];
+	lasterror[ x ] = error[ x ];
 
 	limitf( &ierror[ x ], integrallimit[ x ] * battery_scale_factor );
 
@@ -151,14 +159,15 @@ void pid( int x )
 #endif
 	bb_p[ x ] = pidoutput[ x ];
 
+	if ( x < 2 ) { // Only for roll and pitch.
+
 // https://www.rcgroups.com/forums/showpost.php?p=39606684&postcount=13846
 // https://www.rcgroups.com/forums/showpost.php?p=39667667&postcount=13956
 #ifdef FEED_FORWARD_STRENGTH
-	if ( x < 2 ) { // Only for roll and pitch.
 
 #ifdef RX_SMOOTHING
 		static float lastSetpoint[ 2 ];
-		float ff = ( setpoint[ x ] - lastSetpoint[ x ] ) * timefactor * FEED_FORWARD_STRENGTH * pidkd[ x ] * AA_pidkd;
+		float ff = ( setpoint[ x ] - lastSetpoint[ x ] ) * TIMEFACTOR * FEED_FORWARD_STRENGTH * pidkd[ x ] * AA_pidkd;
 		lastSetpoint[ x ] = setpoint[ x ];
 #else
 		static float lastSetpoint[ 2 ];
@@ -174,9 +183,9 @@ void pid( int x )
 		float ff = 0.0f;
 		if ( ffCount[ x ] > 0 ) {
 			--ffCount[ x ];
-			ff = setpointDiff[ x ] * timefactor * FEED_FORWARD_STRENGTH * pidkd[ x ] * AA_pidkd;
+			ff = setpointDiff[ x ] * TIMEFACTOR * FEED_FORWARD_STRENGTH * pidkd[ x ] * AA_pidkd;
 		}
-#endif
+#endif // RX_SMOOTHING
 
 		// Distribute ff over a few loops. Otherwise it gets clipped and leads to audible motor clicks:
 #if 1
@@ -221,10 +230,30 @@ void pid( int x )
 		}
 #else
 		pidoutput[ x ] += ff;
-#endif
+#endif // SMART_FF
 		bb_ff[ x ] = ff;
+
+#endif // FEED_FORWARD_STRENGTH
+
+	} else { // x == 2: yaw
+
+#ifdef FEED_FORWARD_YAW
+	#ifndef RX_SMOOTHING
+		#error "FEED_FORWARD_YAW only works with RX_SMOOTHING enabled."
+	#endif
+		static float lastSetpointYaw;
+		float ff = ( setpoint[ x ] - lastSetpointYaw ) * TIMEFACTOR * FEED_FORWARD_YAW;
+		lastSetpointYaw = setpoint[ x ];
+
+		static float avgFFyaw;
+		lpf( &avgFFyaw, ff, ALPHACALC( LOOPTIME, 1e6f / 20.0f ) ); // 20 Hz
+		ff = avgFFyaw;
+
+		pidoutput[ x ] += ff;
+		bb_ff[ x ] = ff;
+#endif // FEED_FORWARD_YAW
+
 	}
-#endif
 
 	// I term
 	pidoutput[ x ] += ierror[ x ];
@@ -235,10 +264,10 @@ void pid( int x )
 		float dterm;
 		static float lastrate[ 3 ];
 #ifdef CASCADE_GYRO_AND_DTERM_FILTER
-		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
+		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd;
 		lastrate[ x ] = gyro[ x ];
 #else
-		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * timefactor * AA_pidkd;
+		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd;
 		lastrate[ x ] = gyro_notch_filtered[ x ];
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
 		dterm = dterm_filter( dterm, x );
@@ -266,13 +295,8 @@ void pid( int x )
 	limitf( &pidoutput[ x ], out_limit );
 }
 
-// calculate change from ideal loop time
-// 0.0032f is there for legacy purposes, should be 0.001f = looptime
-// this is called in advance as an optimization because it has division
 void pid_precalc()
 {
-	timefactor = 0.0032f / looptime;
-
 #ifdef PID_VOLTAGE_COMPENSATION
 	v_compensation = mapf( vbattfilt, 3.0f, 4.0f, PID_VC_FACTOR, 1.0f );
 	if ( v_compensation > PID_VC_FACTOR ) {
@@ -297,17 +321,17 @@ void pid_precalc()
 void rotateErrors()
 {
 	// // rotation around x axis:
-	// float temp = gyro[ 0 ] * looptime;
+	// float temp = gyro[ 0 ] * LOOPTIME * 1E-6f;
 	// ierror[ 1 ] -= ierror[ 2 ] * temp;
 	// ierror[ 2 ] += ierror[ 1 ] * temp;
 
 	// // rotation around y axis:
-	// temp = gyro[ 1 ] * looptime;
+	// temp = gyro[ 1 ] * LOOPTIME * 1E-6f;
 	// ierror[ 2 ] -= ierror[ 0 ] * temp;
 	// ierror[ 0 ] += ierror[ 2 ] * temp;
 
 	// // rotation around z axis:
-	// temp = gyro[ 2 ] * looptime;
+	// temp = gyro[ 2 ] * LOOPTIME * 1E-6f;
 	// ierror[ 0 ] -= ierror[ 1 ] * temp;
 	// ierror[ 1 ] += ierror[ 0 ] * temp;
 
@@ -315,7 +339,7 @@ void rotateErrors()
 
 	// http://fooplot.com/#W3sidHlwZSI6MCwiZXEiOiJ4KjAuMDMxIiwiY29sb3IiOiIjODA4MDgwIn0seyJ0eXBlIjoyLCJlcXgiOiJjb3MocykiLCJlcXkiOiJzaW4ocykiLCJjb2xvciI6IiMwMDAwMDAiLCJzbWluIjoiMCIsInNtYXgiOiIwLjAzMSIsInNzdGVwIjoiLjAwMDEifSx7InR5cGUiOjIsImVxeCI6IjEiLCJlcXkiOiJzIiwiY29sb3IiOiIjZmYwMDAwIiwic21pbiI6IjAiLCJzbWF4IjoiMC4wMzEiLCJzc3RlcCI6Ii4wMDAxIn0seyJ0eXBlIjoyLCJlcXgiOiIxLXMqcy8yIiwiZXF5IjoicyIsImNvbG9yIjoiI0ZGMDBGRiIsInNtaW4iOiIwIiwic21heCI6IjAuMDMxIiwic3N0ZXAiOiIuMDAwMSJ9LHsidHlwZSI6MTAwMCwid2luZG93IjpbIjAuOTg0IiwiMS4wMTYiLCIwIiwiMC4wMzIiXSwic2l6ZSI6WzY1MCw2NTBdfV0-
 	// yaw angle (at 1800?/s -> a2 = 1800/180*3.1416*0.001 = 0.031)
-	const float a2 = gyro[ 2 ] * looptime;
+	const float a2 = gyro[ 2 ] * LOOPTIME * 1E-6f;
 	// small angle approximations
 	const float COS_a2 = 1 - a2 * a2 / 2;
 	const float SIN_a2 = a2; // Adding -a2*a2*a2/6 yields no further improvement.

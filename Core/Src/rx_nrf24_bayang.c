@@ -56,13 +56,20 @@ const uint8_t xn297_scramble[] = {
 	0xc7, 0x62, 0x97, 0xd5, 0x0b, 0x79, 0xca, 0xcc
 };
 
-// from https://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
 // reverse the bit order in a single byte
 uint8_t swapbits( uint8_t a )
 {
+#if defined(__GNUC__) && defined(__ARM_ARCH_ISA_THUMB) && (__ARM_ARCH_ISA_THUMB==2)
+	uint32_t in = a;
+	uint32_t out = 0;
+	__asm volatile ( "rbit %0, %1" : "=r" (out) : "r" (in) );
+	return out >> 24;
+#else
+	// from https://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
 	unsigned int b = a;
 	b = ( ( b * 0x0802LU & 0x22110LU ) | ( b * 0x8020LU & 0x88440LU ) ) * 0x10101LU >> 16;
 	return b;
+#endif
 }
 
 uint16_t crc16_update( uint16_t crc, uint8_t in )

@@ -51,7 +51,8 @@
 
 #define RPM_FILTER // requires DSHOT_DMA_BIDIR in hardware.h -- also ensure MOTOR_POLE_COUNT in drv_dshot_bidir.c is correct
 #define RPM_FILTER_HZ_MIN 100
-#define RPM_FILTER_HARMONICS 3 // note, that there are 12 notch filters (4 motors * 3 axes) per harmonic
+#define RPM_FILTER_2ND_HARMONIC false // note, that there are 12 notch filters (4 motors * 3 axes) per harmonic
+#define RPM_FILTER_3RD_HARMONIC true
 #define RPM_FILTER_Q 6 // -3dB bandwidth = f0 / Q -- but a higher Q also results in a longer settling time
 
 // #define BIQUAD_NOTCH_A_HZ 260 // Dalprop Cyclone T5249C

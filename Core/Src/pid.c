@@ -16,7 +16,7 @@
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
 #define AA_pdScaleYawStabilizer 1.2f // multiply pdScaleValue by this value at full yaw
-static float pdScaleValue; // updated in pid_precalc()
+static float pdScaleValue = 1.0f; // updated in pid_precalc()
 
 #define AA_pidkp ( x < 2 ? pdScaleValue * aux_analog[ 0 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
 #define AA_pidki 1.0f

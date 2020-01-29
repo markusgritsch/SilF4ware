@@ -50,14 +50,14 @@
 // xn297 to nrf24 emulation based on code from nrf24multipro by goebish
 // DeviationTx by various contributors
 
-const uint8_t xn297_scramble[] = {
+static const uint8_t xn297_scramble[] = {
 	0xe3, 0xb1, 0x4b, 0xea, 0x85, 0xbc, 0xe5, 0x66,
 	0x0d, 0xae, 0x8c, 0x88, 0x12, 0x69, 0xee, 0x1f,
 	0xc7, 0x62, 0x97, 0xd5, 0x0b, 0x79, 0xca, 0xcc
 };
 
 // reverse the bit order in a single byte
-uint8_t swapbits( uint8_t a )
+static uint8_t swapbits( uint8_t a )
 {
 #if defined(__GNUC__) && defined(__ARM_ARCH_ISA_THUMB) && (__ARM_ARCH_ISA_THUMB==2)
 	uint32_t in = a;
@@ -72,35 +72,40 @@ uint8_t swapbits( uint8_t a )
 #endif
 }
 
-uint16_t crc16_update( uint16_t crc, uint8_t in )
+static uint16_t crc16_update( uint16_t crc, uint8_t in )
 {
+	#define POLYNOMIAL 0x1021
 	crc ^= in << 8;
-	// manually unrolled loop for speed:
-	crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ 0x1021 : crc << 1;
-	crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ 0x1021 : crc << 1;
-	crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ 0x1021 : crc << 1;
-	crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ 0x1021 : crc << 1;
-	crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ 0x1021 : crc << 1;
-	crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ 0x1021 : crc << 1;
-	crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ 0x1021 : crc << 1;
-	crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ 0x1021 : crc << 1;
+	for ( uint8_t i = 0; i < 8; ++i ) {
+		crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ POLYNOMIAL : crc << 1;
+	}
 	return crc;
 }
 
+// https://create.stephan-brumme.com/crc32/
+static uint16_t crc16_lut[ 256 ];
+static void crc16_init_lut()
+{
+	for ( int i = 0; i < 256; ++i ) {
+		crc16_lut[ i ] = crc16_update( 0, i );
+	}
+}
+#define CRC16_UPDATE( crc, in ) ( ( crc << 8 ) ^ crc16_lut[ ( ( crc & 0xFF00 ) >> 8 ) ^ in ] )
+
 // crc calculated over address field (constant)
-uint16_t crc_addr = 0;
+static uint16_t crc_addr = 0;
 
 // set both rx and tx address to a xn297 address
 // the tx address can only send to another nrf24
 // because it lacks the xn297 preamble
-void nrf24_set_xn297_address( uint8_t * addr )
+static void nrf24_set_xn297_address( uint8_t * addr )
 {
 	uint8_t rxaddr[ 6 ] = { 0x2a };
 	crc_addr = 0xb5d2;
 	for ( int i = 5; i > 0; --i ) {
 		rxaddr[ i ] = addr[ i - 1 ] ^ xn297_scramble[ 5 - i ];
 		if ( crc_en ) {
-			crc_addr = crc16_update( crc_addr, rxaddr[ i ] );
+			crc_addr = CRC16_UPDATE( crc_addr, rxaddr[ i ] );
 		}
 	}
 
@@ -113,7 +118,7 @@ void nrf24_set_xn297_address( uint8_t * addr )
 
 int crc_error = 0;
 
-int nrf24_read_xn297_payload( int * rxdata, int size )
+static int nrf24_read_xn297_payload( int * rxdata, int size )
 {
 	xn_readpayload( rxdata, size );
 
@@ -121,7 +126,7 @@ int nrf24_read_xn297_payload( int * rxdata, int size )
 		uint16_t crcx;
 		crcx = crc_addr;
 		for ( uint8_t i = 0; i < size - 2; ++i ) {
-			crcx = crc16_update( crcx, rxdata[ i ] );
+			crcx = CRC16_UPDATE( crcx, rxdata[ i ] );
 		}
 		uint16_t crcrx = rxdata[ size - 2 ] << 8;
 		crcrx |= rxdata[ size - 1 ] & 0xFF;
@@ -140,7 +145,7 @@ int nrf24_read_xn297_payload( int * rxdata, int size )
 	return 1;
 }
 
-void nrf24_write_xn297_payload( int * txdata, int size )
+static void nrf24_write_xn297_payload( int * txdata, int size )
 {
 	for ( int i = 0; i < size; ++i ) {
 		txdata[ i ] = swapbits( txdata[ i ] ) ^ xn297_scramble[ i + 5 ];
@@ -173,6 +178,8 @@ int packet_period = PACKET_PERIOD;
 
 void rx_init()
 {
+	crc16_init_lut();
+
 	spi_xn_csoff();
 	delay( 1 );
 

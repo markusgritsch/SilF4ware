@@ -48,7 +48,7 @@ void usermain()
 
 	lastlooptime = gettime() - LOOPTIME;
 
-	while ( true ) {
+	while ( true ) { // main loop
 		// Time measurements with ARMCLANG -O3:
 		// sixaxis_read(): 11 +2 per gyro filter (contains 10 SPI bitbang time)
 		// control(): 23 acro (+3 angle)
@@ -68,6 +68,7 @@ void usermain()
 		} else {
 			gyro_read(); // read just gyro data
 		}
+		// Gyro filtering is done in sixaxis.c
 #ifdef LEVELMODE
 		imu(); // attitude calculations for level mode
 #endif // LEVELMODE
@@ -86,7 +87,12 @@ void usermain()
 			max_used_loop_time = used_loop_time;
 		}
 
-		while ( ( gettime() - loop_start_time ) < LOOPTIME );
+		static uint32_t next_loop_start = 0;
+		if ( next_loop_start == 0 ) {
+			next_loop_start = loop_start_time;
+		}
+		next_loop_start += LOOPTIME;
+		while ( gettime() < next_loop_start );
 	}
 }
 

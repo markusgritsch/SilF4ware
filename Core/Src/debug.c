@@ -1,17 +1,18 @@
 #include "debug.h"
+#include "defines.h"
 #include "main.h"
 
 void debug_on( void )
 {
 #ifdef DBG_Pin
-	DBG_GPIO_Port->BSRR = DBG_Pin;
+	gpioset( DBG_GPIO_Port, DBG_Pin );
 #endif
 }
 
 void debug_off( void )
 {
 #ifdef DBG_Pin
-	DBG_GPIO_Port->BSRR = (uint32_t)DBG_Pin << 16U;
+	gpioreset( DBG_GPIO_Port, DBG_Pin );
 #endif
 }
 

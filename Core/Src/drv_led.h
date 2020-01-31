@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 void ledon( void );
 void ledoff( void );
 void ledflash( uint32_t period, uint8_t duty ); // duty: 0 .. 15

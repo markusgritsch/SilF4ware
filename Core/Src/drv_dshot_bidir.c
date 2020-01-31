@@ -38,8 +38,8 @@ static uint32_t dshot_data[ 16 * 3 ] = { 0 };
 static uint32_t dshot_data_port1st[ 16 * 3 ] = { 0 }; // DMA buffer
 static uint32_t dshot_data_port2nd[ 16 * 3 ] = { 0 };
 
-uint32_t gcr_data_port1st[ GCR_BUFFER_SIZE ] = { 0 }; // DMA buffer
-uint32_t gcr_data_port2nd[ GCR_BUFFER_SIZE ] = { 0 };
+static uint32_t gcr_data_port1st[ GCR_BUFFER_SIZE ] = { 0 }; // DMA buffer
+static uint32_t gcr_data_port2nd[ GCR_BUFFER_SIZE ] = { 0 };
 
 static GPIO_TypeDef * GPIO1st = 0;
 static GPIO_TypeDef * GPIO2nd = 0;
@@ -179,6 +179,10 @@ static void make_packet( uint8_t number, uint16_t value, bool telemetry )
 // make Dshot dma packet, then fire
 static void dshot_dma_start()
 {
+	// Decode previous GCR telemetry just before starting the next Dshot DMA transfer.
+	// This way we ensure that receiving telemetry has finnished.
+	decode_gcr_telemetry(); // Takes about 30 us @168 MHz.
+
 	for ( uint8_t i = 0; i < 16 * 3; ++i ) {
 		dshot_data_port1st[ i ] = 0;
 		dshot_data_port2nd[ i ] = 0;
@@ -270,7 +274,9 @@ void DMA2_Stream2_IRQHandler()
 	if ( dma_state == WRITE_DSHOT ) {
 		dma_read_telemetry();
 	} else if ( dma_state == READ_TELEMETRY ) {
-		decode_gcr_telemetry();
+		// Do not decode_gcr_telemetry() here in the ISR. If it get's called at the end of main-loop busy-waiting,
+		// it could still be running while we should already be starting the next loop cycle, which would ruin a
+		// stable loop time. Instead we run decode_gcr_telemetry() before starting the next Dshot DMA transfer.
 	}
 }
 
@@ -307,7 +313,7 @@ static void dma_read_telemetry()
 }
 
 float motor_hz[ 4 ];
-void decode_gcr_telemetry(  )
+static void decode_gcr_telemetry()
 {
 	if ( ESC1_GPIO_Port == GPIO1st ) {
 		motor_hz[ 0 ] = decode_to_hz( gcr_data_port1st, ESC1_Pin );
@@ -380,7 +386,7 @@ uint32_t rpm_telemetry_csum_errors;
 uint32_t rpm_telemetry_sample_stats[ 12 ];
 #endif
 
-float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
+static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 {
 	uint32_t index = 23 * GCR_FREQUENCY * 3 / 1000; // Start looking at 23 us.
 	while ( index < GCR_BUFFER_SIZE && ( ( gcr_data[ index ] & pin ) != 0 ) ) { // Find the start bit.

@@ -1,23 +1,25 @@
 #include <math.h> // sqrtf
+#include <stdbool.h>
 
 #include "config.h"
+// #include "drv_led.h" // for testing
 #include "drv_time.h"
 #include "filter.h"
 #include "sixaxis.h"
 
+
 #define ACC_1G 1.0f
 
 // disable drift correction (for testing)
-#define DISABLE_ACC 0
+#define DISABLE_ACC false
 
-// filter time in seconds
-// time to correct gyro readings using the accelerometer
-// 1-4 are generally good
-#define FILTERTIME 2.0
+// time to correct gyro-based gravity vector estimation using the accelerometer
+// 1 .. 4 seconds are generally good
+#define FILTERTIME 2 // seconds
 
 // accel magnitude limits for drift correction
-#define ACC_MIN 0.7f
-#define ACC_MAX 1.3f
+#define ACC_MIN 0.8f
+#define ACC_MAX 1.2f
 
 
 float GEstG[ 3 ] = { 0, 0, ACC_1G };
@@ -26,7 +28,7 @@ float attitude[ 3 ];
 
 extern float gyro[ 3 ];
 extern float accel[ 3 ];
-extern float accelcal[ 3 ];
+extern float looptime;
 
 void imu_init( void )
 {
@@ -42,7 +44,7 @@ void imu_init( void )
 	}
 }
 
-float calcmagnitude( float vector[ 3 ] )
+static float calcmagnitude( float vector[ 3 ] )
 {
 	float accmag = 0;
 	for ( int axis = 0; axis < 3; ++axis ) {
@@ -52,14 +54,12 @@ float calcmagnitude( float vector[ 3 ] )
 	return accmag;
 }
 
-void vectorcopy( float * vector1, float * vector2 )
+static void vectorcopy( float * vector1, float * vector2 )
 {
 	for ( int axis = 0; axis < 3; ++axis ) {
 		vector1[ axis ] = vector2[ axis ];
 	}
 }
-
-extern float looptime;
 
 void imu( void )
 {
@@ -69,23 +69,36 @@ void imu( void )
 		deltaGyroAngle[ i ] = gyro[ i ] * looptime;
 	}
 
-	GEstG[ 2 ] = GEstG[ 2 ] - deltaGyroAngle[ 0 ] * GEstG[ 0 ];
-	GEstG[ 0 ] = deltaGyroAngle[ 0 ] * GEstG[ 2 ] + GEstG[ 0 ];
+	// GEstG[ 2 ] = GEstG[ 2 ] - deltaGyroAngle[ 0 ] * GEstG[ 0 ];
+	// GEstG[ 0 ] = deltaGyroAngle[ 0 ] * GEstG[ 2 ] + GEstG[ 0 ];
 
-	GEstG[ 1 ] = GEstG[ 1 ] + deltaGyroAngle[ 1 ] * GEstG[ 2 ];
-	GEstG[ 2 ] = -deltaGyroAngle[ 1 ] * GEstG[ 1 ] + GEstG[ 2 ];
+	// GEstG[ 1 ] = GEstG[ 1 ] + deltaGyroAngle[ 1 ] * GEstG[ 2 ];
+	// GEstG[ 2 ] = -deltaGyroAngle[ 1 ] * GEstG[ 1 ] + GEstG[ 2 ];
 
-	GEstG[ 0 ] = GEstG[ 0 ] - deltaGyroAngle[ 2 ] * GEstG[ 1 ];
-	GEstG[ 1 ] = deltaGyroAngle[ 2 ] * GEstG[ 0 ] + GEstG[ 1 ];
+	// GEstG[ 0 ] = GEstG[ 0 ] - deltaGyroAngle[ 2 ] * GEstG[ 1 ];
+	// GEstG[ 1 ] = deltaGyroAngle[ 2 ] * GEstG[ 0 ] + GEstG[ 1 ];
 
-	// calc acc mag
+	const float GEstG0 = GEstG[ 0 ] + deltaGyroAngle[ 0 ] * GEstG[ 2 ] - deltaGyroAngle[ 2 ] * GEstG[ 1 ];
+	const float GEstG1 = GEstG[ 1 ] + deltaGyroAngle[ 1 ] * GEstG[ 2 ] + deltaGyroAngle[ 2 ] * GEstG[ 0 ];
+	const float GEstG2 = GEstG[ 2 ] - deltaGyroAngle[ 0 ] * GEstG[ 0 ] - deltaGyroAngle[ 1 ] * GEstG[ 1 ];
+	GEstG[ 0 ] = GEstG0;
+	GEstG[ 1 ] = GEstG1;
+	GEstG[ 2 ] = GEstG2;
+
+	// Bring the gravity vector in sync with accel values:
 	const float accmag = calcmagnitude( accel );
-
 	if ( ( accmag > ACC_MIN * ACC_1G ) && ( accmag < ACC_MAX * ACC_1G ) && ! DISABLE_ACC ) {
 		for ( int axis = 0; axis < 3; ++axis ) {
-			const float accel_norm = accel[ axis ] * ACC_1G / accmag; // normalize acc
-			lpf( &GEstG[ axis ], accel_norm, ALPHACALC( LOOPTIME, 2 * PI_F * (float)FILTERTIME * 1e6f ) );
+			lpf( &GEstG[ axis ], accel[ axis ], ALPHACALC( LOOPTIME, 2 * PI_F * (float)FILTERTIME * 1e6f ) );
 		}
+		// Normalize GEstG after nudging it with accel (This is NFEs fix for the yaw slow down bug)
+		const float GEstGmag = calcmagnitude( GEstG );
+		for ( int axis = 0; axis < 3; ++axis ) {
+			GEstG[ axis ] = GEstG[ axis ] * ACC_1G / GEstGmag;
+		}
+	// 	ledon();
+	// } else {
+	// 	ledoff();
 	}
 
 	// vectorcopy( &GEstG[ 0 ], &EstG[ 0 ] );

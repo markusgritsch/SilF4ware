@@ -31,8 +31,8 @@ def writeLogStartMarker( f ):
 	f.write( 'H vbatcellvoltage:330,350,430\n' )
 	f.write( 'H vbatref:420\n' ) # 1S
 	# f.write( 'H currentSensor:0,400\n' )
-	f.write( 'H looptime:125\n' ) # for FFT Hz scaling
-	f.write( 'H pid_process_denom:4\n' ) # for FFT Hz scaling
+	f.write( 'H looptime:250\n' ) # for FFT Hz scaling
+	f.write( 'H pid_process_denom:2\n' ) # for FFT Hz scaling
 
 	f.write( 'H rc_rates:213.4,213.4,213.4\n' ) # for setpoint scaling
 	# f.write( 'H rc_expo:0,0,0\n' )

@@ -86,7 +86,7 @@
 #define DTERM_LPF_2ND_HZ_THROTTLE 0.5
 
 // Additional static D-Term first order LPF
-//#define DTERM_LPF_1ST_HZ 60
+//#define DTERM_LPF_1ST_HZ 120
 
 // Whether to use Bessel type filter for D-Term instead of PT2.
 //#define DTERM_BESSEL_FILTER
@@ -145,7 +145,7 @@
 #define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 
 // For smoother motor reversing in 3D flight
-#define THROTTLE_REVERSING_KICK 0.2f
+#define THROTTLE_REVERSING_KICK 0.1f
 
 // Continue stick movement with the current stick velocity in case of lost packets
 #define RX_PREDICTOR

@@ -146,6 +146,7 @@
 
 // For smoother motor reversing in 3D flight
 #define THROTTLE_REVERSING_KICK 0.1f
+#define THROTTLE_REVERSING_DEADTIME 20000 // 20 ms
 
 // Continue stick movement with the current stick velocity in case of lost packets
 #define RX_PREDICTOR

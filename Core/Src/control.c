@@ -18,6 +18,7 @@ int onground = 1;
 float thrsum;
 float mixmax;
 float throttle_reversing_kick;
+float throttle_reversing_kick_sawtooth;
 float throttle_reversing_kick_decrement;
 
 float error[ PIDNUMBER ];
@@ -62,7 +63,9 @@ void control( void )
 		dterm_filter_reset( 0 ); // ms
 #ifdef THROTTLE_REVERSING_KICK
 		throttle_reversing_kick = THROTTLE_REVERSING_KICK * ( ( battery_scale_factor - 1.0f ) * 1.5f + 1.0f );
-		throttle_reversing_kick_decrement = throttle_reversing_kick * (float)LOOPTIME / 100000.0f; // 100 ms
+		#define TRKD 100000.0f // 100 ms throttle reversing kick duration
+		throttle_reversing_kick_sawtooth = throttle_reversing_kick * ( TRKD + (float)THROTTLE_REVERSING_DEADTIME ) / TRKD;
+		throttle_reversing_kick_decrement = throttle_reversing_kick_sawtooth * (float)LOOPTIME / ( TRKD + (float)THROTTLE_REVERSING_DEADTIME );
 #endif
 	}
 
@@ -147,6 +150,11 @@ void control( void )
 
 		// Set ierror to zero, otherwise it builds up and causes bounce back.
 		ierror[ 0 ] = 0.0f; ierror[ 1 ] = 0.0f;
+
+		// Nice for BB logging fun. Not needed otherwise.
+		for ( int i = 0; i < 3; ++i ) {
+			 setpoint[ i ] = error[ i ] + gyro[ i ];
+		}
 	} else
 #endif // LEVELMODE
 	{ // rate mode
@@ -246,11 +254,13 @@ void control( void )
 #endif
 
 #ifdef THROTTLE_REVERSING_KICK
-		if ( throttle_reversing_kick > 0 ) {
-			// if ( throttle < throttle_reversing_kick ) {
-				throttle = throttle_reversing_kick;
-			// }
-			throttle_reversing_kick -= throttle_reversing_kick_decrement;
+		if ( throttle_reversing_kick_sawtooth > 0.0f ) {
+			if ( throttle_reversing_kick_sawtooth > throttle_reversing_kick ) {
+				throttle = 0.0f;
+			} else {
+				throttle = throttle_reversing_kick_sawtooth;
+			}
+			throttle_reversing_kick_sawtooth -= throttle_reversing_kick_decrement;
 		}
 #endif
 

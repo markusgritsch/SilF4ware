@@ -77,7 +77,7 @@ void control( void )
 #endif
 
 	for ( int i = 0; i < 3; ++i ) {
-		rxcopy[ i ] = rx[ i ] * rate_multiplier;
+		rxcopy[ i ] = rx[ i ];
 
 #ifdef STICKS_DEADBAND
 		if ( fabsf( rxcopy[ i ] ) <= STICKS_DEADBAND ) {
@@ -90,6 +90,8 @@ void control( void )
 			}
 		}
 #endif
+
+		rxcopy[ i ] *= rate_multiplier;
 	}
 
 	rxcopy[ 3 ] = rx[ 3 ]; // throttle

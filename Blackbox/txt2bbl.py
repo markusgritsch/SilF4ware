@@ -43,7 +43,7 @@ def writeLogStartMarker( f ):
 	f.write( 'H pitchPID:31.22,1,1\n' ) # equivalent Betaflight PID values, the response.png plot is of no use.
 	f.write( 'H yawPID:31.22,1,0\n' )   # However the noise.png plot seems to be independent of those numbers.
 
-	f.write( 'H debug_mode:3\n' ) # 3 .. "Gyro Filtered"
+	f.write( 'H debug_mode:6\n' ) # 3 .. "Gyro Scaled"
 
 def writeLogEndMarker( f ):
 	f.write( 'E\xffEnd of log\x00' ) # optional log end marker
@@ -81,6 +81,11 @@ accSmooth = [ 0, 0, 0 ]
 debug = [ 0, 0, 0, 0 ]
 motor = [ 0, 0, 0, 0 ]
 
+rssiLast = 0
+rssiAvg = 0
+rssiArray = [ 0 ] * int( 200 * 0.15 ) # 0.15 seconds
+rssiIndex = 0
+
 def writeData():
 	global iteration, time, axisP, axisI, axisD, axisF, rcCommand, setpoint, vbatLatest, amperageLatest, rssi, gyroADC, accSmooth, debug, motor
 	loopIteration = unsignedVariableByte( iteration )
@@ -110,8 +115,20 @@ def writeData():
 	setpoint[3] = signedVariableByte( setpoint[3] ) # 0 .. 1000 -> 0.0% .. 100.0%
 	# Battery volt., Amperage, rssi
 	vbatLatest = unsignedVariableByte( vbatLatest ) # 0.01 V/unit
-	amperageLatest = signedVariableByte( amperageLatest ) # 0.01 A/unit
-	rssi = unsignedVariableByte( rssi * 5 )
+	#amperageLatest = signedVariableByte( amperageLatest ) # 0.01 A/unit
+	amperageLatest = signedVariableByte( rssi ) # 0.01 A/unit
+	global rssiLast, rssiAvg, rssiArray, rssiIndex
+	if iteration % 10 == 0:
+		rssiAvg -= rssiArray[ rssiIndex ]
+		delta = 1 if rssi != rssiLast else 0
+		if rssi < rssiLast and rssi == 0 and rssiAvg == 0:
+			delta = 0
+		rssiLast = rssi
+		rssiAvg += delta
+		rssiArray[ rssiIndex ] = delta
+		rssiIndex += 1
+		rssiIndex %= len( rssiArray )
+	rssi = unsignedVariableByte( 1024 * rssiAvg / len( rssiArray ) ) # 0 .. 1024 -> 0% .. 100%
 	# Gyros
 	gyroADC[0] = signedVariableByte( gyroADC[0] ) # -2000 .. 2000 deg/s
 	gyroADC[1] = signedVariableByte( gyroADC[1] )

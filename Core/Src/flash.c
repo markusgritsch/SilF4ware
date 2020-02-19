@@ -3,8 +3,6 @@
 #include "config.h"
 #include "drv_fmc.h"
 
-#include "debug.h"
-
 extern float accelcal[]; // sixaxis.c
 extern float * pids_array[ 3 ]; // pid.c
 
@@ -32,6 +30,12 @@ void flash_calculate_pid_c_identifier( void )
 void flash_save( void )
 {
 	fmc_unlock();
+
+	// Saving to flash immediately after flashing the firmware (which happens e.g. after changing the PIDs
+	// at the end of flash_load()) does not work and some fmc_write() command triggers failloop( 6 ). This
+	// dummy write seems to fix it, or at least we trigger failloop( 6 ) before fmc_erase() wipes all data.
+	fmc_write( 0, 0 );
+
 	fmc_erase();
 
 	uint32_t addresscount = 0;
@@ -117,7 +121,7 @@ void flash_load( void )
 
 			temp = fmc_read( 52 );
 			for ( int i = 0 ; i < 4; ++i ) {
-				rfchannel[ i ] = ( temp >>( i * 8 ) ) &  0xFF;
+				rfchannel[ i ] = ( temp >> ( i * 8 ) ) & 0xFF;
 			}
 		}
 

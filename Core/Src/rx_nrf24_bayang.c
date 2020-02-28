@@ -202,7 +202,8 @@ void rx_init()
 	xn_writereg( EN_AA, 0 );      // aa disabled
 	xn_writereg( EN_RXADDR, 1 );  // pipe 0 only
 #ifdef RX_DATARATE_250K
-	xn_writereg( RF_SETUP, B00100110 );     // power / data rate 250K
+	// xn_writereg( RF_SETUP, B00100110 );     // power / data rate 250K
+	xn_writereg( RF_SETUP, B00100000 | ( ( TX_POWER & 3 ) << 1 ) );     // power / data rate 250K
 #else
 	// xn_writereg( RF_SETUP, B00000110 );    // power / data rate 1000K
 	xn_writereg( RF_SETUP, ( TX_POWER & 3 ) << 1 );    // power / data rate 1000K

@@ -137,8 +137,9 @@
 // led brightness 0 .. 15 (used for solid lights only)
 #define LED_BRIGHTNESS 15
 
-// Comment out to disable pid tuning gestures
-#define PID_GESTURE_TUNING
+// PID tuning by gestures and/or stick position
+//#define PID_GESTURE_TUNING
+#define PID_STICK_TUNING
 #define COMBINE_PITCH_ROLL_PID_TUNING
 
 // a filter which makes throttle feel faster (aka Throttle Boost) (not active in LOW_RATES or lowbatt)
@@ -185,15 +186,15 @@
 
 // Remove roll and pitch bounce back after flips (aka iTerm Relax)
 #define TRANSIENT_WINDUP_PROTECTION
-// Remove yaw bounce back when quickly stopping yaw spinning.
-#define YAW_WINDUP_RESET
+// Remove bounce back when quickly stopping a roll/pitch/yaw movement (but it is mostly there for yaw)
+#define DYNAMIC_ITERM_RESET
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response
 // 0.0f (or commented out) equates D-term on measurement, 1.0f equates D-term on error.
 //#define FEED_FORWARD_STRENGTH 1.0f
 //#define SMART_FF
 // Feedforward for yaw. It's an absolute value, not related to the 0 .. 1 from above.
-#define FEED_FORWARD_YAW 0.2f
+//#define FEED_FORWARD_YAW 0.2f
 
 // Loop time in us
 #define LOOPTIME 250

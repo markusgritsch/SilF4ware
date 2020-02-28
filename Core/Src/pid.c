@@ -38,8 +38,8 @@ static float pdScaleValue = 1.0f; // updated in pid_precalc()
 
 // unscaled PID values tuned for 4S
 //                         { roll, pitch, yaw }
-float pidkp[ PIDNUMBER ] = { 0.03, 0.03, 0.02 };
-float pidki[ PIDNUMBER ] = { 0.50, 0.50, 2.0 };
+float pidkp[ PIDNUMBER ] = { 0.03, 0.03, 0.04 };
+float pidki[ PIDNUMBER ] = { 0.40, 0.40, 2.0 };
 float pidkd[ PIDNUMBER ] = { 0.15, 0.15, 0.0 };
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
@@ -123,15 +123,13 @@ void pid( int x )
 	}
 #endif // TRANSIENT_WINDUP_PROTECTION
 
-#ifdef YAW_WINDUP_RESET
-	if ( x == 2 ) { // Only for yaw.
-		static float lastGyro;
-		if ( fabsf( ierror[ x ] ) > 0.05f * battery_scale_factor && ( gyro[ x ] < 0.0f != lastGyro < 0.0f ) ) { // gyro crossed zero
-			ierror[ x ] *= 0.2f;
-		}
-		lastGyro = gyro[ x ];
+#ifdef DYNAMIC_ITERM_RESET
+	static float lastGyro[ 3 ];
+	if ( fabsf( ierror[ x ] ) > integrallimit[ x ] * 0.2f * battery_scale_factor && ( gyro[ x ] < 0.0f != lastGyro[ x ] < 0.0f ) ) { // gyro crossed zero
+		ierror[ x ] *= 0.2f;
 	}
-#endif // YAW_WINDUP_RESET
+	lastGyro[ x ] = gyro[ x ];
+#endif // DYNAMIC_ITERM_RESET
 
 	if ( ! i_windup ) {
 #ifdef RECTANGULAR_RULE_INTEGRAL
@@ -351,6 +349,22 @@ void rotateErrors()
 
 // below are functions used with gestures for changing pids by a percentage
 
+void set_current_pid_term( int pid_term )
+{
+	current_pid_term = pid_term;
+	switch ( current_pid_term ) {
+		case 0:
+			current_pid_term_pointer = pidkp;
+			break;
+		case 1:
+			current_pid_term_pointer = pidki;
+			break;
+		case 2:
+			current_pid_term_pointer = pidkd;
+			break;
+		}
+}
+
 // Cycle through P / I / D - The initial value is P
 // The return value is the currently selected TERM (after setting the next one)
 // 1: P
@@ -361,21 +375,17 @@ int next_pid_term( void )
 {
 	switch ( current_pid_term ) {
 		case 0:
-			current_pid_term_pointer = pidki;
-			current_pid_term = 1;
+			set_current_pid_term( 1 );
 			break;
 		case 1:
 			if ( pidkd[ current_pid_axis ] == 0.0f ) { // Skip a zero D term, and go directly to P
-				current_pid_term_pointer = pidkp;
-				current_pid_term = 0;
+				set_current_pid_term( 0 );
 			} else {
-				current_pid_term_pointer = pidkd;
-				current_pid_term = 2;
+				set_current_pid_term( 2 );
 			}
 			break;
 		case 2:
-			current_pid_term_pointer = pidkp;
-			current_pid_term = 0;
+			set_current_pid_term( 0 );
 			break;
 	}
 	return current_pid_term + 1;
@@ -405,8 +415,17 @@ int next_pid_axis( void )
 	return current_pid_axis + 1;
 }
 
-#define PID_GESTURES_MULTI 1.1f
+void multiply_current_pid_value( float multiplier )
+{
+	current_pid_term_pointer[ current_pid_axis ] *= multiplier;
+#ifdef COMBINE_PITCH_ROLL_PID_TUNING
+	if ( current_pid_axis == 0 ) {
+		current_pid_term_pointer[ current_pid_axis + 1 ] *= multiplier;
+	}
+#endif
+}
 
+#define PID_GESTURES_MULTI 1.1f
 static int change_pid_value( int increase )
 {
 	float multiplier = 1.0f / (float)PID_GESTURES_MULTI;
@@ -416,12 +435,7 @@ static int change_pid_value( int increase )
 	} else {
 		--number_of_increments[ current_pid_term ][ current_pid_axis ];
 	}
-	current_pid_term_pointer[ current_pid_axis ] *= multiplier;
-#ifdef COMBINE_PITCH_ROLL_PID_TUNING
-	if ( current_pid_axis == 0 ) {
-		current_pid_term_pointer[ current_pid_axis + 1 ] *= multiplier;
-	}
-#endif
+	multiply_current_pid_value( multiplier );
 	return abs( number_of_increments[ current_pid_term ][ current_pid_axis ] );
 }
 

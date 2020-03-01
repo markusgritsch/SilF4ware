@@ -138,7 +138,7 @@ void gestures( void )
 		}
 		if ( is_stick_tuning_active ) {
 			const float tuning_dead_band = 0.1f; // 10% deadband
-			if ( fabsf( rx[ 2 ] ) > tuning_dead_band ) { //
+			if ( fabsf( rx[ 2 ] ) > tuning_dead_band ) {
 				const float multiplier = 1.01f; // 1% change per update
 				multiply_current_pid_value( rx[ 2 ] > 0.0f ? multiplier : 1.0f / multiplier );
 				skip_accel_cal_on_save = 1;

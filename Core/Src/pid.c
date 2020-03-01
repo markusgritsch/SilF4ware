@@ -3,6 +3,7 @@
 #include <stdlib.h> // abs
 
 #include "config.h"
+#include "drv_time.h"
 #include "filter.h"
 #include "pid.h"
 #include "util.h"
@@ -62,7 +63,7 @@ float * pids_array[ 3 ] = { pidkp, pidki, pidkd };
 int number_of_increments[ 3 ][ 3 ] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
 int current_pid_axis = 0;
 int current_pid_term = 0;
-float * current_pid_term_pointer = pidkp;
+uint32_t pid_blink_offset = 0;
 
 float ierror[ PIDNUMBER ] = { 0, 0, 0 };
 float pidoutput[ PIDNUMBER ];
@@ -347,22 +348,14 @@ void rotateErrors()
 	ierror[ 1 ] = ierror1;
 }
 
-// below are functions used with gestures for changing pids by a percentage
+// below are functions used for changing pids by gestures/stick position tuning
 
 void set_current_pid_term( int pid_term )
 {
-	current_pid_term = pid_term;
-	switch ( current_pid_term ) {
-		case 0:
-			current_pid_term_pointer = pidkp;
-			break;
-		case 1:
-			current_pid_term_pointer = pidki;
-			break;
-		case 2:
-			current_pid_term_pointer = pidkd;
-			break;
-		}
+	if ( current_pid_term != pid_term ) {
+		pid_blink_offset = gettime();
+		current_pid_term = pid_term;
+	}
 }
 
 // Cycle through P / I / D - The initial value is P
@@ -399,6 +392,7 @@ int next_pid_term( void )
 // The return value is used to blink the leds in main.c
 int next_pid_axis( void )
 {
+	pid_blink_offset = gettime() - 200000; // prevent immediate blinking
 	const int size = 3;
 	if ( current_pid_axis == size - 1 ) {
 		current_pid_axis = 0;
@@ -417,10 +411,11 @@ int next_pid_axis( void )
 
 void multiply_current_pid_value( float multiplier )
 {
-	current_pid_term_pointer[ current_pid_axis ] *= multiplier;
+	pid_blink_offset = gettime() - 200000; // prevent blinking while tuning
+	pids_array[ current_pid_term ][ current_pid_axis ] *= multiplier;
 #ifdef COMBINE_PITCH_ROLL_PID_TUNING
 	if ( current_pid_axis == 0 ) {
-		current_pid_term_pointer[ current_pid_axis + 1 ] *= multiplier;
+		pids_array[ current_pid_term ][ current_pid_axis + 1 ] *= multiplier;
 	}
 #endif
 }

@@ -370,8 +370,9 @@ static void send_telemetry()
 #ifdef DISPLAY_PID_VALUES
 	extern float * pids_array[ 3 ];
 	extern int current_pid_axis, current_pid_term;
+	extern uint32_t pid_blink_offset;
 	static uint32_t pid_term = 0;
-	const bool blink = ( gettime() & 0xFFFFF ) < 200000; // roughly every second (1048575 µs) for 0.2 s
+	const bool blink = ( ( gettime() - pid_blink_offset ) & 0xFFFFF ) < 200000; // roughly every second (1048575 µs) for 0.2 s
 	int pid_value;
 	if ( current_pid_term == pid_term && blink ) {
 		pid_value = 0;

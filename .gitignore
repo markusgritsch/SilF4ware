@@ -1,7 +1,7 @@
-.mxproject
-MDK-ARM/DebugConfig/
-MDK-ARM/RTE/
-MDK-ARM/STM32F411 NOXE/
-MDK-ARM/EventRecorderStub.scvd
-MDK-ARM/startup_stm32f411xe.lst
-MDK-ARM/STM32F411 NOXE.uvguix.mgr
+STM32F4*/.mxproject
+STM32F4*/MDK-ARM/DebugConfig/
+STM32F4*/MDK-ARM/RTE/
+STM32F4*/MDK-ARM/STM32F4*/
+STM32F4*/MDK-ARM/EventRecorderStub.scvd
+STM32F4*/MDK-ARM/startup_stm32f4*.lst
+STM32F4*/MDK-ARM/STM32F4*.uvguix.mgr

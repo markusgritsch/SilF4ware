@@ -5,8 +5,10 @@
 #include "drv_time.h"
 #include "main.h" // HAL_UART_Transmit_DMA()
 
+#ifdef BLACKBOX_LOGGING
 // 100 bytes maximum at 2 Mbit/s UART speed and a logged data frame every 0.5 ms.
 static uint8_t bb_buffer[ 90 ] = "FRAMESTART";
+#endif // BLACKBOX_LOGGING
 
 extern int onground;
 extern float bb_p[ 3 ];
@@ -27,14 +29,22 @@ extern float bb_mix[ 4 ];
 void blackbox_init( void )
 {
 #ifdef BLACKBOX_LOGGING
+
+#if defined FC_BOARD_OMNIBUS
+	extern void MX_UART4_Init( void );
+	MX_UART4_Init();
+#elif defined FC_BOARD_NOXE || defined FC_BOARD_NOXE_V1
 	extern void MX_USART2_UART_Init( void );
 	MX_USART2_UART_Init();
+#endif // fc board
+
 #endif // BLACKBOX_LOGGING
 }
 
 void blackbox_log( void )
 {
 #ifdef BLACKBOX_LOGGING
+
 	static uint32_t bb_iteration;
 
 	if ( onground ) {
@@ -110,9 +120,17 @@ void blackbox_log( void )
 	// pos is 90
 	++bb_iteration;
 
+#if defined FC_BOARD_OMNIBUS
+	extern UART_HandleTypeDef huart4;
+	// HAL_UART_IRQHandler( &huart4 ); // Resets huart->gState to HAL_UART_STATE_READY
+	huart4.gState = HAL_UART_STATE_READY; // Do it directly to save flash space.
+	HAL_UART_Transmit_DMA( &huart4, bb_buffer, sizeof( bb_buffer ) );
+#elif defined FC_BOARD_NOXE || defined FC_BOARD_NOXE_V1
 	extern UART_HandleTypeDef huart2;
 	// HAL_UART_IRQHandler( &huart2 ); // Resets huart->gState to HAL_UART_STATE_READY
 	huart2.gState = HAL_UART_STATE_READY; // Do it directly to save flash space.
 	HAL_UART_Transmit_DMA( &huart2, bb_buffer, sizeof( bb_buffer ) );
+#endif // fc board
+
 #endif // BLACKBOX_LOGGING
 }

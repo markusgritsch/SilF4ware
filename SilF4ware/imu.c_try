@@ -1,0 +1,155 @@
+#include <math.h> // sqrtf
+
+#include "config.h"
+#include "drv_time.h"
+#include "filter.h"
+#include "sixaxis.h"
+
+#include "drv_led.h" //TODO
+
+#define ACC_1G 1.0f
+
+// disable accelerometer based in-flight drift correction
+// #define DISABLE_ACC
+
+// speed to correct gyro-based gravity vector estimation using the accelerometer
+#define FILTER_SPEED 1.0f // Hz
+
+// accel[i] limit for in-flight drift correction
+#define ACC_LIMIT 0.05f
+
+
+float GEstG[ 3 ] = { 0, 0, ACC_1G };
+
+float attitude[ 3 ];
+
+extern float gyro[ 3 ];
+extern float accel[ 3 ];
+extern float looptime;
+
+void imu_init( void )
+{
+	// init the gravity vector with accel values
+	for ( int i = 0; i < 100; ++i ) {
+		sixaxis_read();
+		#define DELAYTIME 1000 // The accelerometer is updated only at 1 kHz.
+		for ( int x = 0; x < 3; ++x ) {
+			lpf( &GEstG[ x ], accel[ x ] / 2048.0f, ALPHACALC( DELAYTIME, 0.036e6f ) );
+		}
+		delay( DELAYTIME );
+		gettime(); // if it takes too long time will overflow so we call it here
+	}
+}
+
+static float calcmagnitude( float vector[ 3 ] )
+{
+	float accmag = 0;
+	for ( int axis = 0; axis < 3; ++axis ) {
+		accmag += vector[ axis ] * vector[ axis ];
+	}
+	accmag = sqrtf( accmag );
+	return accmag;
+}
+
+static void vectorcopy( float * vector1, float * vector2 )
+{
+	for ( int axis = 0; axis < 3; ++axis ) {
+		vector1[ axis ] = vector2[ axis ];
+	}
+}
+
+void imu( void )
+{
+	float deltaGyroAngle[ 3 ];
+
+	for ( int i = 0 ; i < 3 ; ++i ) {
+		deltaGyroAngle[ i ] = gyro[ i ] * looptime;
+	}
+
+	// GEstG[ 2 ] = GEstG[ 2 ] - deltaGyroAngle[ 0 ] * GEstG[ 0 ];
+	// GEstG[ 0 ] = deltaGyroAngle[ 0 ] * GEstG[ 2 ] + GEstG[ 0 ];
+
+	// GEstG[ 1 ] = GEstG[ 1 ] + deltaGyroAngle[ 1 ] * GEstG[ 2 ];
+	// GEstG[ 2 ] = -deltaGyroAngle[ 1 ] * GEstG[ 1 ] + GEstG[ 2 ];
+
+	// GEstG[ 0 ] = GEstG[ 0 ] - deltaGyroAngle[ 2 ] * GEstG[ 1 ];
+	// GEstG[ 1 ] = deltaGyroAngle[ 2 ] * GEstG[ 0 ] + GEstG[ 1 ];
+
+	const float GEstG0 = GEstG[ 0 ] + deltaGyroAngle[ 0 ] * GEstG[ 2 ] - deltaGyroAngle[ 2 ] * GEstG[ 1 ];
+	const float GEstG1 = GEstG[ 1 ] + deltaGyroAngle[ 1 ] * GEstG[ 2 ] + deltaGyroAngle[ 2 ] * GEstG[ 0 ];
+	const float GEstG2 = GEstG[ 2 ] - deltaGyroAngle[ 0 ] * GEstG[ 0 ] - deltaGyroAngle[ 1 ] * GEstG[ 1 ];
+	GEstG[ 0 ] = GEstG0;
+	GEstG[ 1 ] = GEstG1;
+	GEstG[ 2 ] = GEstG2;
+
+	// Very strong accel filtering to get rid of noise:
+	static float accel_filt[ 3 ];
+	for ( int axis = 0; axis < 3; ++axis ) {
+		lpf( &accel_filt[ axis ], accel[ axis ], ALPHACALC( LOOPTIME, 1e6f / 2.0f ) ); // 2 Hz
+		accel[ axis ] = accel_filt[ axis ];
+#if 0
+ 		// log the filtered accel data
+		extern float bb_accel[ 3 ];
+		bb_accel[ axis ] = accel[ axis ];
+#endif
+	}
+
+	// Bring the gravity vector in sync with accel values:
+	extern int onground;
+	if ( onground
+#ifndef DISABLE_ACC
+		|| ( fabsf( accel[ 0 ] ) < ( ACC_LIMIT ) * ACC_1G &&
+			fabsf( accel[ 1 ] ) < ( ACC_LIMIT ) * ACC_1G &&
+			fabsf( accel[ 2 ] - ACC_1G ) < ( ACC_LIMIT ) * ACC_1G )
+#endif
+	)
+	{
+		// const float accmag = calcmagnitude( accel ); // calc acc mag
+		for ( int axis = 0; axis < 3; ++axis ) {
+			// lpf( &GEstG[ axis ], accel[ axis ] * ACC_1G / accmag, ALPHACALC( LOOPTIME, 1e6f / 2.0f ) ); // 2 Hz
+			lpf( &GEstG[ axis ], accel[ axis ], ALPHACALC( LOOPTIME, 1e6f / ( FILTER_SPEED ) ) ); // 2 Hz
+		}
+		ledon();
+	} else {
+		ledoff();
+	}
+
+	// vectorcopy( &GEstG[ 0 ], &EstG[ 0 ] );
+#ifdef DEBUG
+	float atan2approx( float y, float x );
+	attitude[ 0 ] = atan2approx( EstG[ 0 ], EstG[ 2 ] );
+	attitude[ 1 ] = atan2approx( EstG[ 1 ], EstG[ 2 ] );
+#endif
+}
+
+#define OCTANTIFY(_x, _y, _o) do {                              \
+	float _t;                                                   \
+	_o= 0;                                                      \
+	if(_y<  0)  {            _x= -_x;   _y= -_y; _o += 4; }     \
+	if(_x<= 0)  { _t= _x;    _x=  _y;   _y= -_t; _o += 2; }     \
+	if(_x<=_y)  { _t= _y-_x; _x= _x+_y; _y=  _t; _o += 1; }     \
+} while( 0 );
+
+// +-0.09 deg error
+float atan2approx( float y, float x )
+{
+	if ( x == 0 ) {
+		x = 123e-15f;
+	}
+	float phi = 0;
+	float dphi;
+	float t;
+
+	OCTANTIFY( x, y, phi );
+
+	t = y / x;
+	// atan function for 0 - 1 interval
+	dphi = t * ( ( PI_F / 4 + 0.2447f ) + t * ( ( -0.2447f + 0.0663f ) + t * ( -0.0663f ) ) );
+	phi *= PI_F / 4;
+	dphi = phi + dphi;
+	if ( dphi > PI_F ) {
+		dphi -= 2 * PI_F;
+	}
+
+	return RADTODEG * dphi;
+}

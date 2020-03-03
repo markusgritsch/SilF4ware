@@ -213,9 +213,19 @@
 //#define SENSOR_ROTATE_45_CW
 //#define SENSOR_ROTATE_90_CW
 //#define SENSOR_ROTATE_90_CCW
-#define SENSOR_ROTATE_180
+//#define SENSOR_ROTATE_180
 //#define SENSOR_INVERT // Necessary if the gyro is mounted upside down. For an inverted gyro,
 // the expected orientation is with the dot on the chip in the front-right corner.
+
+#if defined FC_BOARD_OMNIBUS
+	#define SENSOR_ROTATE_90_CCW
+#elif defined FC_BOARD_NOXE
+	#define SENSOR_ROTATE_180
+#elif defined FC_BOARD_NOXE_V1
+	// no rotation needed
+#else
+	#error "FC_BOARD_xxx must be defined by the toolchain, e.g. in the Keil project file."
+#endif
 
 // Motor order
 #define MOTOR_BL 2

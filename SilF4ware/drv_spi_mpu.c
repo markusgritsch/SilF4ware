@@ -8,8 +8,18 @@
 #define SCKLOW gpioreset(SPI_MPU_SCK_GPIO_Port, SPI_MPU_SCK_Pin);
 
 #define READMISO (SPI_MPU_MISO_GPIO_Port->IDR & SPI_MPU_MISO_Pin)
-// #define DELAY_O3 _NOP_ _NOP_ // necessary when the loop is unrolled i.e. with -O3
-#define DELAY_O3
+
+#if 1
+	// necessary when using -O3 or -Os (balanced)
+	#if defined(STM32F405xx)
+		#define DELAY_O3 _NOP_ _NOP_
+	#elif defined(STM32F411xE)
+		#define DELAY_O3 _NOP_
+	#endif
+#else
+	// works when using -Oz (image size)
+	#define DELAY_O3
+#endif
 
 // 11 does not always work right after flashing, 13 seems to work fine, so 15 should be on the safe side.
 #define DELAY_SLOW count = 15; while ( count-- );

@@ -424,46 +424,46 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, ESC4_Pin|ESC3_Pin|SPI_MPU_SS_Pin|SPI2_CLK_Pin 
-                          |SPI2_MOSI_Pin|SPI_MOSI_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, ESC4_Pin|ESC3_Pin|SPI_MPU_NSS_Pin|SPI_MPU_SCK_Pin 
+                          |SPI_MPU_MOSI_Pin|SPI_RX_MOSI_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, ESC1_Pin|ESC2_Pin|SPI_XN_SS_Pin|BEEPER_Pin 
+  HAL_GPIO_WritePin(GPIOB, ESC1_Pin|ESC2_Pin|SPI_RX_NSS_Pin|BEEPER_Pin 
                           |LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(SPI_CLK_GPIO_Port, SPI_CLK_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SPI_RX_SCK_GPIO_Port, SPI_RX_SCK_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : ESC4_Pin ESC3_Pin SPI_MPU_SS_Pin SPI2_CLK_Pin 
-                           SPI2_MOSI_Pin SPI_MOSI_Pin */
-  GPIO_InitStruct.Pin = ESC4_Pin|ESC3_Pin|SPI_MPU_SS_Pin|SPI2_CLK_Pin 
-                          |SPI2_MOSI_Pin|SPI_MOSI_Pin;
+  /*Configure GPIO pins : ESC4_Pin ESC3_Pin SPI_MPU_NSS_Pin SPI_MPU_SCK_Pin 
+                           SPI_MPU_MOSI_Pin SPI_RX_MOSI_Pin */
+  GPIO_InitStruct.Pin = ESC4_Pin|ESC3_Pin|SPI_MPU_NSS_Pin|SPI_MPU_SCK_Pin 
+                          |SPI_MPU_MOSI_Pin|SPI_RX_MOSI_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SPI2_MISO_Pin SPI_MISO_Pin */
-  GPIO_InitStruct.Pin = SPI2_MISO_Pin|SPI_MISO_Pin;
+  /*Configure GPIO pins : SPI_MPU_MISO_Pin SPI_RX_MISO_Pin */
+  GPIO_InitStruct.Pin = SPI_MPU_MISO_Pin|SPI_RX_MISO_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ESC1_Pin ESC2_Pin SPI_XN_SS_Pin BEEPER_Pin 
+  /*Configure GPIO pins : ESC1_Pin ESC2_Pin SPI_RX_NSS_Pin BEEPER_Pin 
                            LED_Pin */
-  GPIO_InitStruct.Pin = ESC1_Pin|ESC2_Pin|SPI_XN_SS_Pin|BEEPER_Pin 
+  GPIO_InitStruct.Pin = ESC1_Pin|ESC2_Pin|SPI_RX_NSS_Pin|BEEPER_Pin 
                           |LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SPI_CLK_Pin */
-  GPIO_InitStruct.Pin = SPI_CLK_Pin;
+  /*Configure GPIO pin : SPI_RX_SCK_Pin */
+  GPIO_InitStruct.Pin = SPI_RX_SCK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(SPI_CLK_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SPI_RX_SCK_GPIO_Port, &GPIO_InitStruct);
 
 }
 

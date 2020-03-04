@@ -1,18 +1,18 @@
 #include <stdint.h>
 
-void spi_xn_cson( void );
-void spi_xn_csoff( void );
+void spi_rx_cson( void );
+void spi_rx_csoff( void );
 
-void xn_writerxaddress( int * addr );
-void xn_writereg( int reg, int val );
-// int xn_command_orig( int command );
-void xn_command( int command );
-int xn_readreg( int reg);
+void rx_writerxaddress( int * addr );
+void rx_writereg( int reg, int val );
+// int rx_command_orig( int command );
+void rx_command( int command );
+int rx_readreg( int reg);
 //void _spi_write_address( int reg, int val );
-void xn_readpayload( int * data, int size );
-void xn_writepayload( int data[], int size );
-void xn_writetxaddress( int * addr );
-void xn_writeregs( uint8_t data[], uint8_t size );
+void rx_readpayload( int * data, int size );
+void rx_writepayload( int data[], int size );
+void rx_writetxaddress( int * addr );
+void rx_writeregs( uint8_t data[], uint8_t size );
 
 // registers
 #define CONFIG      0x00

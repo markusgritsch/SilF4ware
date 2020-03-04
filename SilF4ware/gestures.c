@@ -54,7 +54,7 @@ void gestures( void )
 			lastlooptime = gettime();
 		}
 
-#if ( defined RX_BAYANG_PROTOCOL_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY )
+#if ( defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY )
 		if ( command == GESTURE_UUU ) {
 			rx_bind_enable = ! rx_bind_enable;
 			ledblink = 2 - rx_bind_enable;

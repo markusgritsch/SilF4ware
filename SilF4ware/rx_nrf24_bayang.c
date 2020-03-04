@@ -4,8 +4,8 @@
 
 #include "binary.h"
 #include "config.h"
+#include "drv_rx.h"
 #include "drv_time.h"
-#include "drv_xn297.h"
 #include "rx.h"
 
 
@@ -110,17 +110,17 @@ static void nrf24_set_xn297_address( uint8_t * addr )
 	}
 
 	// write rx address
-	xn_writeregs( rxaddr, sizeof( rxaddr ) );
+	rx_writeregs( rxaddr, sizeof( rxaddr ) );
 	// write tx address
 	rxaddr[ 0 ] = 0x30;
-	xn_writeregs( rxaddr, sizeof( rxaddr ) );
+	rx_writeregs( rxaddr, sizeof( rxaddr ) );
 }
 
 int crc_error = 0;
 
 static int nrf24_read_xn297_payload( int * rxdata, int size )
 {
-	xn_readpayload( rxdata, size );
+	rx_readpayload( rxdata, size );
 
 	if ( crc_en ) {
 		uint16_t crcx;
@@ -151,7 +151,7 @@ static void nrf24_write_xn297_payload( int * txdata, int size )
 		txdata[ i ] = swapbits( txdata[ i ] ) ^ xn297_scramble[ i + 5 ];
 	}
 
-	xn_writepayload( txdata, size );
+	rx_writepayload( txdata, size );
 }
 
 bool failsafe = true;
@@ -180,7 +180,7 @@ void rx_init()
 {
 	crc16_init_lut();
 
-	spi_xn_csoff();
+	spi_rx_csoff();
 	delay( 1 );
 
 	// always on (CH_ON) channel set 1
@@ -199,25 +199,25 @@ void rx_init()
 	static uint8_t rxaddr[ 5 ] = { 0, 0, 0, 0, 0 };
 	nrf24_set_xn297_address( rxaddr );
 
-	xn_writereg( EN_AA, 0 );      // aa disabled
-	xn_writereg( EN_RXADDR, 1 );  // pipe 0 only
+	rx_writereg( EN_AA, 0 );      // aa disabled
+	rx_writereg( EN_RXADDR, 1 );  // pipe 0 only
 #ifdef RX_DATARATE_250K
-	// xn_writereg( RF_SETUP, B00100110 );     // power / data rate 250K
-	xn_writereg( RF_SETUP, B00100000 | ( ( TX_POWER & 3 ) << 1 ) );     // power / data rate 250K
+	// rx_writereg( RF_SETUP, B00100110 );     // power / data rate 250K
+	rx_writereg( RF_SETUP, B00100000 | ( ( TX_POWER & 3 ) << 1 ) );     // power / data rate 250K
 #else
-	// xn_writereg( RF_SETUP, B00000110 );    // power / data rate 1000K
-	xn_writereg( RF_SETUP, ( TX_POWER & 3 ) << 1 );    // power / data rate 1000K
+	// rx_writereg( RF_SETUP, B00000110 );    // power / data rate 1000K
+	rx_writereg( RF_SETUP, ( TX_POWER & 3 ) << 1 );    // power / data rate 1000K
 #endif
 
-	xn_writereg( RX_PW_P0, 15 + crc_en * 2 );  // payload size
-	xn_writereg( SETUP_RETR, 0 ); // no retransmissions
-	xn_writereg( SETUP_AW, 3 );   // address size (5 bytes)
-	xn_writereg( RF_CH, 0 );      // bind on channel 0
-	xn_command( FLUSH_RX );
-	xn_writereg( 0, XN_TO_RX );   // power up, crc disabled, rx mode
+	rx_writereg( RX_PW_P0, 15 + crc_en * 2 );  // payload size
+	rx_writereg( SETUP_RETR, 0 ); // no retransmissions
+	rx_writereg( SETUP_AW, 3 );   // address size (5 bytes)
+	rx_writereg( RF_CH, 0 );      // bind on channel 0
+	rx_command( FLUSH_RX );
+	rx_writereg( 0, XN_TO_RX );   // power up, crc disabled, rx mode
 
 #ifdef RADIO_CHECK
-	int rxcheck = xn_readreg( 0x0f ); // rx address pipe 5
+	int rxcheck = rx_readreg( 0x0f ); // rx address pipe 5
 	// should be 0xc6
 	extern void failloop( int );
 	if ( rxcheck != 0xc6 ) {
@@ -229,7 +229,7 @@ void rx_init()
 		// write new rx and tx address
 		nrf24_set_xn297_address( rxaddress );
 
-		xn_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
+		rx_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
 		rxmode = RX_MODE_NORMAL;
 		if ( telemetry_enabled ) {
 			packet_period = PACKET_PERIOD_TELEMETRY;
@@ -279,15 +279,15 @@ static void beacon_sequence()
 			}
 			break;
 		case 1: // wait for data to finish transmitting
-			if ( ( xn_readreg( 0x17 ) & B00010000 ) ) {
-				xn_writereg( 0, XN_TO_RX );
+			if ( ( rx_readreg( 0x17 ) & B00010000 ) ) {
+				rx_writereg( 0, XN_TO_RX );
 				beacon_seq_state = 0;
 				telemetry_send = 0;
 				nextchannel();
 			} else { // if it takes too long we get rid of it
 				if ( gettime() - send_time > TELEMETRY_TIMEOUT ) {
-					xn_command( FLUSH_TX );
-					xn_writereg( 0, XN_TO_RX );
+					rx_command( FLUSH_TX );
+					rx_writereg( 0, XN_TO_RX );
 					beacon_seq_state = 0;
 					telemetry_send = 0;
 				}
@@ -307,9 +307,9 @@ extern bool telemetry_transmitted; // usermain.c
 
 static void send_telemetry()
 {
-	// xn_command( FLUSH_TX );
-	xn_writereg( 0, 0 );
-	xn_writereg( 0, XN_TO_TX );
+	// rx_command( FLUSH_TX );
+	rx_writereg( 0, 0 );
+	rx_writereg( 0, XN_TO_TX );
 
 	int txdata[ 15 ];
 	for ( int i = 0; i < 15; ++i ) {
@@ -404,10 +404,10 @@ static void send_telemetry()
 
 static char checkpacket()
 {
-	int status = xn_readreg( 7 );
+	int status = rx_readreg( 7 );
 #if 1
 	if ( status & ( 1 << RX_DR ) ) { // RX packet received
-		xn_writereg( STATUS, 1 << RX_DR ); // rx clear bit
+		rx_writereg( STATUS, 1 << RX_DR ); // rx clear bit
 		return 1;
 	}
 #else
@@ -500,7 +500,7 @@ static void nextchannel()
 {
 	++rf_chan;
 	rf_chan &= 3; // same as %4
-	xn_writereg( 0x25, rfchannel[ rf_chan ] );
+	rx_writereg( 0x25, rfchannel[ rf_chan ] );
 }
 
 unsigned long lastrxtime;
@@ -560,7 +560,7 @@ void checkrx( void )
 				// write new rx and tx address
 				nrf24_set_xn297_address( rxaddress );
 
-				xn_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
+				rx_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
 				rxmode = RX_MODE_NORMAL;
 			}
 		} else { // normal mode
@@ -654,7 +654,7 @@ void checkrx( void )
 	static bool rx_already_flushed = false;
 	if ( time - lastrxtime > packet_period ) {
 		if ( ! rx_already_flushed ) {
-			xn_command( FLUSH_RX );
+			rx_command( FLUSH_RX );
 			rx_already_flushed = true;
 		}
 	} else {
@@ -698,7 +698,7 @@ void checkrx( void )
 		rxmode = RX_MODE_BIND;
 		static uint8_t rxaddr[ 5 ] = { 0, 0, 0, 0, 0 };
 		nrf24_set_xn297_address( rxaddr );
-		xn_writereg( RF_CH, 0 ); // bind on channel 0
+		rx_writereg( RF_CH, 0 ); // bind on channel 0
 	}
 
 	if ( gettime() - secondtimer > 1000000 ) {

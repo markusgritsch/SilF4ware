@@ -338,7 +338,7 @@
               <MiscControls>-DFC_BOARD_OMNIBUS</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F405xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc; ../Drivers/STM32F4xx_HAL_Driver/Inc; ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy; ../Drivers/CMSIS/Device/ST/STM32F4xx/Include; ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -583,9 +583,9 @@
               <FilePath>..\..\SilF4ware\drv_reset.c</FilePath>
             </File>
             <File>
-              <FileName>drv_spi.c</FileName>
+              <FileName>drv_rx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_spi.c</FilePath>
+              <FilePath>..\..\SilF4ware\drv_rx.c</FilePath>
             </File>
             <File>
               <FileName>drv_spi_3wire.c</FileName>
@@ -593,19 +593,19 @@
               <FilePath>..\..\SilF4ware\drv_spi_3wire.c</FilePath>
             </File>
             <File>
-              <FileName>drv_spi2.c</FileName>
+              <FileName>drv_spi_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_spi2.c</FilePath>
+              <FilePath>..\..\SilF4ware\drv_spi_mpu.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_spi_rx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\SilF4ware\drv_spi_rx.c</FilePath>
             </File>
             <File>
               <FileName>drv_time.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\SilF4ware\drv_time.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_xn297.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_xn297.c</FilePath>
             </File>
             <File>
               <FileName>filter.c</FileName>
@@ -643,14 +643,14 @@
               <FilePath>..\..\SilF4ware\pid.c</FilePath>
             </File>
             <File>
-              <FileName>rx_bayang.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\rx_bayang.c</FilePath>
-            </File>
-            <File>
               <FileName>rx_nrf24_bayang.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\SilF4ware\rx_nrf24_bayang.c</FilePath>
+            </File>
+            <File>
+              <FileName>rx_xn297_bayang.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\SilF4ware\rx_xn297_bayang.c</FilePath>
             </File>
             <File>
               <FileName>sixaxis.c</FileName>

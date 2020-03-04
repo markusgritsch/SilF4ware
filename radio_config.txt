@@ -3,7 +3,7 @@ XN297
 =====
 
 * config.h
-#define RX_BAYANG_PROTOCOL_TELEMETRY
+#define RX_XN297_BAYANG_TELEMETRY
 // #define RX_NRF24_BAYANG_TELEMETRY
 
 #define RADIO_XN297
@@ -19,7 +19,7 @@ XN297L
 ======
 
 * config.h
-#define RX_BAYANG_PROTOCOL_TELEMETRY
+#define RX_XN297_BAYANG_TELEMETRY
 // #define RX_NRF24_BAYANG_TELEMETRY
 
 // #define RADIO_XN297
@@ -35,7 +35,7 @@ NRF24
 =====
 
 * config.h
-// #define RX_BAYANG_PROTOCOL_TELEMETRY
+// #define RX_XN297_BAYANG_TELEMETRY
 #define RX_NRF24_BAYANG_TELEMETRY
 
 // #define RADIO_XN297

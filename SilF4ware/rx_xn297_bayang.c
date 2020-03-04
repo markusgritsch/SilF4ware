@@ -4,8 +4,8 @@
 
 #include "binary.h"
 #include "config.h"
+#include "drv_rx.h"
 #include "drv_time.h"
-#include "drv_xn297.h"
 #include "rx.h"
 
 
@@ -32,7 +32,7 @@
 #define RX_MODE_BIND RXMODE_BIND
 
 
-#ifdef RX_BAYANG_PROTOCOL_TELEMETRY
+#ifdef RX_XN297_BAYANG_TELEMETRY
 
 bool failsafe = true;
 
@@ -58,7 +58,7 @@ int packet_period = PACKET_PERIOD;
 
 void rx_init()
 {
-	spi_xn_csoff();
+	spi_rx_csoff();
 	delay( 1 );
 
 	// always on (CH_ON) channel set 1
@@ -80,20 +80,20 @@ void rx_init()
 
 	// Gauss filter amplitude - lowest
 	static uint8_t demodcal[ 2 ] = { 0x39, B00000001 };
-	xn_writeregs( demodcal, sizeof( demodcal ) );
+	rx_writeregs( demodcal, sizeof( demodcal ) );
 
 	// powerup defaults
 	//static uint8_t rfcal2[ 7 ] = { 0x3a, 0x45, 0x21, 0xef, 0xac, 0x3a, 0x50 };
-	//xn_writeregs( rfcal2, sizeof( rfcal2 ) );
+	//rx_writeregs( rfcal2, sizeof( rfcal2 ) );
 
 	static uint8_t rfcal2[ 7 ] = { 0x3a, 0x45, 0x21, 0xef, 0x2c, 0x5a, 0x50 };
-	xn_writeregs( rfcal2, sizeof( rfcal2 ) );
+	rx_writeregs( rfcal2, sizeof( rfcal2 ) );
 
 	static uint8_t regs_1f[ 6 ] = { 0x3f, 0x0a, 0x6d, 0x67, 0x9c, 0x46 };
-	xn_writeregs( regs_1f, sizeof( regs_1f ) );
+	rx_writeregs( regs_1f, sizeof( regs_1f ) );
 
 	static uint8_t regs_1e[ 4 ] = { 0x3e, 0xf6, 0x37, 0x5d };
-	xn_writeregs( regs_1e, sizeof( regs_1e ) );
+	rx_writeregs( regs_1e, sizeof( regs_1e ) );
 
 #define XN_TO_RX B10001111
 #define XN_TO_TX B10000010
@@ -105,13 +105,13 @@ void rx_init()
 #ifdef RADIO_XN297
 
 	static uint8_t bbcal[ 6 ] = { 0x3f, 0x4c, 0x84, 0x6F, 0x9c, 0x20 };
-	xn_writeregs( bbcal, sizeof( bbcal ) );
+	rx_writeregs( bbcal, sizeof( bbcal ) );
 	// new values
 	static uint8_t rfcal[ 8 ] = { 0x3e, 0xc9, 0x9a, 0xA0, 0x61, 0xbb, 0xab, 0x9c };
-	xn_writeregs( rfcal, sizeof( rfcal ) );
+	rx_writeregs( rfcal, sizeof( rfcal ) );
 	// 0xa7 0x03
 	static uint8_t demodcal[6] = { 0x39, 0x0b, 0xdf, 0xc4, B00100111, B00000000 };
-	xn_writeregs( demodcal, sizeof( demodcal ) );
+	rx_writeregs( demodcal, sizeof( demodcal ) );
 
 #ifndef TX_POWER
 #define TX_POWER 3
@@ -128,31 +128,31 @@ void rx_init()
 	// write rx address " 0 0 0 0 0 "
 
 	static uint8_t rxaddr[ 6 ] = { 0x2a, 0, 0, 0, 0, 0 };
-	xn_writeregs( rxaddr, sizeof( rxaddr ) );
+	rx_writeregs( rxaddr, sizeof( rxaddr ) );
 
-	xn_writereg( EN_AA, 0 );      // aa disabled
-	xn_writereg( EN_RXADDR, 1 );  // pipe 0 only
-	xn_writereg( RF_SETUP, XN_POWER );    // power / data rate / lna
-	xn_writereg( RX_PW_P0, 15 );  // payload size
-	xn_writereg( SETUP_RETR, 0 ); // no retransmissions (redundant?)
-	xn_writereg( SETUP_AW, 3 );   // address size (5 bytes)
-	xn_command( FLUSH_RX );
-	xn_writereg( RF_CH, 0 );      // bind on channel 0
+	rx_writereg( EN_AA, 0 );      // aa disabled
+	rx_writereg( EN_RXADDR, 1 );  // pipe 0 only
+	rx_writereg( RF_SETUP, XN_POWER );    // power / data rate / lna
+	rx_writereg( RX_PW_P0, 15 );  // payload size
+	rx_writereg( SETUP_RETR, 0 ); // no retransmissions (redundant?)
+	rx_writereg( SETUP_AW, 3 );   // address size (5 bytes)
+	rx_command( FLUSH_RX );
+	rx_writereg( RF_CH, 0 );      // bind on channel 0
 
 #ifdef RADIO_XN297L
-	xn_writereg( 0x1d, B00111000 );   // 64 bit payload, software ce
+	rx_writereg( 0x1d, B00111000 );   // 64 bit payload, software ce
 	static uint8_t cehigh_regs[ 2 ] = { 0xFD, 0 }; // internal CE high command, 0 also required
-	xn_writeregs( cehigh_regs, sizeof( cehigh_regs ) );
+	rx_writeregs( cehigh_regs, sizeof( cehigh_regs ) );
 #endif
 
 #ifdef RADIO_XN297
-	xn_writereg( 0x1d, B00011000 );   // 64 bit payload, software ce
+	rx_writereg( 0x1d, B00011000 );   // 64 bit payload, software ce
 #endif
 
-	xn_writereg( 0, XN_TO_RX );   // power up, crc enabled, rx mode
+	rx_writereg( 0, XN_TO_RX );   // power up, crc enabled, rx mode
 
 #ifdef RADIO_CHECK
-	int rxcheck = xn_readreg( 0x0f ); // rx address pipe 5
+	int rxcheck = rx_readreg( 0x0f ); // rx address pipe 5
 	// should be 0xc6
 	extern void failloop( int );
 	if ( rxcheck != 0xc6 ) {
@@ -166,13 +166,13 @@ void rx_init()
 			rxaddr_regs[ i ] = rxaddress[ i - 1 ];
 		}
 		// write new rx address
-		xn_writeregs( rxaddr_regs, sizeof( rxaddr_regs ) );
+		rx_writeregs( rxaddr_regs, sizeof( rxaddr_regs ) );
 		rxaddr_regs[ 0 ] = 0x30; // tx register (write) number
 
 		// write new tx address
-		xn_writeregs( rxaddr_regs, sizeof(rxaddr_regs) );
+		rx_writeregs( rxaddr_regs, sizeof(rxaddr_regs) );
 
-		xn_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
+		rx_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
 		rxmode = RX_MODE_NORMAL;
 		if ( telemetry_enabled ) {
 			packet_period = PACKET_PERIOD_TELEMETRY;
@@ -222,15 +222,15 @@ static void beacon_sequence()
 			}
 			break;
 		case 1: // wait for data to finish transmitting
-			if ( ( xn_readreg( 0x17 ) & B00010000 ) ) {
-				xn_writereg( 0, XN_TO_RX );
+			if ( ( rx_readreg( 0x17 ) & B00010000 ) ) {
+				rx_writereg( 0, XN_TO_RX );
 				beacon_seq_state = 0;
 				telemetry_send = 0;
 				nextchannel();
 			} else { // if it takes too long we get rid of it
 				if ( gettime() - send_time > TELEMETRY_TIMEOUT ) {
-					xn_command( FLUSH_TX );
-					xn_writereg( 0, XN_TO_RX );
+					rx_command( FLUSH_TX );
+					rx_writereg( 0, XN_TO_RX );
 					beacon_seq_state = 0;
 					telemetry_send = 0;
 				}
@@ -250,9 +250,9 @@ extern bool telemetry_transmitted; // usermain.c
 
 static void send_telemetry()
 {
-	xn_command( FLUSH_TX );
+	rx_command( FLUSH_TX );
 
-	xn_writereg( 0, XN_TO_TX );
+	rx_writereg( 0, XN_TO_TX );
 
 	int txdata[ 15 ];
 	for ( int i = 0; i < 15; ++i ) {
@@ -338,7 +338,7 @@ static void send_telemetry()
 
 	txdata[ 14 ] = sum;
 
-	xn_writepayload( txdata, 15 );
+	rx_writepayload( txdata, 15 );
 
 	send_time = gettime();
 
@@ -347,10 +347,10 @@ static void send_telemetry()
 
 static char checkpacket()
 {
-	int status = xn_readreg( 7 );
+	int status = rx_readreg( 7 );
 #if 1
 	if ( status & ( 1 << RX_DR ) ) { // RX packet received
-		xn_writereg( STATUS, 1 << RX_DR ); // rx clear bit
+		rx_writereg( STATUS, 1 << RX_DR ); // rx clear bit
 		return 1;
 	}
 #else
@@ -443,7 +443,7 @@ static void nextchannel()
 {
 	++rf_chan;
 	rf_chan &= 3; // same as %4
-	xn_writereg( 0x25, rfchannel[ rf_chan ] );
+	rx_writereg( 0x25, rfchannel[ rf_chan ] );
 }
 
 unsigned long lastrxtime;
@@ -481,7 +481,7 @@ void checkrx( void )
 
 	if ( packetreceived ) {
 		if ( rxmode == RX_MODE_BIND ) { // rx startup, bind mode
-			xn_readpayload( rxdata, 15 );
+			rx_readpayload( rxdata, 15 );
 
 			if ( rxdata[ 0 ] == 0xa4 || rxdata[ 0 ] == 0xa3 || rxdata[ 0 ] == 0xa2 || rxdata[ 0 ] == 0xa1 ) { // bind packet
 				if ( rxdata[ 0 ] == 0xa3 || rxdata[ 0 ] == 0xa1 ) {
@@ -501,13 +501,13 @@ void checkrx( void )
 					rxaddress[ i - 1 ] = rxdata[ i ];
 				}
 				// write new rx address
-				xn_writeregs( rxaddr_regs, sizeof( rxaddr_regs ) );
+				rx_writeregs( rxaddr_regs, sizeof( rxaddr_regs ) );
 				rxaddr_regs[ 0 ] = 0x30; // tx register ( write ) number
 
 				// write new tx address
-				xn_writeregs( rxaddr_regs, sizeof( rxaddr_regs ) );
+				rx_writeregs( rxaddr_regs, sizeof( rxaddr_regs ) );
 
-				xn_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
+				rx_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
 				rxmode = RX_MODE_NORMAL;
 			}
 		} else { // normal mode
@@ -524,7 +524,7 @@ void checkrx( void )
 
 			unsigned long temptime = gettime();
 
-			xn_readpayload( rxdata, 15 );
+			rx_readpayload( rxdata, 15 );
 			int pass = decodepacket();
 
 			if ( pass ) {
@@ -599,7 +599,7 @@ void checkrx( void )
 	static bool rx_already_flushed = false;
 	if ( time - lastrxtime > packet_period ) {
 		if ( ! rx_already_flushed ) {
-			xn_command( FLUSH_RX );
+			rx_command( FLUSH_RX );
 			rx_already_flushed = true;
 		}
 	} else {
@@ -642,8 +642,8 @@ void checkrx( void )
 		autobind_inhibit = 1;
 		rxmode = RX_MODE_BIND;
 		static uint8_t rxaddr[ 6 ] = { 0x2a, 0, 0, 0, 0, 0 };
-		xn_writeregs( rxaddr, sizeof( rxaddr ) );
-		xn_writereg( RF_CH, 0 ); // bind on channel 0
+		rx_writeregs( rxaddr, sizeof( rxaddr ) );
+		rx_writereg( RF_CH, 0 ); // bind on channel 0
 	}
 
 	if ( gettime() - secondtimer > 1000000 ) {
@@ -653,4 +653,4 @@ void checkrx( void )
 	}
 }
 
-#endif // RX_BAYANG_PROTOCOL_TELEMETRY
+#endif // RX_XN297_BAYANG_TELEMETRY

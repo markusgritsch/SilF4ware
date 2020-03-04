@@ -1,13 +1,13 @@
 #include "defines.h"
-#include "drv_spi2.h"
+#include "drv_spi_mpu.h"
 #include "main.h"
 
-#define MOSIHIGH gpioset(SPI2_MOSI_GPIO_Port, SPI2_MOSI_Pin);
-#define MOSILOW gpioreset(SPI2_MOSI_GPIO_Port, SPI2_MOSI_Pin);
-#define SCKHIGH gpioset(SPI2_CLK_GPIO_Port, SPI2_CLK_Pin);
-#define SCKLOW gpioreset(SPI2_CLK_GPIO_Port, SPI2_CLK_Pin);
+#define MOSIHIGH gpioset(SPI_MPU_MOSI_GPIO_Port, SPI_MPU_MOSI_Pin);
+#define MOSILOW gpioreset(SPI_MPU_MOSI_GPIO_Port, SPI_MPU_MOSI_Pin);
+#define SCKHIGH gpioset(SPI_MPU_SCK_GPIO_Port, SPI_MPU_SCK_Pin);
+#define SCKLOW gpioreset(SPI_MPU_SCK_GPIO_Port, SPI_MPU_SCK_Pin);
 
-#define READMISO (SPI2_MISO_GPIO_Port->IDR & SPI2_MISO_Pin)
+#define READMISO (SPI_MPU_MISO_GPIO_Port->IDR & SPI_MPU_MISO_Pin)
 // #define DELAY_O3 _NOP_ _NOP_ // necessary when the loop is unrolled i.e. with -O3
 #define DELAY_O3
 
@@ -16,7 +16,7 @@
 
 volatile static uint32_t count;
 
-void spi2_sendbyte_slow( int data )
+void spi_mpu_sendbyte_slow( int data )
 {
 	for ( int i =7; i >= 0; --i ) {
 		SCKLOW
@@ -34,7 +34,7 @@ void spi2_sendbyte_slow( int data )
 	DELAY_SLOW
 }
 
-void spi2_sendbyte( int data )
+void spi_mpu_sendbyte( int data )
 {
 	for ( int i =7; i >= 0; --i ) {
 		SCKLOW
@@ -50,7 +50,7 @@ void spi2_sendbyte( int data )
 	MOSILOW
 }
 
-int spi2_sendzerorecvbyte_slow()
+int spi_mpu_sendzerorecvbyte_slow()
 {
 	int recv = 0;
 	MOSILOW
@@ -67,7 +67,7 @@ int spi2_sendzerorecvbyte_slow()
 	return recv;
 }
 
-int spi2_sendzerorecvbyte()
+int spi_mpu_sendzerorecvbyte()
 {
 	int recv = 0;
 	MOSILOW

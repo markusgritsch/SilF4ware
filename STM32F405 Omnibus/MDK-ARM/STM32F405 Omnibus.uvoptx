@@ -77,7 +77,7 @@
         <tvExpOptDlg>0</tvExpOptDlg>
         <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
-      <CpuCode>0</CpuCode>
+      <CpuCode>18</CpuCode>
       <DebugOpt>
         <uSim>0</uSim>
         <uTrg>1</uTrg>
@@ -658,8 +658,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_spi.c</PathWithFileName>
-      <FilenameWithoutPath>drv_spi.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\SilF4ware\drv_rx.c</PathWithFileName>
+      <FilenameWithoutPath>drv_rx.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -682,8 +682,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_spi2.c</PathWithFileName>
-      <FilenameWithoutPath>drv_spi2.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\SilF4ware\drv_spi_mpu.c</PathWithFileName>
+      <FilenameWithoutPath>drv_spi_mpu.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -694,8 +694,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_time.c</PathWithFileName>
-      <FilenameWithoutPath>drv_time.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\SilF4ware\drv_spi_rx.c</PathWithFileName>
+      <FilenameWithoutPath>drv_spi_rx.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -706,8 +706,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_xn297.c</PathWithFileName>
-      <FilenameWithoutPath>drv_xn297.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\SilF4ware\drv_time.c</PathWithFileName>
+      <FilenameWithoutPath>drv_time.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -802,8 +802,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\rx_bayang.c</PathWithFileName>
-      <FilenameWithoutPath>rx_bayang.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\SilF4ware\rx_nrf24_bayang.c</PathWithFileName>
+      <FilenameWithoutPath>rx_nrf24_bayang.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -814,8 +814,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\rx_nrf24_bayang.c</PathWithFileName>
-      <FilenameWithoutPath>rx_nrf24_bayang.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\SilF4ware\rx_xn297_bayang.c</PathWithFileName>
+      <FilenameWithoutPath>rx_xn297_bayang.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

@@ -86,8 +86,8 @@ void Error_Handler(void);
 #define SPI_RX_SCK_GPIO_Port GPIOD
 #define BEEPER_Pin GPIO_PIN_4
 #define BEEPER_GPIO_Port GPIOB
-#define LED_Pin GPIO_PIN_5
-#define LED_GPIO_Port GPIOB
+#define STATUS_LED_Pin GPIO_PIN_5
+#define STATUS_LED_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

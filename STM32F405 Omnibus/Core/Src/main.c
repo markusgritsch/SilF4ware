@@ -429,7 +429,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, ESC1_Pin|ESC2_Pin|SPI_RX_NSS_Pin|BEEPER_Pin 
-                          |LED_Pin, GPIO_PIN_RESET);
+                          |STATUS_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(SPI_RX_SCK_GPIO_Port, SPI_RX_SCK_Pin, GPIO_PIN_RESET);
@@ -450,9 +450,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ESC1_Pin ESC2_Pin SPI_RX_NSS_Pin BEEPER_Pin 
-                           LED_Pin */
+                           STATUS_LED_Pin */
   GPIO_InitStruct.Pin = ESC1_Pin|ESC2_Pin|SPI_RX_NSS_Pin|BEEPER_Pin 
-                          |LED_Pin;
+                          |STATUS_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;

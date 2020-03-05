@@ -66,8 +66,8 @@ void Error_Handler(void);
 #define PA0_GPIO_Port GPIOA
 #define ESC1_Pin GPIO_PIN_1
 #define ESC1_GPIO_Port GPIOA
-#define LED_Pin GPIO_PIN_4
-#define LED_GPIO_Port GPIOA
+#define STATUS_LED_Pin GPIO_PIN_4
+#define STATUS_LED_GPIO_Port GPIOA
 #define VOLTAGE_DIVIDER_Pin GPIO_PIN_5
 #define VOLTAGE_DIVIDER_GPIO_Port GPIOA
 #define ESC2_Pin GPIO_PIN_7

@@ -6,23 +6,23 @@
 
 void ledon( void )
 {
-	// HAL_GPIO_WritePin( LED_GPIO_Port, LED_Pin, GPIO_PIN_SET );
+	// HAL_GPIO_WritePin( STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_SET );
 
 #ifdef LED_INVERT
-	gpioreset( LED_GPIO_Port, LED_Pin );
+	gpioreset( STATUS_LED_GPIO_Port, STATUS_LED_Pin );
 #else
-	gpioset( LED_GPIO_Port, LED_Pin );
+	gpioset( STATUS_LED_GPIO_Port, STATUS_LED_Pin );
 #endif
 }
 
 void ledoff( void )
 {
-	// HAL_GPIO_WritePin( LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET );
+	// HAL_GPIO_WritePin( STATUS_LED_GPIO_Port, STATUS_LED_Pin, GPIO_PIN_RESET );
 
 #ifdef LED_INVERT
-	gpioset( LED_GPIO_Port, LED_Pin );
+	gpioset( STATUS_LED_GPIO_Port, STATUS_LED_Pin );
 #else
-	gpioreset( LED_GPIO_Port, LED_Pin );
+	gpioreset( STATUS_LED_GPIO_Port, STATUS_LED_Pin );
 #endif
 }
 

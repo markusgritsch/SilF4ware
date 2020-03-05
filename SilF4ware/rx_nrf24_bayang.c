@@ -513,7 +513,7 @@ int timingfail = 0;
 
 void checkrx( void )
 {
-	if ( LOOPTIME < 500 ) { // Kludge. 500 works perfectly for telemetry on nrf24, so we skip some calls accordingly.
+	if ( LOOPTIME < 500 ) { // Kludge. 500 works perfectly for telemetry on nrf24, so we skip some invocations accordingly.
 		static int count;
 		if ( count == 0 ) {
 			count = 500 / LOOPTIME - 1;

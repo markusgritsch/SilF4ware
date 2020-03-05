@@ -59,7 +59,7 @@ void usermain()
 		lastlooptime = loop_start_time;
 
 		static uint32_t last_accel_read_time;
-		if ( telemetry_transmitted // This way we sync gyro reading to the subsequent loop after sending telemetry.
+		if ( telemetry_transmitted // This way we sync accel reading to the subsequent loop after sending telemetry.
 			|| loop_start_time - last_accel_read_time > 950 ) // The accel sensor gets updated only once every 1 ms.
 		{
 			telemetry_transmitted = false;

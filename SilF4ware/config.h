@@ -61,7 +61,7 @@
 // #define BIQUAD_NOTCH_B_HZ 300 // T-Motor T5147
 // #define BIQUAD_NOTCH_B_Q 6
 
-// #define BIQUAD_NOTCH_C_HZ 380
+// #define BIQUAD_NOTCH_C_HZ 225 // GemFan WinDacer 51433
 // #define BIQUAD_NOTCH_C_Q 6
 
 // Dynamic Gyro first and second order LPFs
@@ -120,6 +120,8 @@
 #define MOTOR_BEEPS
 #define MOTOR_BEEPS_CHANNEL DEVO_CHAN_12
 
+// Send maximum measured g-force in the telemetry data.
+#define DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
 // Send maximum looptime in the telemetry data.
 #define DISPLAY_MAX_USED_LOOP_TIME_INSTEAD_OF_RX_PACKETS
 // Send PID values in the telemetry data.

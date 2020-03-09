@@ -318,27 +318,25 @@ static void send_telemetry()
 	txdata[ 0 ] = 0x85; // 133
 	txdata[ 1 ] = lowbatt;
 
-	// battery volt filtered
-	int vbatt = vbattfilt * 100 + 0.5f;
-
 #ifndef MOTOR_BEEPS_CHANNEL
 #define MOTOR_BEEPS_CHANNEL CH_OFF
 #endif
 
-#ifdef LEVELMODE
-	if ( aux[ LEVELMODE ] ) {
-		extern float accel[ 3 ];
-		extern int calibration_done;
-		static float maxg = 0.0f;
-		if ( fabsf( accel[ 2 ] ) > maxg && calibration_done ) {
-			maxg = fabsf( accel[ 2 ] );
-		}
-		if ( aux[ MOTOR_BEEPS_CHANNEL ] ) { // reset displayed maxg
-			maxg = 0.0f;
-		}
-		vbatt = maxg * 100;
+#ifdef DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
+	extern float accel[ 3 ];
+	extern int calibration_done;
+	static float maxg = 0.0f;
+	if ( fabsf( accel[ 2 ] ) > maxg && calibration_done ) {
+		maxg = fabsf( accel[ 2 ] );
 	}
-#endif // LEVELMODE
+	if ( aux[ MOTOR_BEEPS_CHANNEL ] ) { // reset displayed maxg
+		maxg = 0.0f;
+	}
+	int vbatt = maxg * 100;
+#else
+	// battery volt filtered
+	int vbatt = vbattfilt * 100 + 0.5f;
+#endif // DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
 
 	txdata[ 3 ] = ( vbatt >> 8 ) & 0xff;
 	txdata[ 4 ] = vbatt & 0xff;

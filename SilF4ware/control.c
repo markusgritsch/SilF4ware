@@ -38,6 +38,7 @@ extern bool failsafe; // rx.c
 extern float rx[ 4 ]; // rx.c
 extern char aux[ AUXNUMBER ]; // rx.c
 extern float aux_analog[ 2 ];
+extern int packet_period; // rx.c
 
 extern bool ledcommand; // led.c
 
@@ -106,7 +107,7 @@ void control( void )
 	static int countRX[ 4 ];
 	for ( int i = 0; i < 4; ++i ) {
 		if ( rxcopy[ i ] != lastRXcopy[ i ] ) {
-			static int step_count = 5000 / LOOPTIME; // Spread it evenly over 5 ms (PACKET_PERIOD)
+			const int step_count = packet_period / LOOPTIME; // Spread it evenly over e.g. 5 ms
 			stepRX[ i ] = ( rxcopy[ i ] - lastRXcopy[ i ] ) / step_count;
 			countRX[ i ] = step_count;
 			rxsmooth[ i ] = lastRXcopy[ i ];

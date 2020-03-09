@@ -67,17 +67,18 @@ uint32_t pid_blink_offset = 0;
 
 float ierror[ PIDNUMBER ] = { 0, 0, 0 };
 float pidoutput[ PIDNUMBER ];
-extern float setpoint[ PIDNUMBER ];
-extern float error[ PIDNUMBER ];
-extern float gyro[ 3 ];
-extern float gyro_notch_filtered[ 3 ];
-extern int onground;
-extern float vbattfilt;
-extern float battery_scale_factor;
-extern float rxcopy[ 4 ];
-extern float aux_analog[ 2 ];
-extern float mixmax;
-extern char aux[ AUXNUMBER ];
+extern float setpoint[ PIDNUMBER ]; // control.c
+extern float error[ PIDNUMBER ]; // control.c
+extern float gyro[ 3 ]; // sixaxis.c
+extern float gyro_notch_filtered[ 3 ]; // sixaxis.c
+extern int onground; // control.c
+extern float vbattfilt; // battery.c
+extern float battery_scale_factor; // battery.c
+extern float rxcopy[ 4 ]; // control.c
+extern float aux_analog[ 2 ]; // rx.c
+extern float mixmax; // control.c
+extern char aux[ AUXNUMBER ]; // rx.c
+extern int packet_period; // rx.c
 
 static float lasterror[ PIDNUMBER ];
 #ifdef SIMPSON_RULE_INTEGRAL
@@ -173,7 +174,7 @@ void pid( int x )
 		static float setpointDiff[ 2 ];
 		static int ffCount[ 2 ];
 		if ( setpoint[ x ] != lastSetpoint[ x ] ) {
-			static int step_count = 5000 / LOOPTIME; // Spread it evenly over 5 ms (PACKET_PERIOD)
+			const int step_count = packet_period / LOOPTIME; // Spread it evenly over e.g. 5 ms
 			setpointDiff[ x ] = ( setpoint[ x ] - lastSetpoint[ x ] ) / step_count;
 			ffCount[ x ] = 5;
 			lastSetpoint[ x ] = setpoint[ x ];

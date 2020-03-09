@@ -15,4 +15,3 @@ enum gestures_enum {
 	GESTURE_LRU,
 	GESTURE_LRD
 };
-

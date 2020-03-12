@@ -25,6 +25,9 @@ extern float gyro[ 3 ];
 extern float gyro_unfiltered[ 3 ];
 extern float bb_accel[ 3 ];
 extern float bb_mix[ 4 ];
+#ifdef RPM_FILTER
+extern float motor_hz[ 4 ];
+#endif // RPM_FILTER
 
 void blackbox_init( void )
 {
@@ -108,10 +111,17 @@ void blackbox_log( void )
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_accel[ 0 ]; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_accel[ 2 ]; pos += 2;
 	// debug
+#if 1
 	*(int16_t *)( &bb_buffer[ pos ] ) = gyro_unfiltered[ 0 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = gyro_unfiltered[ 1 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = -gyro_unfiltered[ 2 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = 0; pos += 2;
+#else
+	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_BR - 1 ] * 10.0f; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_FR - 1 ] * 10.0f; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_BL - 1 ] * 10.0f; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_FL - 1 ] * 10.0f; pos += 2;
+#endif
 	// motor
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_BR - 1 ] * 1000.0f; pos += 2; // BR
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_FR - 1 ] * 1000.0f; pos += 2; // FR

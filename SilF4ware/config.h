@@ -61,7 +61,7 @@
 // #define BIQUAD_NOTCH_B_HZ 300 // T-Motor T5147
 // #define BIQUAD_NOTCH_B_Q 6
 
-// #define BIQUAD_NOTCH_C_HZ 225 // GemFan WinDacer 51433
+// #define BIQUAD_NOTCH_C_HZ 250 // GemFan WinDacer 51433
 // #define BIQUAD_NOTCH_C_Q 6
 
 // Dynamic Gyro first and second order LPFs

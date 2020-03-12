@@ -43,7 +43,8 @@ def writeLogStartMarker( f ):
 	f.write( 'H pitchPID:31.22,1,1\n' ) # equivalent Betaflight PID values, the response.png plot is of no use.
 	f.write( 'H yawPID:31.22,1,0\n' )   # However the noise.png plot seems to be independent of those numbers.
 
-	f.write( 'H debug_mode:6\n' ) # 3 .. "Gyro Scaled"
+	f.write( 'H debug_mode:6\n' ) # 3 .. "Gyro Scaled"; -2000 .. 2000 deg/s
+	# f.write( 'H debug_mode:12\n' ) # 12 .. "ESC RPM"; arbitrary values, but [1]..[4] use the same scaling factor
 
 def writeLogEndMarker( f ):
 	f.write( 'E\xffEnd of log\x00' ) # optional log end marker
@@ -147,8 +148,8 @@ def writeData():
 		accSmooth[1] = signedVariableByte( 0 )
 		accSmooth[2] = signedVariableByte( 0 )
 	# Debug
-	debug[0] = signedVariableByte( debug[0] ) # 1000 units dynamic range per debug channel.
-	debug[1] = signedVariableByte( debug[1] ) # This is plotted itentically to the one above. Legend value is correct.
+	debug[0] = signedVariableByte( debug[0] )
+	debug[1] = signedVariableByte( debug[1] )
 	debug[2] = signedVariableByte( debug[2] )
 	debug[3] = signedVariableByte( debug[3] )
 	# Motors
@@ -232,7 +233,7 @@ for filename in os.listdir( '.' ):
 	if ( filename[ : 3 ] == 'LOG' and filename[ -4 : ] == '.TXT' ):
 		print 'converting file "%s"' % filename
 		f_in = open( filename, 'rb' )
-		f_out = open( datetime.datetime.now().strftime('%Y-%m-%d  %H-%M-%S') + '  SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
+		f_out = open( datetime.datetime.now().strftime( "%Y-%m-%d  %H'%M'%S" ) + '  SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
 		parseFile( f_in, f_out )
 		f_out.close()
 		f_in.close()

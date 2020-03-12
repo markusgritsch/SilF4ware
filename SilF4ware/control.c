@@ -260,8 +260,13 @@ void control( void )
 		if ( throttle_reversing_kick_sawtooth > 0.0f ) {
 			if ( throttle_reversing_kick_sawtooth > throttle_reversing_kick ) {
 				throttle = 0.0f;
+				pidoutput[ 0 ] = pidoutput[ 1 ] = pidoutput[ 2 ] = 0.0f;
 			} else {
-				throttle = throttle_reversing_kick_sawtooth;
+				const float transitioning_factor = ( throttle_reversing_kick - throttle_reversing_kick_sawtooth ) / throttle_reversing_kick;
+				throttle = throttle * transitioning_factor + throttle_reversing_kick_sawtooth;
+				pidoutput[ 0 ] *= transitioning_factor;
+				pidoutput[ 1 ] *= transitioning_factor;
+				pidoutput[ 2 ] *= transitioning_factor;
 			}
 			throttle_reversing_kick_sawtooth -= throttle_reversing_kick_decrement;
 		}

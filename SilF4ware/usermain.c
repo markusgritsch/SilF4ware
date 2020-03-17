@@ -27,8 +27,6 @@ bool telemetry_transmitted;
 extern char aux[ AUXNUMBER ];
 extern int onground; // control.c
 
-void failloop( int val );
-
 void usermain()
 {
 	ledoff();
@@ -58,6 +56,8 @@ void usermain()
 		looptime = ( loop_start_time - lastlooptime ) * 1e-6f;
 		lastlooptime = loop_start_time;
 
+		blackbox_log(); // First thing in the loop to get equal spacing between the calls.
+
 		static uint32_t last_accel_read_time;
 		if ( telemetry_transmitted // This way we sync accel reading to the subsequent loop after sending telemetry.
 			|| loop_start_time - last_accel_read_time > 950 ) // The accel sensor gets updated only once every 1 ms.
@@ -69,16 +69,21 @@ void usermain()
 			gyro_read(); // read just gyro data
 		}
 		// Gyro filtering is done in sixaxis.c
+
 #ifdef LEVELMODE
 		imu(); // attitude calculations for level mode
 #endif // LEVELMODE
-		control(); // all flight calculations and motors
-		blackbox_log();
+
+		control(); // all flight calculations, pid and motors
+
 		battery();
+
 		if ( onground ) {
 			gestures(); // check gestures
 		}
+
 		process_led_command();
+
 		checkrx(); // receiver function
 
 		// for debug

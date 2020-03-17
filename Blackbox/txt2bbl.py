@@ -4,6 +4,9 @@ import os, struct, datetime
 
 craftOrientationMode = 0 # 0 .. use gyro and accelerometer, 1 .. use gyro only, 2 .. do not rotate craft display
 
+# debugMode = 6 # "Gyro Scaled"; unfiltered gyro signal
+debugMode = 12 # "ESC RPM"; motor frequence in dHz (decihertz)
+
 def writeLogStartMarker( f ):
 	f.write( 'H Product:Blackbox flight data recorder by Nicholas Sherlock\n' ) # log start marker
 	f.write( 'H Data version:2\n' ) # required
@@ -43,8 +46,12 @@ def writeLogStartMarker( f ):
 	f.write( 'H pitchPID:31.22,1,1\n' ) # equivalent Betaflight PID values, the response.png plot is of no use.
 	f.write( 'H yawPID:31.22,1,0\n' )   # However the noise.png plot seems to be independent of those numbers.
 
-	f.write( 'H debug_mode:6\n' ) # 3 .. "Gyro Scaled"; -2000 .. 2000 deg/s
-	# f.write( 'H debug_mode:12\n' ) # 12 .. "ESC RPM"; arbitrary values, but [1]..[4] use the same scaling factor
+	if debugMode == 6:
+		f.write( 'H debug_mode:6\n' ) # 3 .. "Gyro Scaled"; -2000 .. 2000 deg/s
+	elif debugMode == 12:
+		f.write( 'H debug_mode:12\n' ) # 12 .. "ESC RPM"; arbitrary values, but [1]..[4] use the same scaling factor
+	else:
+		assert False, 'debugMode has no valid value'
 
 def writeLogEndMarker( f ):
 	f.write( 'E\xffEnd of log\x00' ) # optional log end marker
@@ -81,6 +88,7 @@ gyroADC = [ 0, 0, 0 ]
 accSmooth = [ 0, 0, 0 ]
 debug = [ 0, 0, 0, 0 ]
 motor = [ 0, 0, 0, 0 ]
+motorHz = [ 0, 0, 0, 0 ]
 
 rssiLast = 0
 rssiAvg = 0
@@ -88,7 +96,7 @@ rssiArray = [ 0 ] * int( 200 * 0.15 ) # 0.15 seconds
 rssiIndex = 0
 
 def writeData():
-	global iteration, time, axisP, axisI, axisD, axisF, rcCommand, setpoint, vbatLatest, amperageLatest, rssi, gyroADC, accSmooth, debug, motor
+	global iteration, time, axisP, axisI, axisD, axisF, rcCommand, setpoint, vbatLatest, amperageLatest, rssi, gyroADC, accSmooth, debug, motor, motorHz
 	loopIteration = unsignedVariableByte( iteration )
 	# time = unsignedVariableByte( 0 if iteration == 0 else time ) # micro seconds
 	time = unsignedVariableByte( time ) # micro seconds
@@ -148,10 +156,16 @@ def writeData():
 		accSmooth[1] = signedVariableByte( 0 )
 		accSmooth[2] = signedVariableByte( 0 )
 	# Debug
-	debug[0] = signedVariableByte( debug[0] )
-	debug[1] = signedVariableByte( debug[1] )
-	debug[2] = signedVariableByte( debug[2] )
-	debug[3] = signedVariableByte( debug[3] )
+	if debugMode == 6:
+		debug[0] = signedVariableByte( debug[0] )
+		debug[1] = signedVariableByte( debug[1] )
+		debug[2] = signedVariableByte( debug[2] )
+		debug[3] = signedVariableByte( debug[3] )
+	elif debugMode == 12:
+		debug[0] = signedVariableByte( motorHz[0] )
+		debug[1] = signedVariableByte( motorHz[1] )
+		debug[2] = signedVariableByte( motorHz[2] )
+		debug[3] = signedVariableByte( motorHz[3] )
 	# Motors
 	motor[0] = unsignedVariableByte( motor[0] ) # 0 .. 1000 -> 0% .. 100%
 	motor[1] = unsignedVariableByte( motor[1] )
@@ -167,7 +181,7 @@ def writeData():
 def parseFile( f, f_out ):
 	writeLogStartMarker( f_out )
 
-	global iteration, time, axisP, axisI, axisD, axisF, rcCommand, setpoint, vbatLatest, amperageLatest, rssi, gyroADC, accSmooth, debug, motor
+	global iteration, time, axisP, axisI, axisD, axisF, rcCommand, setpoint, vbatLatest, amperageLatest, rssi, gyroADC, accSmooth, debug, motor, motorHz
 	f.seek( 0, 2 ) # end
 	size = f.tell()
 	f.seek( 0, 0 ) # beginning
@@ -194,7 +208,8 @@ def parseFile( f, f_out ):
 				accSmooth = list( struct.unpack( '<hhh', f.read( 6 ) ) )
 				debug = list( struct.unpack( '<hhhh', f.read( 8 ) ) )
 				motor = list( struct.unpack( '<HHHH', f.read( 8 ) ) )
-				# 90 bytes read
+				motorHz = list( struct.unpack( '<hhhh', f.read( 8 ) ) )
+				# 98 bytes read
 			except struct.error, message:
 				if f.tell() == size:
 					print '  100%'
@@ -233,11 +248,14 @@ for filename in os.listdir( '.' ):
 	if ( filename[ : 3 ] == 'LOG' and filename[ -4 : ] == '.TXT' ):
 		print 'converting file "%s"' % filename
 		f_in = open( filename, 'rb' )
-		f_out = open( datetime.datetime.now().strftime( "%Y-%m-%d  %H'%M'%S" ) + '  SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
+		datePrefix = datetime.datetime.now().strftime( "%Y-%m-%d  %H'%M'%S  " )
+		f_out = open( datePrefix + 'SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
 		parseFile( f_in, f_out )
 		f_out.close()
 		f_in.close()
-		os.remove( filename )
+		if not os.path.exists( 'trash' ):
+			os.mkdir( 'trash' )
+		os.rename( filename, os.path.join( 'trash', datePrefix + filename ) )
 		print
 
 print 'all done'

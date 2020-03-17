@@ -7,7 +7,7 @@
 
 #ifdef BLACKBOX_LOGGING
 // 100 bytes maximum at 2 Mbit/s UART speed and a logged data frame every 0.5 ms.
-static uint8_t bb_buffer[ 90 ] = "FRAMESTART";
+static uint8_t bb_buffer[ 98 ] = "FRAMESTART"; // 98 bytes practical limit
 #endif // BLACKBOX_LOGGING
 
 extern int onground;
@@ -25,9 +25,6 @@ extern float gyro[ 3 ];
 extern float gyro_unfiltered[ 3 ];
 extern float bb_accel[ 3 ];
 extern float bb_mix[ 4 ];
-#ifdef RPM_FILTER
-extern float motor_hz[ 4 ];
-#endif // RPM_FILTER
 
 void blackbox_init( void )
 {
@@ -111,23 +108,25 @@ void blackbox_log( void )
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_accel[ 0 ]; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_accel[ 2 ]; pos += 2;
 	// debug
-#if 1
 	*(int16_t *)( &bb_buffer[ pos ] ) = gyro_unfiltered[ 0 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = gyro_unfiltered[ 1 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = -gyro_unfiltered[ 2 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = 0; pos += 2;
-#else
+	// motor
+	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_BR - 1 ] * 1000.0f; pos += 2; // BR
+	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_FR - 1 ] * 1000.0f; pos += 2; // FR
+	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_BL - 1 ] * 1000.0f; pos += 2; // BL
+	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_FL - 1 ] * 1000.0f; pos += 2; // FL
+	// pos is 90
+#ifdef RPM_FILTER
+	// motor Hz
+	extern float motor_hz[ 4 ];
 	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_BR - 1 ] * 10.0f; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_FR - 1 ] * 10.0f; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_BL - 1 ] * 10.0f; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_FL - 1 ] * 10.0f; pos += 2;
-#endif
-	// motor
-	*(int16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_BR - 1 ] * 1000.0f; pos += 2; // BR
-	*(int16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_FR - 1 ] * 1000.0f; pos += 2; // FR
-	*(int16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_BL - 1 ] * 1000.0f; pos += 2; // BL
-	*(int16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_FL - 1 ] * 1000.0f; pos += 2; // FL
-	// pos is 90
+	// pos is 98
+#endif // RPM_FILTER
 	++bb_iteration;
 
 #if defined FC_BOARD_OMNIBUS

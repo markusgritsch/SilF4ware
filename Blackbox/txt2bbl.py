@@ -4,8 +4,8 @@ import os, struct, datetime
 
 craftOrientationMode = 0 # 0 .. use gyro and accelerometer, 1 .. use gyro only, 2 .. do not rotate craft display
 
-# debugMode = 6 # "Gyro Scaled"; unfiltered gyro signal
-debugMode = 12 # "ESC RPM"; motor frequence in dHz (decihertz)
+debugMode = 6 # "Gyro Scaled"; unfiltered gyro signal
+# debugMode = 12 # "ESC RPM"; motor frequence in dHz (decihertz)
 
 def writeLogStartMarker( f ):
 	f.write( 'H Product:Blackbox flight data recorder by Nicholas Sherlock\n' ) # log start marker

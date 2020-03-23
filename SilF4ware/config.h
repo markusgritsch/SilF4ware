@@ -148,7 +148,7 @@
 #define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 
 // For smoother motor reversing in 3D flight
-#define THROTTLE_REVERSING_KICK 0.1f
+#define THROTTLE_REVERSING_KICK 0.15
 #define THROTTLE_REVERSING_DEADTIME 20000 // 20 ms (increase this in case of over-propped motors)
 
 // Continue stick movement with the current stick velocity in case of lost packets
@@ -166,7 +166,7 @@
 #define MIX_RANGE_LIMIT 1.0f // aux[ DEVO_CHAN_11 ] ? 0.75f : 1.0f
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
-#define THRUST_LINEARIZATION 0.4f // 0.0f .. no compensation, 1.0f .. full square root curve
+#define THRUST_LINEARIZATION 0.4 // 0.0 .. no compensation, 1.0 .. full square root curve
 
 // A deadband can be used to eliminate stick center jitter and non-returning to exactly 0.
 #define STICKS_DEADBAND 0.02f

@@ -1,5 +1,11 @@
+BLHeliSuiteSiLabs ESC Setup_*.png
+
+Blackbox/*
+!Blackbox/txt2bbl.py
+
 SilF4ware/_birdseyeview.png
 SilF4ware/_birdseyeviews/
+
 STM32F4*/.mxproject
 STM32F4*/MDK-ARM/DebugConfig/
 STM32F4*/MDK-ARM/RTE/

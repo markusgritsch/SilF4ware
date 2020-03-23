@@ -63,7 +63,7 @@ void control( void )
 		throttle_hpf_reset( 200 ); // ms
 		dterm_filter_reset( 0 ); // ms
 #ifdef THROTTLE_REVERSING_KICK
-		throttle_reversing_kick = THROTTLE_REVERSING_KICK * ( ( battery_scale_factor - 1.0f ) * 1.5f + 1.0f );
+		throttle_reversing_kick = (float)THROTTLE_REVERSING_KICK * ( ( battery_scale_factor - 1.0f ) * 1.5f + 1.0f );
 		#define TRKD 100000.0f // 100 ms throttle reversing kick duration
 		throttle_reversing_kick_sawtooth = throttle_reversing_kick * ( TRKD + (float)THROTTLE_REVERSING_DEADTIME ) / TRKD;
 		throttle_reversing_kick_decrement = throttle_reversing_kick_sawtooth * (float)LOOPTIME / ( TRKD + (float)THROTTLE_REVERSING_DEADTIME );
@@ -237,12 +237,6 @@ void control( void )
 
 		float throttle = rxcopy[ 3 ];
 
-#ifdef THRUST_LINEARIZATION
-		#define AA_motorCurve THRUST_LINEARIZATION // 0 .. linear, 1 .. quadratic
-		const float aa = AA_motorCurve;
-		throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
-#endif
-
 #ifdef THROTTLE_TRANSIENT_COMPENSATION_FACTOR
 		const float throttle_boost = throttle_hpf( throttle ); // Keep the HPF call in the loop to keep its state updated.
 		extern bool lowbatt;
@@ -301,6 +295,12 @@ void control( void )
 		if ( throttle < 0.0f ) {
 			throttle = 0.0f;
 		}
+#endif
+
+#ifdef THRUST_LINEARIZATION
+		#define AA_motorCurve (float)THRUST_LINEARIZATION // 0 .. linear, 1 .. quadratic
+		const float aa = AA_motorCurve;
+		throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
 #endif
 
 #ifdef INVERT_YAW_PID

@@ -58,8 +58,7 @@ int packet_period = PACKET_PERIOD;
 
 void rx_init()
 {
-	spi_rx_csoff();
-	delay( 1 );
+	drv_rx_init();
 
 	// always on (CH_ON) channel set 1
 	aux[ AUXNUMBER - 2 ] = 1;

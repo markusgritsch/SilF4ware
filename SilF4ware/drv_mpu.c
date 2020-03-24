@@ -3,14 +3,20 @@
 #include "drv_time.h"
 #include "main.h"
 
-void spi_mpu_cson()
+static void spi_mpu_cson()
 {
 	SPI_MPU_NSS_GPIO_Port->BSRR = (uint32_t)SPI_MPU_NSS_Pin << 16U;
 }
 
-void spi_mpu_csoff()
+static void spi_mpu_csoff()
 {
 	SPI_MPU_NSS_GPIO_Port->BSRR = SPI_MPU_NSS_Pin;
+}
+
+void mpu_init()
+{
+	spi_mpu_csoff();
+	delay( 1 );
 }
 
 void mpu_writereg( uint8_t address, uint8_t value )

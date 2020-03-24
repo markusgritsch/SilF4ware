@@ -1,8 +1,6 @@
 #include <stdint.h>
 
-void spi_rx_cson( void );
-void spi_rx_csoff( void );
-
+void drv_rx_init();
 void rx_writerxaddress( int * addr );
 void rx_writereg( int reg, int val );
 // int rx_command_orig( int command );

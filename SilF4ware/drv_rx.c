@@ -1,15 +1,23 @@
 #include "drv_rx.h"
 #include "drv_spi_rx.h"
+#include "drv_time.h"
 #include "main.h"
 
-void spi_rx_cson()
+static void spi_rx_cson()
 {
 	SPI_RX_NSS_GPIO_Port->BSRR = (uint32_t)SPI_RX_NSS_Pin << 16U;
 }
 
-void spi_rx_csoff()
+static void spi_rx_csoff()
 {
 	SPI_RX_NSS_GPIO_Port->BSRR = SPI_RX_NSS_Pin;
+}
+
+void drv_rx_init()
+{
+	spi_rx_init();
+	spi_rx_csoff();
+	delay( 1 );
 }
 
 void rx_writereg( int reg, int val )

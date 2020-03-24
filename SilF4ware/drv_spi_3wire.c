@@ -35,6 +35,20 @@ static void mosi_input( void )
 
 #define READMOSI (SPI_RX_MOSI_GPIO_Port->IDR & SPI_RX_MOSI_Pin)
 
+void spi_rx_init()
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {
+		.Mode = GPIO_MODE_OUTPUT_PP,
+		.Pull = GPIO_NOPULL,
+		.Speed = GPIO_SPEED_FREQ_HIGH
+	};
+
+	GPIO_InitStruct.Pin = SPI_RX_MOSI_Pin;
+	HAL_GPIO_Init( SPI_RX_MOSI_GPIO_Port, &GPIO_InitStruct );
+	GPIO_InitStruct.Pin = SPI_RX_SCK_Pin;
+	HAL_GPIO_Init( SPI_RX_SCK_GPIO_Port, &GPIO_InitStruct );
+}
+
 void spi_rx_sendbyte( int data )
 {
 	if ( ! mosi_out ) {

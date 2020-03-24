@@ -25,8 +25,7 @@ static void process_gyronew_to_gyro( float gyronew[] ); // To avoid code duplica
 
 void sixaxis_init( void )
 {
-	spi_mpu_csoff();
-	delay( 1 );
+	mpu_init();
 
 	// gyro soft reset
 	// mpu_writereg( 107, 128 );

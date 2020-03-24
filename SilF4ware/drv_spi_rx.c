@@ -3,6 +3,45 @@
 #include "hardware.h"
 #include "main.h"
 
+#ifdef HARDSPI
+
+#if HARDSPI == 1
+	#define HARDSPIx SPI1
+	#define HARDSPI_INIT_FUNC MX_SPI1_Init
+#elif HARDSPI == 2
+	#define HARDSPIx SPI2
+	#define HARDSPI_INIT_FUNC MX_SPI2_Init
+#else
+	#error "HARDSPI must be 1 or 2."
+#endif
+
+void spi_rx_init()
+{
+	extern void HARDSPI_INIT_FUNC( void );
+	HARDSPI_INIT_FUNC();
+	SET_BIT( HARDSPIx->CR1, SPI_CR1_SPE ); // Enable the specified SPI peripheral
+}
+
+void spi_rx_sendbyte( int data )
+{
+	// while ( ( HARDSPIx->SR & SPI_SR_TXE ) == 0 ) {} // Wait if TXE cleared, Tx FIFO is full.
+	HARDSPIx->DR = data;
+	while ( ( HARDSPIx->SR & SPI_SR_RXNE ) == 0 ) {} // Wait if RNE cleared, Rx FIFO is empty.
+	HARDSPIx->DR;
+}
+
+int spi_rx_sendzerorecvbyte()
+{
+	// while ( ( HARDSPIx->SR & SPI_SR_TXE ) == 0 ) {} // Wait if TXE cleared, Tx FIFO is full.
+	HARDSPIx->DR = 0;
+	while ( ( HARDSPIx->SR & SPI_SR_RXNE ) == 0 ) {} // Wait if RNE cleared, Rx FIFO is empty.
+	return HARDSPIx->DR;
+}
+
+#endif // HARDSPI
+
+// ==========================================================================
+
 #ifdef SOFTSPI_4WIRE
 
 #define MOSIHIGH gpioset(SPI_RX_MOSI_GPIO_Port, SPI_RX_MOSI_Pin);
@@ -23,6 +62,24 @@
 	// works when using -Oz (image size)
 	#define DELAY_O3
 #endif
+
+void spi_rx_init()
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {
+		.Mode = GPIO_MODE_OUTPUT_PP,
+		.Pull = GPIO_NOPULL,
+		.Speed = GPIO_SPEED_FREQ_HIGH
+	};
+
+	GPIO_InitStruct.Pin = SPI_RX_MOSI_Pin;
+	HAL_GPIO_Init( SPI_RX_MOSI_GPIO_Port, &GPIO_InitStruct );
+	GPIO_InitStruct.Pin = SPI_RX_SCK_Pin;
+	HAL_GPIO_Init( SPI_RX_SCK_GPIO_Port, &GPIO_InitStruct );
+
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pin = SPI_RX_MISO_Pin;
+	HAL_GPIO_Init( SPI_RX_MISO_GPIO_Port, &GPIO_InitStruct );
+}
 
 void spi_rx_sendbyte( int data )
 {
@@ -98,4 +155,4 @@ int spi_rx_sendzerorecvbyte()
 // 	return recv;
 // }
 
-#endif
+#endif // SOFTSPI_4WIRE

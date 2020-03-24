@@ -180,8 +180,7 @@ void rx_init()
 {
 	crc16_init_lut();
 
-	spi_rx_csoff();
-	delay( 1 );
+	drv_rx_init();
 
 	// always on (CH_ON) channel set 1
 	aux[ AUXNUMBER - 2 ] = 1;

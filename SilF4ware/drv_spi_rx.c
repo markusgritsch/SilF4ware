@@ -83,11 +83,12 @@ void spi_rx_init()
 
 void spi_rx_sendbyte( int data )
 {
-	for ( int i =7; i >= 0; --i ) {
-		SCKLOW
+	for ( int i = 7; i >= 0; --i ) {
 		if ( ( data >> i ) & 1 ) {
+			SCKLOW
 			MOSIHIGH
 		} else {
+			SCKLOW
 			MOSILOW
 		}
 		SCKHIGH

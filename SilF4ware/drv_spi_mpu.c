@@ -28,11 +28,12 @@ volatile static uint32_t count;
 
 void spi_mpu_sendbyte_slow( int data )
 {
-	for ( int i =7; i >= 0; --i ) {
-		SCKLOW
+	for ( int i = 7; i >= 0; --i ) {
 		if ( ( data >> i ) & 1 ) {
+			SCKLOW
 			MOSIHIGH
 		} else {
+			SCKLOW
 			MOSILOW
 		}
 		DELAY_SLOW
@@ -46,11 +47,12 @@ void spi_mpu_sendbyte_slow( int data )
 
 void spi_mpu_sendbyte( int data )
 {
-	for ( int i =7; i >= 0; --i ) {
-		SCKLOW
+	for ( int i = 7; i >= 0; --i ) {
 		if ( ( data >> i ) & 1 ) {
+			SCKLOW
 			MOSIHIGH
 		} else {
+			SCKLOW
 			MOSILOW
 		}
 		SCKHIGH

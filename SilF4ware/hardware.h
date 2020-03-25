@@ -3,7 +3,7 @@
 // Used for LVC stuff
 #define ENABLE_ADC
 
-// HARDSPI or 4 wire or 3 wire SOFTSPI
+// HARDSPI or 4 wire or 3 wire SOFTSPI (for communication with radio module)
 #if defined FC_BOARD_OMNIBUS
 	#define SOFTSPI_4WIRE
 #elif defined FC_BOARD_NOXE

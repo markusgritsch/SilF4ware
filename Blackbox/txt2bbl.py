@@ -4,8 +4,8 @@ import os, struct, datetime
 
 craftOrientationMode = 0 # 0 .. use gyro and accelerometer, 1 .. use gyro only, 2 .. do not rotate craft display
 
-debugMode = 6 # "Gyro Scaled"; unfiltered gyro signal
-# debugMode = 12 # "ESC RPM"; motor frequence in dHz (decihertz)
+# debugMode = 6 # "Gyro Scaled"; unfiltered gyro signal
+debugMode = 12 # "ESC RPM"; motor frequence in dHz (decihertz)
 
 def writeLogStartMarker( f ):
 	f.write( 'H Product:Blackbox flight data recorder by Nicholas Sherlock\n' ) # log start marker
@@ -95,7 +95,7 @@ rssiAvg = 0
 rssiArray = [ 0 ] * int( 200 * 0.15 ) # 0.15 seconds
 rssiIndex = 0
 
-def writeData():
+def writeData( f_out ):
 	global iteration, time, axisP, axisI, axisD, axisF, rcCommand, setpoint, vbatLatest, amperageLatest, rssi, gyroADC, accSmooth, debug, motor, motorHz
 	loopIteration = unsignedVariableByte( iteration )
 	# time = unsignedVariableByte( 0 if iteration == 0 else time ) # micro seconds
@@ -223,11 +223,11 @@ def parseFile( f, f_out ):
 					writeLogEndMarker( f_out )
 					writeLogStartMarker( f_out )
 				iteration = iter
-				writeData()
+				writeData( f_out )
 				nextFramestartFound = True
 			else:
 				if f.tell() == size:
-					writeData()
+					writeData( f_out )
 					print '  100%'
 					print 'file ended with complete frame'
 					break
@@ -244,18 +244,18 @@ def parseFile( f, f_out ):
 
 	writeLogEndMarker( f_out )
 
-for filename in os.listdir( '.' ):
-	if ( filename[ : 3 ] == 'LOG' and filename[ -4 : ] == '.TXT' ):
-		print 'converting file "%s"' % filename
-		f_in = open( filename, 'rb' )
-		datePrefix = datetime.datetime.now().strftime( "%Y-%m-%d  %H'%M'%S  " )
-		f_out = open( datePrefix + 'SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
-		parseFile( f_in, f_out )
-		f_out.close()
-		f_in.close()
-		if not os.path.exists( 'trash' ):
-			os.mkdir( 'trash' )
-		os.rename( filename, os.path.join( 'trash', datePrefix + filename ) )
-		print
-
-print 'all done'
+if __name__ == '__main__':
+	for filename in os.listdir( '.' ):
+		if ( filename[ : 3 ] == 'LOG' and filename[ -4 : ] == '.TXT' ):
+			print 'converting file "%s"' % filename
+			f_in = open( filename, 'rb' )
+			datePrefix = datetime.datetime.now().strftime( "%Y-%m-%d  %H'%M'%S  " )
+			f_out = open( datePrefix + 'SLF4_' + filename[ 3 : -4 ] + '.bbl', 'wb' )
+			parseFile( f_in, f_out )
+			f_out.close()
+			f_in.close()
+			if not os.path.exists( 'trash' ):
+				os.mkdir( 'trash' )
+			os.rename( filename, os.path.join( 'trash', datePrefix + filename ) )
+			print
+	print 'all done'

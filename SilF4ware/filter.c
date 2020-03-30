@@ -16,12 +16,17 @@ void lpf( float * out, float in, float alpha )
 
 // Biquad
 
+//#define USE_DIRECT_FORM_I // Whether to use direct form I or II topology. Leave commented for direct form II.
+
 typedef struct FilterBiquadCoeff_s {
 	float b0, b1, b2, a1, a2, f_Hz;
 } FilterBiquadCoeff_t;
 
 typedef struct FilterBiquad_s {
-	float x1, x2, y1, y2;
+	float x1, x2;
+#ifdef USE_DIRECT_FORM_I
+	float y1, y2;
+#endif
 } FilterBiquad_t;
 
 static void filter_notch_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz, float filter_Q )
@@ -83,7 +88,7 @@ static void filter_bessel_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz )
 
 float filter_biquad_step( FilterBiquad_t * filter, FilterBiquadCoeff_t * coeff, float input )
 {
-#if 1
+#ifdef USE_DIRECT_FORM_I
 	// Direct Form I
 	const float result = coeff->b0 * input + coeff->b1 * filter->x1 + coeff->b2 * filter->x2 - coeff->a1 * filter->y1 - coeff->a2 * filter->y2;
 	filter->x2 = filter->x1;

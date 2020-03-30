@@ -67,7 +67,7 @@ void control( void )
 		#define TRKD 100000.0f // 100 ms throttle reversing kick duration
 		throttle_reversing_kick_sawtooth = throttle_reversing_kick * ( TRKD + (float)THROTTLE_REVERSING_DEADTIME ) / TRKD;
 		throttle_reversing_kick_decrement = throttle_reversing_kick_sawtooth * (float)LOOPTIME / ( TRKD + (float)THROTTLE_REVERSING_DEADTIME );
-#endif
+#endif // THROTTLE_REVERSING_KICK
 	}
 
 	if ( aux[ FN_INVERTED ] ) {
@@ -75,7 +75,7 @@ void control( void )
 	} else {
 		pwmdir = FORWARD;
 	}
-#endif
+#endif // INVERTED_ENABLE
 
 	for ( int i = 0; i < 3; ++i ) {
 		rxcopy[ i ] = rx[ i ];
@@ -90,7 +90,7 @@ void control( void )
 				rxcopy[ i ] = mapf( rxcopy[ i ], -STICKS_DEADBAND, -1, 0, -1 );
 			}
 		}
-#endif
+#endif // STICKS_DEADBAND
 
 		rxcopy[ i ] *= rate_multiplier;
 	}
@@ -121,7 +121,7 @@ void control( void )
 			rxsmooth[ i ] = rxcopy[ i ];
 		}
 	}
-#endif
+#endif // RX_SMOOTHING
 
 	pid_precalc();
 
@@ -224,7 +224,7 @@ void control( void )
 		#define MOTOR_BEEPS_CHANNEL CH_OFF
 	#endif
 				motorbeep( motors_failsafe, MOTOR_BEEPS_CHANNEL );
-#endif
+#endif // MOTOR_BEEPS
 			} else {
 				for ( int i = 0; i < 4; ++i ) {
 					pwm_set( i, 0 );
@@ -248,7 +248,7 @@ void control( void )
 				throttle = 1.0f;
 			}
 		}
-#endif
+#endif // THROTTLE_TRANSIENT_COMPENSATION_FACTOR
 
 #ifdef THROTTLE_REVERSING_KICK
 		if ( throttle_reversing_kick_sawtooth > 0.0f ) {
@@ -264,7 +264,7 @@ void control( void )
 			}
 			throttle_reversing_kick_sawtooth -= throttle_reversing_kick_decrement;
 		}
-#endif
+#endif // THROTTLE_REVERSING_KICK
 
 #ifdef LVC_LOWER_THROTTLE
 		static float throttle_i = 0.0f;
@@ -295,13 +295,13 @@ void control( void )
 		if ( throttle < 0.0f ) {
 			throttle = 0.0f;
 		}
-#endif
+#endif // LVC_LOWER_THROTTLE
 
 #ifdef THRUST_LINEARIZATION
 		#define AA_motorCurve (float)THRUST_LINEARIZATION // 0 .. linear, 1 .. quadratic
 		const float aa = AA_motorCurve;
 		throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
-#endif
+#endif // THRUST_LINEARIZATION
 
 #ifdef INVERT_YAW_PID
 		pidoutput[ 2 ] = -pidoutput[ 2 ];
@@ -317,7 +317,7 @@ void control( void )
 			mix[ MOTOR_BR - 1 ] = throttle + pidoutput[ ROLL ] - pidoutput[ PITCH ] + pidoutput[ YAW ]; // BR
 			mix[ MOTOR_BL - 1 ] = throttle - pidoutput[ ROLL ] - pidoutput[ PITCH ] - pidoutput[ YAW ]; // BL
 		} else
-#endif
+#endif // INVERTED_ENABLE
 		{ // normal mixer
 			mix[ MOTOR_FR - 1 ] = throttle - pidoutput[ ROLL ] - pidoutput[ PITCH ] + pidoutput[ YAW ]; // FR
 			mix[ MOTOR_FL - 1 ] = throttle + pidoutput[ ROLL ] - pidoutput[ PITCH ] - pidoutput[ YAW ]; // FL
@@ -432,6 +432,13 @@ void control( void )
 				mix[ i ] = 1.0f;
 			}
 
+#ifdef MOTOR_FILTER_HZ
+			static float mix_filt1st[ 4 ], mix_filt2nd[ 4 ];
+			lpf( &mix_filt1st[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( MOTOR_FILTER_HZ ) ) );
+			lpf( &mix_filt2nd[ i ], mix_filt1st[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( MOTOR_FILTER_HZ * 2.0f ) ) );
+			mix[ i ] = mix_filt2nd[ i ];
+#endif // MOTOR_FILTER_HZ
+
 #ifdef THRUST_LINEARIZATION
 			// Computationally quite expensive:
 			static float a, a_reci, b, b_sq;
@@ -446,7 +453,7 @@ void control( void )
 			if ( mix[ i ] > 0.0f && a > 0.0f ) {
 				mix[ i ] = sqrtf( mix[ i ] * a_reci + b_sq ) - b;
 			}
-#endif
+#endif // THRUST_LINEARIZATION
 
 			pwm_set( i, mix[ i ] );
 			bb_mix[ i ] = mix[ i ];

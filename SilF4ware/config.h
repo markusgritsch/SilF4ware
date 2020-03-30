@@ -66,9 +66,9 @@
 
 // Dynamic Gyro first and second order LPFs
 
-#define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.
-#define GYRO_LPF_1ST_HZ_MAX 120 // A higher filter frequency than loopfrequency/2.4 causes ripples.
-#define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
+// #define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.
+// #define GYRO_LPF_1ST_HZ_MAX 120 // A higher filter frequency than loopfrequency/2.4 causes ripples.
+// #define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
 
 // #define GYRO_LPF_2ND_HZ_BASE 240 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
 // #define GYRO_LPF_2ND_HZ_MAX 240
@@ -93,6 +93,9 @@
 
 // If enabled, the D-Term filter uses the filtered gyro signal from above. (Notch filters are always applied.)
 //#define CASCADE_GYRO_AND_DTERM_FILTER
+
+// Motor LPF at MOTOR_FILTER_HZ and MOTOR_FILTER_HZ * 2
+#define MOTOR_FILTER_HZ 120.0f
 
 // Switch function selection
 

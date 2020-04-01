@@ -40,8 +40,8 @@ void usermain()
 	flash_load(); // Must be called before rx_init() for autobind to work.
 	rx_init();
 	battery_init(); // Must be called before gyro_cal() to send initial battery voltage there.
-	gyro_cal();
-	imu_init();
+	gyro_cal_check_flash();
+	// imu_init(); Not really necessary since the gravity vector in brought in sync with accel values in imu() all the time.
 	blackbox_init();
 
 	lastlooptime = gettime() - LOOPTIME;

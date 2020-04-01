@@ -77,8 +77,6 @@ float gyro_unfiltered[ 3 ];
 float accelcal[ 3 ];
 float gyrocal[ 3 ];
 
-int calibration_done;
-
 void sixaxis_read( void )
 {
 	uint32_t data[ 14 ];
@@ -290,8 +288,17 @@ static void process_gyronew_to_gyro( float gyronew[] )
 	}
 }
 
-#define CAL_TIME 2.5e6f
+void gyro_cal_check_flash( void )
+{
+#ifdef PERSISTENT_GYRO_CAL
+	if ( gyrocal[ 0 ] == 0.0f && gyrocal[ 1 ] == 0.0f && gyrocal[ 2 ] == 0.0f )
+#endif // PERSISTENT_GYRO_CAL
+	{
+		gyro_cal();
+	}
+}
 
+#define CAL_TIME 2.5e6f
 void gyro_cal( void )
 {
 	uint32_t data[ 6 ];
@@ -352,11 +359,9 @@ void gyro_cal( void )
 
 	if ( time - timestart < CAL_TIME ) {
 		for ( int i = 0; i < 3; i++ ) {
-			gyrocal[ i ] = 0;
+			gyrocal[ i ] = 0.0f;
 		}
 	}
-
-	calibration_done = 1;
 }
 
 void acc_cal( void )

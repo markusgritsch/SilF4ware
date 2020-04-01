@@ -147,6 +147,9 @@
 #define PID_STICK_TUNING
 #define COMBINE_PITCH_ROLL_PID_TUNING
 
+// Save gyro calibration (together with accelerometer calibration) to flash (gesture DDD)
+#define PERSISTENT_GYRO_CAL
+
 // a filter which makes throttle feel faster (aka Throttle Boost) (not active in LOW_RATES or lowbatt)
 #define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 

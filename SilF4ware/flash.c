@@ -4,6 +4,7 @@
 #include "drv_fmc.h"
 
 extern float accelcal[]; // sixaxis.c
+extern float gyrocal[]; // sixaxis.c
 extern float * pids_array[ 3 ]; // pid.c
 
 extern char rfchannel[ 4 ]; // rx.c
@@ -54,6 +55,12 @@ void flash_save( void )
 	fmc_write_float( addresscount++, accelcal[ 1 ] );
 	fmc_write_float( addresscount++, accelcal[ 2 ] );
 
+#ifdef PERSISTENT_GYRO_CAL
+	fmc_write_float( addresscount++, gyrocal[ 0 ] );
+	fmc_write_float( addresscount++, gyrocal[ 1 ] );
+	fmc_write_float( addresscount++, gyrocal[ 2 ] );
+#endif // PERSISTENT_GYRO_CAL
+
 #if ( defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY )
 
 	if ( rx_bind_enable ) {
@@ -64,7 +71,7 @@ void flash_save( void )
 		// this will leave 0xFF's so it will be picked up as disabled
 	}
 
-#endif
+#endif // defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY
 
 	fmc_write( 4095, FMC_HEADER );
 
@@ -98,6 +105,15 @@ void flash_load( void )
 		accelcal[ 1 ] = fmc_read_float( addresscount++ );
 		accelcal[ 2 ] = fmc_read_float( addresscount++ );
 
+#ifdef PERSISTENT_GYRO_CAL
+		if ( fmc_read( addresscount++ ) != 0xFFFFFFFF && fmc_read( addresscount++ ) != 0xFFFFFFFF && fmc_read( addresscount++ ) != 0xFFFFFFFF ) {
+			addresscount -= 3;
+			gyrocal[ 0 ] = fmc_read_float( addresscount++ );
+			gyrocal[ 1 ] = fmc_read_float( addresscount++ );
+			gyrocal[ 2 ] = fmc_read_float( addresscount++ );
+		}
+#endif // PERSISTENT_GYRO_CAL
+
 #if ( defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY )
 
 		int temp = fmc_read( 52 );
@@ -125,7 +141,7 @@ void flash_load( void )
 			}
 		}
 
-#endif
+#endif // defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY
 
 		if ( pid_c_identifier == -10.0f ) {
 			flash_save();

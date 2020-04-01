@@ -323,9 +323,8 @@ static void send_telemetry()
 
 #ifdef DISPLAY_MAX_G_INSTEAD_OF_VOLTAGE
 	extern float accel[ 3 ];
-	extern int calibration_done;
 	static float maxg = 0.0f;
-	if ( fabsf( accel[ 2 ] ) > maxg && calibration_done ) {
+	if ( fabsf( accel[ 2 ] ) > maxg ) {
 		maxg = fabsf( accel[ 2 ] );
 	}
 	if ( aux[ MOTOR_BEEPS_CHANNEL ] ) { // reset displayed maxg

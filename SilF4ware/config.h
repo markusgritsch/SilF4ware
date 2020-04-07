@@ -109,7 +109,7 @@
 #define THROTTLE_KILL_SWITCH DEVO_CHAN_5
 
 // enable inverted (3D) flight code
-#define INVERTED_ENABLE // goes together with BIDIRECTIONAL in drv_dshot.c and drv_dshot_dma.c
+#define INVERTED_ENABLE // goes together with BIDIRECTIONAL in drv_dshot.c / drv_dshot_dma.c / drv_dshot_bidir.c
 #define FN_INVERTED DEVO_CHAN_6
 // #define LEVEL_MODE_INVERTED_ENABLE // be careful when enabling this
 

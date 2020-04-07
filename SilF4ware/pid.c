@@ -127,10 +127,20 @@ void pid( int x )
 
 #ifdef DYNAMIC_ITERM_RESET
 	static float lastGyro[ 3 ];
-	if ( fabsf( ierror[ x ] ) > integrallimit[ x ] * 0.2f * battery_scale_factor && ( gyro[ x ] < 0.0f != lastGyro[ x ] < 0.0f ) ) { // gyro crossed zero
+	if ( fabsf( ierror[ x ] ) > integrallimit[ x ] * 0.2f * battery_scale_factor &&
+		( gyro[ x ] < 0.0f != lastGyro[ x ] < 0.0f ) ) // gyro crossed zero
+	{
 		ierror[ x ] *= 0.2f;
 	}
 	lastGyro[ x ] = gyro[ x ];
+
+	static float lastError[ 3 ];
+	if ( fabsf( ierror[ x ] ) > integrallimit[ x ] * 0.8f * battery_scale_factor &&
+		( error[ x ] < 0.0f != lastError[ x ] < 0.0f ) ) // error crossed zero
+	{
+		ierror[ x ] *= 0.5f;
+	}
+	lastError[ x ] = error[ x ];
 #endif // DYNAMIC_ITERM_RESET
 
 	if ( ! i_windup ) {

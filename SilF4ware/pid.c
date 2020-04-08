@@ -16,7 +16,7 @@
 
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
-#define AA_pdScaleYawStabilizer 1.2f // multiply pdScaleValue by this value at full yaw
+//#define AA_pdScaleYawStabilizer 1.2f // multiply pdScaleValue by this value at full yaw
 static float pdScaleValue = 1.0f; // updated in pid_precalc()
 
 #define AA_pidkp ( x < 2 ? pdScaleValue * aux_analog[ 0 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
@@ -39,9 +39,9 @@ static float pdScaleValue = 1.0f; // updated in pid_precalc()
 
 // unscaled PID values tuned for 4S
 //                         { roll, pitch, yaw }
-float pidkp[ PIDNUMBER ] = { 0.03, 0.03, 0.04 };
+float pidkp[ PIDNUMBER ] = { 0.04, 0.04, 0.04 };
 float pidki[ PIDNUMBER ] = { 0.40, 0.40, 2.0 };
-float pidkd[ PIDNUMBER ] = { 0.15, 0.15, 0.0 };
+float pidkd[ PIDNUMBER ] = { 0.20, 0.20, 0.0 };
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
 //#define ENABLE_SETPOINT_WEIGHTING
@@ -161,14 +161,26 @@ void pid( int x )
 
 	limitf( &ierror[ x ], integrallimit[ x ] * battery_scale_factor );
 
+	const float absGyroX = fabsf( gyro[ x ] ) / ( (float)RFS_BREAKPOINT * DEGTORAD ); // normalized absGyroX to 1.0 at RFS_BREAKPOINT
+	float pScaleValueX = 1.0f;
+#ifdef ROLL_FLIP_SMOOTHER
+	if ( x < 2 ) { // Only for roll and pitch.
+		pScaleValueX = 1.0f + absGyroX * ( (float)RFS_P_SCALER - 1.0f );
+		if ( pScaleValueX < (float)RFS_P_SCALER ) {
+			pScaleValueX = (float)RFS_P_SCALER;
+		}
+	}
+#endif // ROLL_FLIP_SMOOTHER
+
 	// P term
 #ifdef ENABLE_SETPOINT_WEIGHTING
-	pidoutput[ x ] = ( setpoint[ x ] * pidb[ x ] - gyro[ x ] ) * pidkp[ x ] * AA_pidkp;
+	pidoutput[ x ] = ( setpoint[ x ] * pidb[ x ] - gyro[ x ] ) * pidkp[ x ] * AA_pidkp * pScaleValueX;
 #else // b disabled
-	pidoutput[ x ] = error[ x ] * pidkp[ x ] * AA_pidkp;
+	pidoutput[ x ] = error[ x ] * pidkp[ x ] * AA_pidkp * pScaleValueX;
 #endif
 	bb_p[ x ] = pidoutput[ x ];
 
+	// Feedforward term
 	if ( x < 2 ) { // Only for roll and pitch.
 
 // https://www.rcgroups.com/forums/showpost.php?p=39606684&postcount=13846
@@ -269,15 +281,25 @@ void pid( int x )
 	pidoutput[ x ] += ierror[ x ];
 	bb_i[ x ] = ierror[ x ];
 
+	float dScaleValueX = 1.0f;
+#ifdef ROLL_FLIP_SMOOTHER
+	if ( x < 2 ) { // Only for roll and pitch.
+		dScaleValueX = 1.0f + absGyroX * ( (float)RFS_D_SCALER - 1.0f );
+		if ( dScaleValueX < (float)RFS_D_SCALER ) {
+			dScaleValueX = (float)RFS_D_SCALER;
+		}
+	}
+#endif // ROLL_FLIP_SMOOTHER
+
 	// D term
 	if ( pidkd[ x ] > 0.0f ) { // skip yaw D term if not set
 		float dterm;
 		static float lastrate[ 3 ];
 #ifdef CASCADE_GYRO_AND_DTERM_FILTER
-		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd;
+		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd * dScaleValueX;
 		lastrate[ x ] = gyro[ x ];
 #else
-		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd;
+		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd * dScaleValueX;
 		lastrate[ x ] = gyro_notch_filtered[ x ];
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
 		dterm = dterm_filter( dterm, x );
@@ -322,7 +344,7 @@ void pid_precalc()
 #ifdef AA_pdScaleYawStabilizer
 	const float absyaw = fabsf( rxcopy[ 2 ] );
 	// const float absyaw = fabsf( gyro[ 2 ] / ( (float)MAX_RATEYAW * DEGTORAD ) );
-	pdScaleValue *= 1 + absyaw * ( AA_pdScaleYawStabilizer - 1 ); // Increase Kp and Kd on high yaw speeds to avoid iTerm Rotation related wobbles.
+	pdScaleValue *= 1.0f + absyaw * ( AA_pdScaleYawStabilizer - 1.0f ); // Increase Kp and Kd on high yaw speeds to avoid iTerm Rotation related wobbles.
 #endif
 }
 

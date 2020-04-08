@@ -74,6 +74,8 @@ void usermain()
 		imu(); // attitude calculations for level mode
 #endif // LEVELMODE
 
+		checkrx(); // receiver function (placing it immediately before control() works best for telemetry packet count)
+
 		control(); // all flight calculations, pid and motors
 
 		battery();
@@ -83,8 +85,6 @@ void usermain()
 		}
 
 		process_led_command();
-
-		checkrx(); // receiver function
 
 		// for debug
 		used_loop_time = gettime() - loop_start_time;

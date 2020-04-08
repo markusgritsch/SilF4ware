@@ -137,7 +137,7 @@
 #define RADIO_XN297 // also enable HARDSPI or SOFTSPI_4WIRE in hardware.h
 // #define RADIO_XN297L // also enable SOFTSPI_3WIRE in hardware.h
 
-#define TX_POWER 3 // 0 .. 3 (try 1 when using an nRF24L01+PA+LNA module)
+#define TX_POWER 3 // 0 .. 3 (use 1 when using an nRF24L01+PA+LNA module)
 
 // led brightness 0 .. 15 (used for solid lights only)
 #define LED_BRIGHTNESS 15
@@ -196,6 +196,11 @@
 #define TRANSIENT_WINDUP_PROTECTION
 // Remove bounce back when quickly stopping a roll/pitch/yaw movement (but it is mostly there for yaw)
 #define DYNAMIC_ITERM_RESET
+
+#define ROLL_FLIP_SMOOTHER // Scale P and D on roll and pitch axes according to gyro speed
+#define RFS_BREAKPOINT 360 // °/s
+#define RFS_P_SCALER 0.5 // Scale P by this factor at and above RFS_BREAKPOINT
+#define RFS_D_SCALER 0.1 // Scale D by this factor at and above RFS_BREAKPOINT
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response
 // 0.0f (or commented out) equates D-term on measurement, 1.0f equates D-term on error.

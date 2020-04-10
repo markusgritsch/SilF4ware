@@ -119,7 +119,7 @@ void pid( int x )
 	if ( x < 2 ) { // Only for roll and pitch.
 		lpf( &avgSetpoint[ x ], setpoint[ x ], ALPHACALC( LOOPTIME, 1e6f / 20.0f ) ); // 20 Hz
 		const float hpfSetpoint = setpoint[ x ] - avgSetpoint[ x ]; // HPF = input - average_input
-		if ( fabsf( hpfSetpoint ) > 0.1f ) { // 5.7 °/s
+		if ( fabsf( hpfSetpoint ) > 0.1f ) { // 5.7 Â°/s
 			i_windup = 1;
 		}
 	}
@@ -145,15 +145,15 @@ void pid( int x )
 
 	if ( ! i_windup ) {
 #ifdef RECTANGULAR_RULE_INTEGRAL
-		ierror[ x ] = ierror[ x ] + error[ x ] * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
+		ierror[ x ] += error[ x ] * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
 #endif
 
 #ifdef TRAPEZOIDAL_RULE_INTEGRAL
-		ierror[ x ] = ierror[ x ] + ( error[ x ] + lasterror[ x ] ) * 0.5f * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
+		ierror[ x ] += ( error[ x ] + lasterror[ x ] ) * 0.5f * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
 #endif
 
 #ifdef SIMPSON_RULE_INTEGRAL
-		ierror[ x ] = ierror[ x ] + 0.166666f * ( lasterror2[ x ] + 4 * lasterror[ x ] + error[ x ] ) * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
+		ierror[ x ] += 0.166666f * ( lasterror2[ x ] + 4 * lasterror[ x ] + error[ x ] ) * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
 #endif
 	}
 	lasterror2[ x ] = lasterror[ x ];
@@ -161,14 +161,21 @@ void pid( int x )
 
 	limitf( &ierror[ x ], integrallimit[ x ] * battery_scale_factor );
 
-	const float absGyroX = fabsf( gyro[ x ] ) / ( (float)RFS_BREAKPOINT * DEGTORAD ); // normalized absGyroX to 1.0 at RFS_BREAKPOINT
 	float pScaleValueX = 1.0f;
+	float iScaleValueX = 1.0f;
+	float dScaleValueX = 1.0f;
 #ifdef ROLL_FLIP_SMOOTHER
 	if ( x < 2 ) { // Only for roll and pitch.
-		pScaleValueX = 1.0f + absGyroX * ( (float)RFS_P_SCALER - 1.0f );
-		if ( pScaleValueX < (float)RFS_P_SCALER ) {
-			pScaleValueX = (float)RFS_P_SCALER;
+		float absGyroX = ( fabsf( gyro[ x ] ) - (float)RFS_RATE_MIN * DEGTORAD ) / // make a transition from 0 at RFS_RATE_MIN
+			( ( (float)RFS_RATE_MAX - (float)RFS_RATE_MIN ) * DEGTORAD ); // to 1.0 at RFS_RATE_MAX
+		if ( absGyroX < 0.0f ) { // and limit it to 0.0 below RFS_RATE_MIN
+			absGyroX = 0.0f;
+		} else if ( absGyroX > 1.0f ) { // and to 1.0 above RFS_RATE_MAX
+			absGyroX = 1.0f;
 		}
+		pScaleValueX = 1.0f + absGyroX * ( (float)RFS_P_SCALER - 1.0f );
+		iScaleValueX = 1.0f + absGyroX * ( (float)RFS_I_SCALER - 1.0f );
+		dScaleValueX = 1.0f + absGyroX * ( (float)RFS_D_SCALER - 1.0f );
 	}
 #endif // ROLL_FLIP_SMOOTHER
 
@@ -278,18 +285,9 @@ void pid( int x )
 	}
 
 	// I term
-	pidoutput[ x ] += ierror[ x ];
-	bb_i[ x ] = ierror[ x ];
-
-	float dScaleValueX = 1.0f;
-#ifdef ROLL_FLIP_SMOOTHER
-	if ( x < 2 ) { // Only for roll and pitch.
-		dScaleValueX = 1.0f + absGyroX * ( (float)RFS_D_SCALER - 1.0f );
-		if ( dScaleValueX < (float)RFS_D_SCALER ) {
-			dScaleValueX = (float)RFS_D_SCALER;
-		}
-	}
-#endif // ROLL_FLIP_SMOOTHER
+	const float iterm = ierror[ x ] * iScaleValueX;
+	pidoutput[ x ] += iterm;
+	bb_i[ x ] = iterm;
 
 	// D term
 	if ( pidkd[ x ] > 0.0f ) { // skip yaw D term if not set

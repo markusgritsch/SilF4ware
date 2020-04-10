@@ -153,7 +153,7 @@
 // a filter which makes throttle feel faster (aka Throttle Boost) (not active in LOW_RATES or lowbatt)
 #define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 
-// For smoother motor reversing in 3D flight
+// For more consistent motor reversing in 3D flight
 #define THROTTLE_REVERSING_KICK 0.15
 #define THROTTLE_REVERSING_DEADTIME 20000 // 20 ms (increase this in case of over-propped motors)
 
@@ -197,10 +197,12 @@
 // Remove bounce back when quickly stopping a roll/pitch/yaw movement (but it is mostly there for yaw)
 #define DYNAMIC_ITERM_RESET
 
-#define ROLL_FLIP_SMOOTHER // Scale P and D on roll and pitch axes according to gyro speed
-#define RFS_BREAKPOINT 360 // �/s
-#define RFS_P_SCALER 0.5 // Scale P by this factor at and above RFS_BREAKPOINT
-#define RFS_D_SCALER 0.1 // Scale D by this factor at and above RFS_BREAKPOINT
+#define ROLL_FLIP_SMOOTHER // Scale P, I, and D on roll and pitch axes according to gyro speed
+#define RFS_RATE_MIN 360 // °/s, No scaling below RFS_RATE_MIN. Start scaling at RFS_RATE_MIN.
+#define RFS_RATE_MAX 720 // °/s, Linear transition to full scaling at and above RFS_RATE_MAX.
+#define RFS_P_SCALER 0.5 // Scale P by this factor at and above RFS_RATE_MAX.
+#define RFS_I_SCALER 0.0 // Scale I by this factor at and above RFS_RATE_MAX.
+#define RFS_D_SCALER 0.0 // Scale D by this factor at and above RFS_RATE_MAX.
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response
 // 0.0f (or commented out) equates D-term on measurement, 1.0f equates D-term on error.

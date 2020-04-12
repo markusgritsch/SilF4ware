@@ -95,7 +95,7 @@
 //#define CASCADE_GYRO_AND_DTERM_FILTER
 
 // Motor LPF at MOTOR_FILTER_HZ and MOTOR_FILTER_HZ * 2
-#define MOTOR_FILTER_HZ 120.0f
+#define MOTOR_FILTER_HZ 120
 
 // Switch function selection
 
@@ -161,6 +161,8 @@
 #define RX_PREDICTOR
 // Add linear interpolation between the otherwise 5 ms staircase steps of the RX signal
 #define RX_SMOOTHING
+// Limit maximum stick velocity from STICK_VELOCITY_LIMIT around center to 2 * STICK_VELOCITY_LIMIT at full deflection
+//#define STICK_VELOCITY_LIMIT 5 // deflection/s (It takes 1/STICK_VELOCITY_LIMIT seconds to rech full stick deflection)
 
 // Betaflight like mix scaling (aka Airmode)
 #define MIX_SCALING

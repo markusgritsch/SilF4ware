@@ -62,7 +62,6 @@ void usermain()
 		if ( telemetry_transmitted // This way we sync accel reading to the subsequent loop after sending telemetry.
 			|| loop_start_time - last_accel_read_time > 950 ) // The accel sensor gets updated only once every 1 ms.
 		{
-			telemetry_transmitted = false;
 			last_accel_read_time = loop_start_time;
 			sixaxis_read(); // read gyro (and accelerometer data for blackbox logging)
 		} else {
@@ -74,9 +73,11 @@ void usermain()
 		imu(); // attitude calculations for level mode
 #endif // LEVELMODE
 
-		checkrx(); // receiver function (placing it immediately before control() works best for telemetry packet count)
+		telemetry_transmitted = false;
+		checkrx(); // receiver function (This sets telemetry_transmitted = true in case telemetry was transmitted)
 
-		control(); // all flight calculations, pid and motors
+		const bool send_motor_values = ! telemetry_transmitted; // Skip to not interfere with sending telemetry.
+		control( send_motor_values ); // all flight calculations, pid and motors
 
 		battery();
 

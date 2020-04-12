@@ -46,7 +46,7 @@ float rxcopy[ 4 ];
 float bb_throttle;
 float bb_mix[ 4 ];
 
-void control( void )
+void control( bool send_motor_values )
 {
 	// rates / expert mode
 	float rate_multiplier = 1.0f;
@@ -122,6 +122,23 @@ void control( void )
 		}
 	}
 #endif // RX_SMOOTHING
+
+#ifdef STICK_VELOCITY_LIMIT
+	static float rxcopy_limited[ 4 ];
+	for ( int i = 0; i < 4; ++i ) {
+		const float delta_limit = ( 1 + fabsf( rxcopy_limited[ i ] ) ) * (float)STICK_VELOCITY_LIMIT * LOOPTIME * 1e-6f;
+		float abs_delta = fabsf( rxcopy[ i ] - rxcopy_limited[ i ] );
+		if ( abs_delta > delta_limit ) {
+			abs_delta = delta_limit;
+		}
+		if ( rxcopy[ i ] > rxcopy_limited[ i ] ) {
+			rxcopy_limited[ i ] += abs_delta;
+		} else {
+			rxcopy_limited[ i ] -= abs_delta;
+		}
+		rxcopy[ i ] = rxcopy_limited[ i ];
+	}
+#endif
 
 	pid_precalc();
 
@@ -225,7 +242,7 @@ void control( void )
 	#endif
 				motorbeep( motors_failsafe, MOTOR_BEEPS_CHANNEL );
 #endif // MOTOR_BEEPS
-			} else {
+			} else if ( send_motor_values ) {
 				for ( int i = 0; i < 4; ++i ) {
 					pwm_set( i, 0 );
 				}
@@ -455,7 +472,9 @@ void control( void )
 			}
 #endif // THRUST_LINEARIZATION
 
-			pwm_set( i, mix[ i ] );
+			if ( send_motor_values ) {
+				pwm_set( i, mix[ i ] );
+			}
 			bb_mix[ i ] = mix[ i ];
 
 			thrsum += mix[ i ];

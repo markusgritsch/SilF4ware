@@ -8,6 +8,7 @@
 #include "drv_adc.h"
 #include "drv_dshot.h"
 #include "drv_led.h"
+#include "drv_reset.h"
 #include "drv_time.h"
 #include "flash.h"
 #include "gestures.h"
@@ -26,6 +27,7 @@ bool telemetry_transmitted;
 
 extern char aux[ AUXNUMBER ];
 extern int onground; // control.c
+extern float vbattfilt; // battery.c
 
 void usermain()
 {
@@ -44,8 +46,13 @@ void usermain()
 	// imu_init(); Not really necessary since the gravity vector in brought in sync with accel values in imu() all the time.
 	blackbox_init();
 
-	lastlooptime = gettime() - LOOPTIME;
+#ifdef AUTO_BOOTLOADER
+	if ( vbattfilt < 0.1f ) {
+		jump_to_bootloader();
+	}
+#endif // AUTO_BOOTLOADER
 
+	lastlooptime = gettime() - LOOPTIME;
 	while ( true ) { // main loop
 		// Time measurements with ARMCLANG -O3:
 		// sixaxis_read(): 11 +2 per gyro filter (contains 10 SPI bitbang time)

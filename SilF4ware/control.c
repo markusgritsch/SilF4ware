@@ -61,7 +61,6 @@ void control( bool send_motor_values )
 	if ( motor_direction_changed ) {
 		ierror[ 0 ] = ierror[ 1 ] = ierror[ 2 ] = 0.0f;
 		throttle_hpf_reset( 200 ); // ms
-		dterm_filter_reset( 0 ); // ms
 #ifdef THROTTLE_REVERSING_KICK
 		throttle_reversing_kick = (float)THROTTLE_REVERSING_KICK * ( ( battery_scale_factor - 1.0f ) * 1.5f + 1.0f );
 		#define TRKD 100000.0f // 100 ms throttle reversing kick duration

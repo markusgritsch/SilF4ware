@@ -1,5 +1,6 @@
 #include "config.h"
 #include "filter.h"
+#include "math.h"
 #include "util.h"
 #include "stdbool.h"
 
@@ -60,6 +61,38 @@ static void filter_notch_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz, fl
 	coeff->f_Hz = filter_Hz;
 }
 
+static void filter_peak_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz, float filter_Q, float filter_gain )
+{
+	if ( filter_Hz == 0.0f || filter_Q == 0.0f || filter_gain == 0.0f ) {
+		return;
+	}
+
+	// setup variables
+	const float gain_abs = sqrtf( filter_gain );
+	const float omega = 2.0f * PI_F * filter_Hz * LOOPTIME * 1e-6f;
+	const float sn = sin_approx( omega );
+	const float cs = cos_approx( omega );
+	const float alpha = sn / ( 2.0f * filter_Q );
+
+	// peak coefficients
+	coeff->b0 = 1 + alpha * gain_abs;
+	coeff->b1 = -2 * cs;
+	coeff->b2 = 1 - alpha * gain_abs;
+	const float a0 = 1 + alpha / gain_abs;
+	coeff->a1 = -2 * cs;
+	coeff->a2 = 1 - alpha / gain_abs;
+
+	// precompute the coefficients
+	coeff->b0 /= a0;
+	coeff->b1 /= a0;
+	coeff->b2 /= a0;
+	coeff->a1 /= a0;
+	coeff->a2 /= a0;
+
+	// filter frequency for the above coefficients
+	coeff->f_Hz = filter_Hz;
+}
+
 static void filter_bessel_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz )
 {
 	if ( filter_Hz == 0.0f ) {
@@ -69,6 +102,7 @@ static void filter_bessel_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz )
 	// Bessel coefficients from Beads project.
 	const float omega_halve = PI_F * filter_Hz * LOOPTIME * 1e-6f * 0.5f; // 0.5f is there to empirically match with lpf2.
 	const float tg = sin_approx( omega_halve ) / cos_approx( omega_halve );
+
 	coeff->b2 = coeff->b0 = 3 * tg * tg;
 	coeff->b1 = 2 * coeff->b0;
 	const float a0 = 1 + 3 * tg + coeff->b0;
@@ -117,16 +151,10 @@ typedef struct FilterLPF2Coeff_s {
 typedef struct FilterLPF2_s {
 	float last_out;
 	float last_out2;
-	int holdoff_steps;
 } FilterLPF2_t;
 
 static float filter_lpf2_step( FilterLPF2_t * filter, FilterLPF2Coeff_t * coeff, float in )
 {
-	if ( filter->holdoff_steps > 0 ) {
-		--filter->holdoff_steps;
-		return 0.0f;
-	}
-
 	const float ans =
 		in * coeff->alpha_sqr
 		+ coeff->two_one_minus_alpha * filter->last_out
@@ -148,12 +176,6 @@ static void filter_lpf2_coeff( FilterLPF2Coeff_t * coeff, float filter_Hz )
 	coeff->one_minus_alpha_sqr = one_minus_alpha * one_minus_alpha;
 	coeff->two_one_minus_alpha = 2 * one_minus_alpha;
 	coeff->alpha_sqr = alpha * alpha;
-}
-
-static void filter_lpf2_reset( FilterLPF2_t * filter, int holdoff_time_ms )
-{
-	filter->last_out = filter->last_out2 = 0.0f;
-	filter->holdoff_steps = holdoff_time_ms * 1000 / LOOPTIME;
 }
 
 
@@ -195,7 +217,7 @@ float notch_a_filter( float input, int num )
 	static FilterBiquadCoeff_t gyro_notch_coeff;
 	static FilterBiquad_t gyro_notch[ 3 ];
 	static float notch_Hz, notch_Q;
-	if ( notch_Hz != BIQUAD_NOTCH_A_HZ || notch_Q != BIQUAD_NOTCH_A_Q ) {
+	if ( notch_Hz != (float)BIQUAD_NOTCH_A_HZ || notch_Q != (float)BIQUAD_NOTCH_A_Q ) {
 		notch_Hz = BIQUAD_NOTCH_A_HZ;
 		notch_Q = BIQUAD_NOTCH_A_Q;
 		filter_notch_coeff( &gyro_notch_coeff, notch_Hz, notch_Q );
@@ -213,7 +235,7 @@ float notch_b_filter( float input, int num )
 	static FilterBiquadCoeff_t gyro_notch_coeff;
 	static FilterBiquad_t gyro_notch[ 3 ];
 	static float notch_Hz, notch_Q;
-	if ( notch_Hz != BIQUAD_NOTCH_B_HZ || notch_Q != BIQUAD_NOTCH_B_Q ) {
+	if ( notch_Hz != (float)BIQUAD_NOTCH_B_HZ || notch_Q != (float)BIQUAD_NOTCH_B_Q ) {
 		notch_Hz = BIQUAD_NOTCH_B_HZ;
 		notch_Q = BIQUAD_NOTCH_B_Q;
 		filter_notch_coeff( &gyro_notch_coeff, notch_Hz, notch_Q );
@@ -231,7 +253,7 @@ float notch_c_filter( float input, int num )
 	static FilterBiquadCoeff_t gyro_notch_coeff;
 	static FilterBiquad_t gyro_notch[ 3 ];
 	static float notch_Hz, notch_Q;
-	if ( notch_Hz != BIQUAD_NOTCH_C_HZ || notch_Q != BIQUAD_NOTCH_C_Q ) {
+	if ( notch_Hz != (float)BIQUAD_NOTCH_C_HZ || notch_Q != (float)BIQUAD_NOTCH_C_Q ) {
 		notch_Hz = BIQUAD_NOTCH_C_HZ;
 		notch_Q = BIQUAD_NOTCH_C_Q;
 		filter_notch_coeff( &gyro_notch_coeff, notch_Hz, notch_Q );
@@ -240,6 +262,25 @@ float notch_c_filter( float input, int num )
 }
 
 #endif // BIQUAD_NOTCH_C_HZ
+
+
+#ifdef BIQUAD_PEAK_HZ
+
+float peak_filter( float input, int num )
+{
+	static FilterBiquadCoeff_t gyro_peak_coeff;
+	static FilterBiquad_t gyro_peak[ 3 ];
+	static float peak_Hz, peak_Q, peak_gain;
+	if ( peak_Hz != (float)BIQUAD_PEAK_HZ || peak_Q != (float)BIQUAD_PEAK_Q || peak_gain != (float)BIQUAD_PEAK_GAIN ) {
+		peak_Hz = BIQUAD_PEAK_HZ;
+		peak_Q = BIQUAD_PEAK_Q;
+		peak_gain = BIQUAD_PEAK_GAIN;
+		filter_peak_coeff( &gyro_peak_coeff, peak_Hz, peak_Q, peak_gain );
+	}
+	return filter_biquad_step( &gyro_peak[ num ], &gyro_peak_coeff, input );
+}
+
+#endif // BIQUAD_PEAK_HZ
 
 
 #ifdef GYRO_LPF_1ST_HZ_BASE
@@ -315,6 +356,8 @@ float gyro_lpf2_filter( float in, int num )
 
 // D-Term
 
+#ifdef DTERM_LPF_2ND_HZ_BASE
+
 static FilterBiquadCoeff_t dterm_bessel_coeff;
 static FilterBiquad_t dterm_bessel[ 3 ];
 
@@ -353,12 +396,7 @@ float dterm_filter( float in, int num )
 #endif // DTERM_BESSEL_FILTER
 }
 
-void dterm_filter_reset( int holdoff_time_ms )
-{
-	filter_lpf2_reset( &dterm_lpf2[ 0 ], holdoff_time_ms );
-	filter_lpf2_reset( &dterm_lpf2[ 1 ], holdoff_time_ms );
-	filter_lpf2_reset( &dterm_lpf2[ 2 ], holdoff_time_ms );
-}
+#endif // DTERM_LPF_2ND_HZ_BASE
 
 
 // 16 Hz hpf filter for throttle boost

@@ -14,7 +14,7 @@ tabWidth = 4
 lineHeight = 3
 outputFolder = '_birdseyeviews'
 
-columnWidth = 138
+columnWidth = 139
 
 pixmapMap = {}
 def render( filepath ):

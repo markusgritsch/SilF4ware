@@ -300,12 +300,22 @@ void pid( int x )
 		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd * dScaleValueX;
 		lastrate[ x ] = gyro_notch_filtered[ x ];
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
+#ifdef DTERM_LPF_2ND_HZ_BASE
 		dterm = dterm_filter( dterm, x );
-#ifdef DTERM_LPF_1ST_HZ
-		static float dterm1st[ 3 ];
-		lpf( &dterm1st[ x ], dterm, ALPHACALC( LOOPTIME, 1e6f / (float)( DTERM_LPF_1ST_HZ ) ) );
-		dterm = dterm1st[ x ];
-#endif // DTERM_LPF_1ST_HZ
+#endif // DTERM_LPF_2ND_HZ_BASE
+#ifdef DTERM_LPF_1ST_A_HZ
+		static float dterm1st_a[ 3 ];
+		lpf( &dterm1st_a[ x ], dterm, ALPHACALC( LOOPTIME, 1e6f / (float)( DTERM_LPF_1ST_A_HZ ) ) );
+		dterm = dterm1st_a[ x ];
+#endif // DTERM_LPF_1ST_A_HZ
+#ifdef DTERM_LPF_1ST_B_HZ
+		static float dterm1st_b[ 3 ];
+		lpf( &dterm1st_b[ x ], dterm, ALPHACALC( LOOPTIME, 1e6f / (float)( DTERM_LPF_1ST_B_HZ ) ) );
+		dterm = dterm1st_b[ x ];
+#endif // DTERM_LPF_1ST_B_HZ
+#ifdef BIQUAD_PEAK_HZ
+		dterm = peak_filter( dterm, x );
+#endif // BIQUAD_PEAK_HZ
 		pidoutput[ x ] += dterm;
 		bb_d[ x ] = dterm;
 	}

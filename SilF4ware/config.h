@@ -21,11 +21,10 @@
 #define BATTERY_CELL_COUNT_DETECTION
 
 // Do not start software if battery is too low. Flashes 2 times repeatedly at startup.
-// #define STOP_LOWBATTERY // If below 3.3 Volt
+//#define STOP_LOWBATTERY // If below 3.3 Volt
 
 // If enabled, start LED blinking at low battery voltage
 #define WARN_ON_LOW_BATTERY 3.6 // Volt
-
 // Voltage hysteresis for WARN_ON_LOW_BATTERY
 #define VOLTAGE_HYSTERESIS 0.10 // Volt
 
@@ -39,6 +38,9 @@
 #define LVC_LOWER_THROTTLE_VOLTAGE 3.30
 #define LVC_LOWER_THROTTLE_VOLTAGE_RAW 2.70
 #define LVC_LOWER_THROTTLE_KP 3.0
+
+// Go into DFU Mode when powered over USB without connected battery
+#define AUTO_BOOTLOADER
 
 // MPU-60x0 on-chip Gyro LPF filter frequency
 // gyro filter 0: 256 Hz, delay 0.98 ms (use this to get 8k gyro update frequency)
@@ -55,24 +57,24 @@
 #define RPM_FILTER_3RD_HARMONIC true
 #define RPM_FILTER_Q 6 // -3dB bandwidth = f0 / Q -- but a higher Q also results in a longer settling time
 
-// #define BIQUAD_NOTCH_A_HZ 260 // Dalprop Cyclone T5249C
-// #define BIQUAD_NOTCH_A_Q 6
+//#define BIQUAD_NOTCH_A_HZ 260 // Dalprop Cyclone T5249C
+//#define BIQUAD_NOTCH_A_Q 6
 
-// #define BIQUAD_NOTCH_B_HZ 300 // T-Motor T5147
-// #define BIQUAD_NOTCH_B_Q 6
+//#define BIQUAD_NOTCH_B_HZ 300 // T-Motor T5147
+//#define BIQUAD_NOTCH_B_Q 6
 
-// #define BIQUAD_NOTCH_C_HZ 250 // GemFan WinDacer 51433
-// #define BIQUAD_NOTCH_C_Q 6
+//#define BIQUAD_NOTCH_C_HZ 250 // GemFan WinDacer 51433
+//#define BIQUAD_NOTCH_C_Q 6
 
 // Dynamic Gyro first and second order LPFs
 
-// #define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.
-// #define GYRO_LPF_1ST_HZ_MAX 120 // A higher filter frequency than loopfrequency/2.4 causes ripples.
-// #define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
+//#define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.
+//#define GYRO_LPF_1ST_HZ_MAX 120 // A higher filter frequency than loopfrequency/2.4 causes ripples.
+//#define GYRO_LPF_1ST_HZ_THROTTLE 0.25 // MAX reached at 1/4 throttle.
 
-// #define GYRO_LPF_2ND_HZ_BASE 240 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
-// #define GYRO_LPF_2ND_HZ_MAX 240
-// #define GYRO_LPF_2ND_HZ_THROTTLE 0.25
+//#define GYRO_LPF_2ND_HZ_BASE 240 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
+//#define GYRO_LPF_2ND_HZ_MAX 240
+//#define GYRO_LPF_2ND_HZ_THROTTLE 0.25
 
 // Static Gyro first order LPF
 //#define GYRO_LPF_1ST_HZ 240
@@ -80,16 +82,22 @@
 // Additional static Gyro first order LPF on yaw only
 //#define GYRO_YAW_LPF_1ST_HZ 240
 
-// Dynamic D-Term second order LPF (cannot be turned off)
-#define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
-#define DTERM_LPF_2ND_HZ_MAX 60
-#define DTERM_LPF_2ND_HZ_THROTTLE 0.5
-
-// Additional static D-Term first order LPF
-//#define DTERM_LPF_1ST_HZ 120
+// Dynamic D-Term second order LPF
+//#define DTERM_LPF_2ND_HZ_BASE 60 //* ( aux[ FN_INVERTED ] ? 0.75f : 1.0f )
+//#define DTERM_LPF_2ND_HZ_MAX 60
+//#define DTERM_LPF_2ND_HZ_THROTTLE 0.5
 
 // Whether to use Bessel type filter for D-Term instead of PT2.
 //#define DTERM_BESSEL_FILTER
+
+// Static D-Term first order LPFs
+#define DTERM_LPF_1ST_A_HZ 120
+#define DTERM_LPF_1ST_B_HZ 240
+
+// D-Term peak
+//#define BIQUAD_PEAK_HZ 12
+//#define BIQUAD_PEAK_Q 3
+//#define BIQUAD_PEAK_GAIN 1.2
 
 // If enabled, the D-Term filter uses the filtered gyro signal from above. (Notch filters are always applied.)
 //#define CASCADE_GYRO_AND_DTERM_FILTER
@@ -111,13 +119,13 @@
 // enable inverted (3D) flight code
 #define INVERTED_ENABLE // goes together with BIDIRECTIONAL in drv_dshot.c / drv_dshot_dma.c / drv_dshot_bidir.c
 #define FN_INVERTED DEVO_CHAN_6
-// #define LEVEL_MODE_INVERTED_ENABLE // be careful when enabling this
+//#define LEVEL_MODE_INVERTED_ENABLE // be careful when enabling this
 
 // Two switchable channels via gestures: CH_AUX1 and CH_AUX2
 // Channel CH_AUX1 changed via gestures LLU -> 1 and LLD -> 0
 // Channel CH_AUX2 changed via gestures RRU -> 1 and RRD -> 0
-// #define AUX1_START_ON // CH_AUX1 channel starts on if this is defined, otherwise off.
-// #define AUX2_START_ON // CH_AUX2 channel starts on if this is defined, otherwise off.
+//#define AUX1_START_ON // CH_AUX1 channel starts on if this is defined, otherwise off.
+//#define AUX2_START_ON // CH_AUX2 channel starts on if this is defined, otherwise off.
 
 // lost quad beeps using motors (60 sec timeout or via channel)
 #define MOTOR_BEEPS
@@ -132,10 +140,10 @@
 
 // Radio module and protocol selection (only Bayang protocol implemented)
 #define RX_NRF24_BAYANG_TELEMETRY // For nRF24L01+ radio module
-// #define RX_XN297_BAYANG_TELEMETRY // For XN297 radio module harvested from toy TX
+//#define RX_XN297_BAYANG_TELEMETRY // For XN297 radio module harvested from toy TX
 
 #define RADIO_XN297 // also enable HARDSPI or SOFTSPI_4WIRE in hardware.h
-// #define RADIO_XN297L // also enable SOFTSPI_3WIRE in hardware.h
+//#define RADIO_XN297L // also enable SOFTSPI_3WIRE in hardware.h
 
 #define TX_POWER 3 // 0 .. 3 (use 1 when using an nRF24L01+PA+LNA module)
 
@@ -180,7 +188,7 @@
 #define STICKS_DEADBAND 0.02f
 
 // throttle direct to motors for thrust measure
-// #define MOTORS_TO_THROTTLE
+//#define MOTORS_TO_THROTTLE
 
 // throttle direct to motors for thrust measure as a flight mode
 #define MOTORS_TO_THROTTLE_MODE CH_AUX1
@@ -200,7 +208,7 @@
 #define DYNAMIC_ITERM_RESET
 
 #define ROLL_FLIP_SMOOTHER // Scale P, I, and D on roll and pitch axes according to gyro speed
-#define RFS_RATE_MIN 360 // °/s, No scaling below RFS_RATE_MIN. Start scaling at RFS_RATE_MIN.
+#define RFS_RATE_MIN 180 // °/s, No scaling below RFS_RATE_MIN. Start scaling at RFS_RATE_MIN.
 #define RFS_RATE_MAX 720 // °/s, Linear transition to full scaling at and above RFS_RATE_MAX.
 #define RFS_P_SCALER 0.5 // Scale P by this factor at and above RFS_RATE_MAX.
 #define RFS_I_SCALER 0.0 // Scale I by this factor at and above RFS_RATE_MAX.

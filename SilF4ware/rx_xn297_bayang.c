@@ -169,7 +169,7 @@ void rx_init()
 		rxaddr_regs[ 0 ] = 0x30; // tx register (write) number
 
 		// write new tx address
-		rx_writeregs( rxaddr_regs, sizeof(rxaddr_regs) );
+		rx_writeregs( rxaddr_regs, sizeof( rxaddr_regs ) );
 
 		rx_writereg( 0x25, rfchannel[ rf_chan ] ); // Set channel frequency
 		rxmode = RX_MODE_NORMAL;
@@ -365,7 +365,7 @@ static float packettodata( int * data )
 static float bytetodata( int byte )
 {
 	// 0.0 .. 2.0
-	return byte / 200.0f * 2.0f;
+	return byte / (float)AUX_ANALOG_DESTMAX * 2.0f;
 }
 
 static int decodepacket( void )
@@ -582,7 +582,7 @@ void checkrx( void )
 	if ( ! timingfail && ! telemetry_send && skipchannel < HOPPING_NUMBER + 1 && rxmode != RX_MODE_BIND ) {
 		unsigned int temp = time - lastrxtime;
 
-		if ( temp > 1000 && ( temp - ( PACKET_OFFSET ) ) / ( (int)packet_period ) >= ( skipchannel + 1 ) ) {
+		if ( temp > 1000 && ( temp - PACKET_OFFSET ) / packet_period > skipchannel ) {
 			nextchannel();
 #ifdef RXDEBUG
 			++skipstats[ skipchannel ];

@@ -104,7 +104,7 @@ void usermain()
 		if ( next_loop_start == 0 ) {
 			next_loop_start = loop_start_time;
 		}
-		next_loop_start += LOOPTIME;
+		next_loop_start += (uint32_t)( LOOPTIME / WALLTIME_CORRECTION_FACTOR + 0.5 ); // calculated by the preprocessor
 		while ( gettime() < next_loop_start );
 	}
 }

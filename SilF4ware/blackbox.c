@@ -66,8 +66,8 @@ void blackbox_log( void )
 
 	// iteration
 	*(uint32_t *)( &bb_buffer[ pos ] ) = bb_iteration; pos += 4;
-	// time
-	*(uint32_t *)( &bb_buffer[ pos ] ) = gettime(); pos += 4;
+	// time (not used for FFT, just for time displaying)
+	*(uint32_t *)( &bb_buffer[ pos ] ) = gettime() * (float)WALLTIME_CORRECTION_FACTOR; pos += 4;
 	// axisP
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_p[ 0 ] * 1000.0f; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_p[ 1 ] * 1000.0f; pos += 2;

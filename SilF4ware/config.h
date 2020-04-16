@@ -57,10 +57,10 @@
 #define RPM_FILTER_3RD_HARMONIC true
 #define RPM_FILTER_Q 6 // -3dB bandwidth = f0 / Q -- but a higher Q also results in a longer settling time
 
-//#define BIQUAD_NOTCH_A_HZ 260 // Dalprop Cyclone T5249C
+//#define BIQUAD_NOTCH_A_HZ 273 // Dalprop Cyclone T5249C
 //#define BIQUAD_NOTCH_A_Q 6
 
-//#define BIQUAD_NOTCH_B_HZ 300 // T-Motor T5147
+//#define BIQUAD_NOTCH_B_HZ 308 // T-Motor T5147
 //#define BIQUAD_NOTCH_B_Q 6
 
 //#define BIQUAD_NOTCH_C_HZ 250 // GemFan WinDacer 51433
@@ -147,6 +147,8 @@
 
 #define TX_POWER 3 // 0 .. 3 (use 1 when using an nRF24L01+PA+LNA module)
 
+#define AUX_ANALOG_DESTMAX 255 // only for custom DeviationTX builds
+
 // led brightness 0 .. 15 (used for solid lights only)
 #define LED_BRIGHTNESS 15
 
@@ -223,6 +225,8 @@
 
 // Loop time in us
 #define LOOPTIME 250
+// Correction for ceramic resonator frequency variation
+#define WALLTIME_CORRECTION_FACTOR 1.000 // set to >1 to compensate for a too slow resonator
 
 // Failsafe time in us. Sets stick inputs to zero after FAILSAFETIME no RX signal. Keeps quad stabilized.
 #define FAILSAFETIME 150000 // 0.15 seconds

@@ -47,7 +47,7 @@ void usermain()
 	blackbox_init();
 
 #ifdef AUTO_BOOTLOADER
-	if ( vbattfilt < 0.1f ) {
+	if ( vbattfilt < 1.0f ) {
 		jump_to_bootloader();
 	}
 #endif // AUTO_BOOTLOADER

@@ -695,6 +695,7 @@ void checkrx( void )
 		static uint8_t rxaddr[ 5 ] = { 0, 0, 0, 0, 0 };
 		nrf24_set_xn297_address( rxaddr );
 		rx_writereg( RF_CH, 0 ); // bind on channel 0
+		rx_command( FLUSH_RX );
 	}
 
 	if ( gettime() - secondtimer > 1000000 ) {

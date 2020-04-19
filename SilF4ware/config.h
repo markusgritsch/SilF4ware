@@ -91,8 +91,8 @@
 //#define DTERM_BESSEL_FILTER
 
 // Static D-Term first order LPFs
-#define DTERM_LPF_1ST_A_HZ 120
-#define DTERM_LPF_1ST_B_HZ 240
+#define DTERM_LPF_1ST_A_HZ 60
+#define DTERM_LPF_1ST_B_HZ 120
 
 // D-Term peak
 //#define BIQUAD_PEAK_HZ 12
@@ -209,6 +209,7 @@
 // Remove bounce back when quickly stopping a roll/pitch/yaw movement (but it is mostly there for yaw)
 #define DYNAMIC_ITERM_RESET
 
+// Full smoothing at zero throttle, gradually less smoothing with increasing throttle, no smoothing at full throttle.
 #define ROLL_FLIP_SMOOTHER // Scale P, I, and D on roll and pitch axes according to gyro speed
 #define RFS_RATE_MIN 180 // °/s, No scaling below RFS_RATE_MIN. Start scaling at RFS_RATE_MIN.
 #define RFS_RATE_MAX 720 // °/s, Linear transition to full scaling at and above RFS_RATE_MAX.

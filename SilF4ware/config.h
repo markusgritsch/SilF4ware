@@ -63,7 +63,7 @@
 //#define BIQUAD_NOTCH_B_HZ 308 // T-Motor T5147
 //#define BIQUAD_NOTCH_B_Q 6
 
-//#define BIQUAD_NOTCH_C_HZ 250 // GemFan WinDacer 51433
+//#define BIQUAD_NOTCH_C_HZ 256 // GemFan WinDacer 51433
 //#define BIQUAD_NOTCH_C_Q 6
 
 // Dynamic Gyro first and second order LPFs
@@ -184,7 +184,8 @@
 #define MIX_RANGE_LIMIT 1.0f // aux[ DEVO_CHAN_11 ] ? 0.75f : 1.0f
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
-#define THRUST_LINEARIZATION 0.4 // 0.0 .. no compensation, 1.0 .. full square root curve
+//#define THRUST_LINEARIZATION 0.4 // 0.0 .. no compensation, 1.0 .. full square root curve
+#define ALTERNATIVE_THRUST_LINEARIZATION 0.6 // different shape from the above curve; do not enable both together
 
 // A deadband can be used to eliminate stick center jitter and non-returning to exactly 0.
 #define STICKS_DEADBAND 0.02f

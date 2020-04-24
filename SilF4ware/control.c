@@ -273,7 +273,7 @@ void control( bool send_motor_values )
 				pidoutput[ 0 ] = pidoutput[ 1 ] = pidoutput[ 2 ] = 0.0f;
 			} else {
 				const float transitioning_factor = ( throttle_reversing_kick - throttle_reversing_kick_sawtooth ) / throttle_reversing_kick;
-				throttle = throttle * transitioning_factor + throttle_reversing_kick_sawtooth;
+				throttle = throttle_reversing_kick_sawtooth + throttle * transitioning_factor;
 				pidoutput[ 0 ] *= transitioning_factor;
 				pidoutput[ 1 ] *= transitioning_factor;
 				pidoutput[ 2 ] *= transitioning_factor;
@@ -313,18 +313,26 @@ void control( bool send_motor_values )
 		}
 #endif // LVC_LOWER_THROTTLE
 
+		bb_throttle = throttle;
+
 #ifdef THRUST_LINEARIZATION
 		#define AA_motorCurve (float)THRUST_LINEARIZATION // 0 .. linear, 1 .. quadratic
 		const float aa = AA_motorCurve;
 		throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
 #endif // THRUST_LINEARIZATION
 
+#ifdef ALTERNATIVE_THRUST_LINEARIZATION
+		// not really the inverse of ALTERNATIVE_THRUST_LINEARIZATION below, but a good enough approximation
+		const float aa = 1.2f * (float)( ALTERNATIVE_THRUST_LINEARIZATION ); // use <1.2 for less compensation
+		const float tr = 1.0f - throttle; // throttle reversed
+		throttle = throttle / ( 1.0f + tr * tr * aa ); // compensate throttle for the linearization applied further below
+#endif // ALTERNATIVE_THRUST_LINEARIZATION
+
 #ifdef INVERT_YAW_PID
 		pidoutput[ 2 ] = -pidoutput[ 2 ];
 #endif
 
 		float mix[ 4 ];
-		bb_throttle = throttle;
 
 #ifdef INVERTED_ENABLE
 		if ( pwmdir == REVERSE ) { // inverted flight
@@ -470,6 +478,11 @@ void control( bool send_motor_values )
 				mix[ i ] = sqrtf( mix[ i ] * a_reci + b_sq ) - b;
 			}
 #endif // THRUST_LINEARIZATION
+
+#ifdef ALTERNATIVE_THRUST_LINEARIZATION
+			const float mr = 1.0f - mix[ i ]; // mix reversed
+			mix[ i ] *= 1.0f + mr * mr * (float)( ALTERNATIVE_THRUST_LINEARIZATION );
+#endif // ALTERNATIVE_THRUST_LINEARIZATION
 
 			if ( send_motor_values ) {
 				pwm_set( i, mix[ i ] );

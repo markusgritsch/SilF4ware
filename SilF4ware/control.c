@@ -456,12 +456,16 @@ void control( bool send_motor_values )
 				mix[ i ] = 1.0f;
 			}
 
-#ifdef MOTOR_FILTER_HZ
-			static float mix_filt1st[ 4 ], mix_filt2nd[ 4 ];
-			lpf( &mix_filt1st[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( MOTOR_FILTER_HZ ) ) );
-			lpf( &mix_filt2nd[ i ], mix_filt1st[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( MOTOR_FILTER_HZ * 2.0f ) ) );
-			mix[ i ] = mix_filt2nd[ i ];
-#endif // MOTOR_FILTER_HZ
+#ifdef MOTOR_FILTER_A_HZ
+			static float mix_filt_a[ 4 ];
+			lpf( &mix_filt_a[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( MOTOR_FILTER_A_HZ ) ) );
+			mix[ i ] = mix_filt_a[ i ];
+#endif // MOTOR_FILTER_A_HZ
+#ifdef MOTOR_FILTER_B_HZ
+			static float mix_filt_b[ 4 ];
+			lpf( &mix_filt_b[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( MOTOR_FILTER_B_HZ ) ) );
+			mix[ i ] = mix_filt_b[ i ];
+#endif // MOTOR_FILTER_B_HZ
 
 #ifdef THRUST_LINEARIZATION
 			// Computationally quite expensive:

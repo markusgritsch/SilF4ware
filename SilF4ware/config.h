@@ -102,8 +102,9 @@
 // If enabled, the D-Term filter uses the filtered gyro signal from above. (Notch filters are always applied.)
 //#define CASCADE_GYRO_AND_DTERM_FILTER
 
-// Motor LPF at MOTOR_FILTER_HZ and MOTOR_FILTER_HZ * 2
-#define MOTOR_FILTER_HZ 120
+// Motor first order LPFs
+#define MOTOR_FILTER_A_HZ 120
+#define MOTOR_FILTER_B_HZ 240
 
 // Switch function selection
 
@@ -210,13 +211,14 @@
 // Remove bounce back when quickly stopping a roll/pitch/yaw movement (but it is mostly there for yaw)
 #define DYNAMIC_ITERM_RESET
 
-// Full smoothing at zero throttle, gradually less smoothing with increasing throttle, no smoothing at full throttle.
-#define ROLL_FLIP_SMOOTHER // Scale P, I, and D on roll and pitch axes according to gyro speed
+// Full smoothing at zero throttle, gradually less smoothing with increasing throttle, no smoothing at and above RFS_THROTTLE_BREAKPOINT.
+#define ROLL_FLIP_SMOOTHER // Scale P, I, and D on roll and pitch axes according to gyro speed.
 #define RFS_RATE_MIN 180 // °/s, No scaling below RFS_RATE_MIN. Start scaling at RFS_RATE_MIN.
 #define RFS_RATE_MAX 720 // °/s, Linear transition to full scaling at and above RFS_RATE_MAX.
 #define RFS_P_SCALER 0.5 // Scale P by this factor at and above RFS_RATE_MAX.
 #define RFS_I_SCALER 0.0 // Scale I by this factor at and above RFS_RATE_MAX.
 #define RFS_D_SCALER 0.0 // Scale D by this factor at and above RFS_RATE_MAX.
+#define RFS_THROTTLE_BREAKPOINT 0.5 // No smoothing at and above RFS_THROTTLE_BREAKPOINT.
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response
 // 0.0f (or commented out) equates D-term on measurement, 1.0f equates D-term on error.

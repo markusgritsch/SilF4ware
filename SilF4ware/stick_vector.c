@@ -19,9 +19,9 @@ void stick_vector( float rx_input[], float maxangle )
 	pitch = rx_input[ 1 ] * (float)LEVEL_MAX_ANGLE * DEGTORAD;
 	roll = rx_input[ 0 ] * (float)LEVEL_MAX_ANGLE * DEGTORAD;
 
-	stickvector[ 0 ] = fastsin( roll );
-	stickvector[ 1 ] = fastsin( pitch );
-	stickvector[ 2 ] = fastcos( roll ) * fastcos( pitch );
+	stickvector[ 0 ] = sin_approx( roll );
+	stickvector[ 1 ] = sin_approx( pitch );
+	stickvector[ 2 ] = cos_approx( roll ) * cos_approx( pitch );
 
 	float mag2 = stickvector[ 0 ] * stickvector[ 0 ] + stickvector[ 1 ] * stickvector[ 1 ];
 

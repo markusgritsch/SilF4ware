@@ -173,7 +173,10 @@ void pid( int x )
 		} else if ( absGyroX > 1.0f ) { // and to 1.0 above RFS_RATE_MAX
 			absGyroX = 1.0f;
 		}
-		absGyroX *= 1.0f - rxcopy[ 3 ]; // less scaling with increasing throttle
+		absGyroX *= 1.0f - rxcopy[ 3 ] / (float)( RFS_THROTTLE_BREAKPOINT ); // less scaling with increasing throttle
+		if ( absGyroX < 0.0f ) { // and limit it to 0.0 above RFS_THROTTLE_BREAKPOINT
+			absGyroX = 0.0f;
+		}
 		pScaleValueX = 1.0f + absGyroX * ( (float)RFS_P_SCALER - 1.0f );
 		iScaleValueX = 1.0f + absGyroX * ( (float)RFS_I_SCALER - 1.0f );
 		dScaleValueX = 1.0f + absGyroX * ( (float)RFS_D_SCALER - 1.0f );

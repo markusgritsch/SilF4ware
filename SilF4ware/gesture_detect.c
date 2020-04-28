@@ -96,6 +96,15 @@ const uint8_t command12[ GSIZE ] = {
 	GESTURE_CENTER_IDLE, GESTURE_LEFT, GESTURE_CENTER, GESTURE_RIGHT, GESTURE_CENTER, GESTURE_DOWN, GESTURE_CENTER
 };
 
+#ifdef BIQUAD_AUTO_NOTCH
+
+// R R R - Analyze data in gyro_array and set auto_notch_Hz
+const uint8_t command13[ GSIZE ] = {
+	GESTURE_CENTER_IDLE, GESTURE_RIGHT, GESTURE_CENTER, GESTURE_RIGHT, GESTURE_CENTER, GESTURE_RIGHT, GESTURE_CENTER
+};
+
+#endif // BIQUAD_AUTO_NOTCH
+
 static int gesture_start;
 static int lastgesture;
 static int setgesture;
@@ -224,6 +233,13 @@ int gesture_sequence( int currentgesture )
 			gbuffer[ 1 ] = GESTURE_OTHER;
 			return GESTURE_LRD;
 		}
+
+#ifdef BIQUAD_AUTO_NOTCH
+		if ( check_command( &gbuffer[ 0 ], &command13[ 0 ] ) ) {
+			gbuffer[ 1 ] = GESTURE_OTHER;
+			return GESTURE_RRR;
+		}
+#endif // BIQUAD_AUTO_NOTCH
 	}
 
 	return GESTURE_NONE;

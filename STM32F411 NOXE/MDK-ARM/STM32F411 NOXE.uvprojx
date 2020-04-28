@@ -613,6 +613,11 @@
               <FilePath>..\..\SilF4ware\drv_time.c</FilePath>
             </File>
             <File>
+              <FileName>fft.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\SilF4ware\fft.c</FilePath>
+            </File>
+            <File>
               <FileName>filter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\SilF4ware\filter.c</FilePath>

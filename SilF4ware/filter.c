@@ -264,6 +264,30 @@ float notch_c_filter( float input, int num )
 #endif // BIQUAD_NOTCH_C_HZ
 
 
+#ifdef BIQUAD_AUTO_NOTCH
+
+float auto_notch_Hz = 0.0f;
+
+float auto_notch_filter( float input, int num )
+{
+	static FilterBiquadCoeff_t gyro_notch_coeff;
+	static FilterBiquad_t gyro_notch[ 3 ];
+	static float notch_Hz, notch_Q;
+	if ( notch_Hz != auto_notch_Hz || notch_Q != (float)BIQUAD_AUTO_NOTCH_Q ) {
+		notch_Hz = auto_notch_Hz;
+		notch_Q = BIQUAD_AUTO_NOTCH_Q;
+		filter_notch_coeff( &gyro_notch_coeff, notch_Hz, notch_Q );
+	}
+	if ( notch_Hz != 0.0f ) {
+		return filter_biquad_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
+	} else {
+		return input;
+	}
+}
+
+#endif // BIQUAD_AUTO_NOTCH
+
+
 #ifdef BIQUAD_PEAK_HZ
 
 float peak_filter( float input, int num )

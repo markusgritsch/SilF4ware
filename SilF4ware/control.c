@@ -441,7 +441,7 @@ void control( bool send_motor_values )
 					idle_offset = 0;
 					mix[ i ] = fabsf( rxcopy[ ROLL ] * rxcopy[ PITCH ] );
 				}
-				ledcommand = 1;
+				ledcommand = true;
 #if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
 			} else {
 				idle_offset = orig_idle_offset;

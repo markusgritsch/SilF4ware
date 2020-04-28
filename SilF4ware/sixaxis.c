@@ -6,6 +6,7 @@
 #include "drv_led.h"
 #include "drv_mpu.h"
 #include "drv_time.h"
+#include "fft.h"
 #include "filter.h"
 #include "sixaxis.h"
 #include "util.h"
@@ -76,6 +77,11 @@ float gyro_unfiltered[ 3 ];
 
 float accelcal[ 3 ];
 float gyrocal[ 3 ];
+
+#ifdef BIQUAD_AUTO_NOTCH
+float gyro_array[ 2 ][ FFT_SIZE ];
+uint32_t gyro_array_index;
+#endif // BIQUAD_AUTO_NOTCH
 
 void sixaxis_read( void )
 {
@@ -260,6 +266,22 @@ static void process_gyronew_to_gyro( float gyronew[] )
 #endif
 #ifdef BIQUAD_NOTCH_C_HZ
 		gyro[ i ] = notch_c_filter( gyro[ i ], i );
+#endif
+
+#ifdef BIQUAD_AUTO_NOTCH
+		extern int onground;
+		if ( ! onground ) { // Record only when motors are spinning.
+			if ( i < 2 ) { // Only for roll and pitch.
+				gyro_array[ i ][ gyro_array_index ] = gyro[ i ];
+			}
+			if ( i == 2 ) { // Increase the index only once per main loop cycle.
+				++gyro_array_index;
+				if ( gyro_array_index == FFT_SIZE ) {
+					gyro_array_index = 0;
+				}
+			}
+		}
+		gyro[ i ] = auto_notch_filter( gyro[ i ], i );
 #endif
 
 		gyro_notch_filtered[ i ] = gyro[ i ];

@@ -640,6 +640,7 @@ void checkrx( void )
 		static uint8_t rxaddr[ 6 ] = { 0x2a, 0, 0, 0, 0, 0 };
 		rx_writeregs( rxaddr, sizeof( rxaddr ) );
 		rx_writereg( RF_CH, 0 ); // bind on channel 0
+		rx_command( FLUSH_RX );
 	}
 
 	if ( gettime() - secondtimer > 1000000 ) {

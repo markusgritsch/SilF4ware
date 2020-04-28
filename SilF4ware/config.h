@@ -66,6 +66,9 @@
 //#define BIQUAD_NOTCH_C_HZ 256 // GemFan WinDacer 51433
 //#define BIQUAD_NOTCH_C_Q 6
 
+#define BIQUAD_AUTO_NOTCH // Performs an FFT of the last second of stored gyro data with the RRR gesture.
+#define BIQUAD_AUTO_NOTCH_Q 6
+
 // Dynamic Gyro first and second order LPFs
 
 //#define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.

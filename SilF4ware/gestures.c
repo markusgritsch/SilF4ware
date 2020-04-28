@@ -1,9 +1,11 @@
 #include <math.h> // fabsf
 #include <stdbool.h>
+#include <stdlib.h> // abs
 
 #include "config.h"
 #include "drv_reset.h"
 #include "drv_time.h"
+#include "fft.h"
 #include "flash.h"
 #include "gesture_detect.h"
 #include "gestures.h"
@@ -35,7 +37,7 @@ void gestures( void )
 				gyro_cal(); // for flashing lights
 				acc_cal();
 			} else {
-				ledcommand = 1;
+				ledcommand = true;
 				skip_accel_cal_on_save = 0;
 			}
 			flash_save();
@@ -57,29 +59,33 @@ void gestures( void )
 #if ( defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY )
 		if ( command == GESTURE_UUU ) {
 			rx_bind_enable = ! rx_bind_enable;
-			ledblink = 2 - rx_bind_enable;
+			if ( rx_bind_enable ) {
+				ledblink = 1; // blink one time if enabled
+			} else {
+				ledcommand = true; // flash a few times if disabled
+			}
 			skip_accel_cal_on_save = 1;
 		}
 #endif
 
 		if ( command == GESTURE_LLU ) {
 			aux[ CH_AUX1 ] = 1;
-			ledcommand = 1;
+			ledblink = 1;
 		}
 
 		if ( command == GESTURE_LLD ) {
 			aux[ CH_AUX1 ] = 0;
-			ledcommand = 1;
+			ledcommand = true;
 		}
 
 		if ( command == GESTURE_RRU ) {
 			aux[ CH_AUX2 ] = 1;
-			ledcommand = 1;
+			ledblink = 1;
 		}
 
 		if ( command == GESTURE_RRD ) {
 			aux[ CH_AUX2 ] = 0;
-			ledcommand = 1;
+			ledcommand = true;
 		}
 
 #ifdef PID_GESTURE_TUNING
@@ -103,7 +109,7 @@ void gestures( void )
 
 		// flash long on zero
 		if ( skip_accel_cal_on_save && ledblink == 0 ) {
-			ledcommand = 1;
+			ledcommand = true;
 		}
 #endif // PID_GESTURE_TUNING
 
@@ -114,6 +120,30 @@ void gestures( void )
 		if ( command == GESTURE_LRD ) {
 			jump_to_bootloader();
 		}
+
+#ifdef BIQUAD_AUTO_NOTCH
+		if ( command == GESTURE_RRR ) {
+			extern float auto_notch_Hz;
+			extern float gyro_array[ 2 ][ FFT_SIZE ];
+			extern uint32_t gyro_array_index;
+			auto_notch_Hz = 0.0f;
+			const int bin_index_roll = get_max_amplitude_index( gyro_array[ 0 ], gyro_array_index );
+			const int bin_index_pitch = get_max_amplitude_index( gyro_array[ 1 ], gyro_array_index );
+			if ( abs( bin_index_roll - bin_index_pitch ) <= 1 ) { // Only if in the same or neighboring bin.
+				const float fftHz_roll = bin_index_roll / ( LOOPTIME * 1e-6f ) / (float)FFT_SIZE;
+				const float fftHz_pitch = bin_index_pitch / ( LOOPTIME * 1e-6f ) / (float)FFT_SIZE;
+				const float fftHz_average = ( fftHz_roll + fftHz_pitch ) / 2.0f;
+				if ( fftHz_average > 100.0f && fftHz_average < 1000.0f ) {
+					auto_notch_Hz = fftHz_average;
+					ledblink = 1;
+				}
+			}
+			if ( auto_notch_Hz == 0.0f ) {
+				ledcommand = true;
+			}
+			skip_accel_cal_on_save = 1;
+		}
+#endif // BIQUAD_AUTO_NOTCH
 	}
 
 #ifdef PID_STICK_TUNING

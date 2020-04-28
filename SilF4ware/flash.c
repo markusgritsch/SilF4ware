@@ -62,7 +62,6 @@ void flash_save( void )
 #endif // PERSISTENT_GYRO_CAL
 
 #if ( defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY )
-
 	if ( rx_bind_enable ) {
 		fmc_write( 50, rxaddress[ 4 ] | ( telemetry_enabled << 8 ) );
 		fmc_write( 51, rxaddress[ 0 ] | ( rxaddress[ 1 ] << 8 ) | ( rxaddress[ 2 ] << 16 ) | ( rxaddress[ 3 ] << 24 ) );
@@ -70,8 +69,12 @@ void flash_save( void )
 	} else {
 		// this will leave 0xFF's so it will be picked up as disabled
 	}
-
 #endif // defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY
+
+#ifdef BIQUAD_AUTO_NOTCH
+	extern float auto_notch_Hz;
+	fmc_write_float( 60, auto_notch_Hz );
+#endif // BIQUAD_AUTO_NOTCH
 
 	fmc_write( 4095, FMC_HEADER );
 
@@ -115,7 +118,6 @@ void flash_load( void )
 #endif // PERSISTENT_GYRO_CAL
 
 #if ( defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY )
-
 		int temp = fmc_read( 52 );
 		int error = 0;
 		for ( int i = 0; i < 4; ++i ) {
@@ -140,8 +142,14 @@ void flash_load( void )
 				rfchannel[ i ] = ( temp >> ( i * 8 ) ) & 0xFF;
 			}
 		}
-
 #endif // defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY
+
+#ifdef BIQUAD_AUTO_NOTCH
+		if ( fmc_read( 60 ) != 0xFFFFFFFF ) {
+			extern float auto_notch_Hz;
+			auto_notch_Hz = fmc_read_float( 60 );
+		}
+#endif // BIQUAD_AUTO_NOTCH
 
 		if ( pid_c_identifier == -10.0f ) {
 			flash_save();

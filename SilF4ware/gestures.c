@@ -10,6 +10,7 @@
 #include "gesture_detect.h"
 #include "gestures.h"
 #include "pid.h"
+#include "rx.h"
 #include "sixaxis.h"
 #include "util.h"
 
@@ -142,6 +143,7 @@ void gestures( void )
 				ledcommand = true;
 			}
 			skip_accel_cal_on_save = 1;
+			notify_telemetry_value( auto_notch_Hz );
 		}
 #endif // BIQUAD_AUTO_NOTCH
 	}

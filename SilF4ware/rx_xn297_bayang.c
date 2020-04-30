@@ -200,11 +200,12 @@ int packetpersecond;
 static void send_telemetry( void );
 static void nextchannel( void );
 
-int loopcounter = 0;
 unsigned int send_time;
 int telemetry_send = 0;
 int send_telemetry_next_loop = 0;
-int oldchan = 0;
+
+static int telemetry_notify_value = 0;
+static uint32_t telemetry_notify_value_time = 0;
 
 #define TELEMETRY_TIMEOUT 10000
 
@@ -297,6 +298,17 @@ static void send_telemetry()
 	temp = max_used_loop_time / 2;
 #endif // DISPLAY_MAX_USED_LOOP_TIME_INSTEAD_OF_RX_PACKETS
 
+#ifdef BIQUAD_AUTO_NOTCH
+	if ( aux[ MOTOR_BEEPS_CHANNEL ] ) {
+		extern float auto_notch_Hz;
+		temp = ( (int)auto_notch_Hz + 1 ) / 2;
+	}
+#endif // BIQUAD_AUTO_NOTCH
+
+	if ( gettime() - telemetry_notify_value_time < 1000000 ) { // display notify_value for 1 second
+		temp = ( telemetry_notify_value + 1 ) / 2;
+	}
+
 	if ( temp > 255 ) {
 		temp = 255;
 	}
@@ -355,6 +367,12 @@ static char checkpacket()
 	}
 #endif
 	return 0;
+}
+
+void notify_telemetry_value( int value )
+{
+	telemetry_notify_value_time = gettime();
+	telemetry_notify_value = value;
 }
 
 static float packettodata( int * data )

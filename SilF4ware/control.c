@@ -8,6 +8,7 @@
 #include "drv_time.h"
 #include "filter.h"
 #include "pid.h"
+#include "rx.h"
 #include "stick_vector.h"
 #include "util.h"
 
@@ -440,6 +441,10 @@ void control( bool send_motor_values )
 				{
 					idle_offset = 0;
 					mix[ i ] = fabsf( rxcopy[ ROLL ] * rxcopy[ PITCH ] );
+#ifdef RPM_FILTER
+					extern float motor_hz[ 4 ];
+					notify_telemetry_value( motor_hz[ i ] );
+#endif // RPM_FILTER
 				}
 				ledcommand = true;
 #if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)

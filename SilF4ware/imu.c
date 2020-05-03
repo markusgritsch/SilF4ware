@@ -54,13 +54,6 @@ static float calcmagnitude( float vector[ 3 ] )
 	return accmag;
 }
 
-static void vectorcopy( float * vector1, float * vector2 )
-{
-	for ( int axis = 0; axis < 3; ++axis ) {
-		vector1[ axis ] = vector2[ axis ];
-	}
-}
-
 void imu( void )
 {
 	float deltaGyroAngle[ 3 ];
@@ -101,12 +94,19 @@ void imu( void )
 	// 	ledoff();
 	}
 
-	// vectorcopy( &GEstG[ 0 ], &EstG[ 0 ] );
 #ifdef DEBUG
+	// vectorcopy( &GEstG[ 0 ], &EstG[ 0 ] );
 	float atan2approx( float y, float x );
 	attitude[ 0 ] = atan2approx( EstG[ 0 ], EstG[ 2 ] );
 	attitude[ 1 ] = atan2approx( EstG[ 1 ], EstG[ 2 ] );
 #endif
+}
+
+void vectorcopy( float * vector1, float * vector2 )
+{
+	for ( int axis = 0; axis < 3; ++axis ) {
+		vector1[ axis ] = vector2[ axis ];
+	}
 }
 
 #define OCTANTIFY(_x, _y, _o) do {                              \

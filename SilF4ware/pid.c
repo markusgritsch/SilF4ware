@@ -16,14 +16,14 @@
 
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
-//#define AA_pdScaleYawStabilizer 1.2f // multiply pdScaleValue by this value at full yaw
+//#define PD_SCALE_YAW_STABILIZER 1.2f // multiply pdScaleValue by this value at full yaw
 static float pdScaleValue = 1.0f; // updated in pid_precalc()
 
-#define AA_pidkp ( x < 2 ? pdScaleValue * aux_analog[ 0 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
-#define AA_pidki 1.0f
-#define AA_pidkd ( x < 2 ? pdScaleValue * aux_analog[ 1 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
+#define AA_KP ( x < 2 ? pdScaleValue * aux_analog[ 0 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
+#define AA_KI 1.0f
+#define AA_KD ( x < 2 ? pdScaleValue * aux_analog[ 1 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
 
-#define AA_pidScaleInverted 1.2f // multiply by this value when flying inverted
+#define PID_SCALE_INVERTED 1.2f // multiply by this value when flying inverted
 
 // if ( aux[ DEVO_CHAN_11 ] ) { // 3S
 // } else { // 4S
@@ -37,11 +37,9 @@ static float pdScaleValue = 1.0f; // updated in pid_precalc()
 // } else { // OFF
 // }
 
-// unscaled PID values tuned for 4S
-//                         { roll, pitch, yaw }
-float pidkp[ PIDNUMBER ] = { 0.04, 0.04, 0.04 };
-float pidki[ PIDNUMBER ] = { 0.40, 0.40, 2.0 };
-float pidkd[ PIDNUMBER ] = { 0.20, 0.20, 0.0 };
+float pidkp[ PIDNUMBER ] = PID_KP;
+float pidki[ PIDNUMBER ] = PID_KI;
+float pidkd[ PIDNUMBER ] = PID_KD;
 
 // "setpoint weighting" 0.0 - 1.0 where 1.0 = normal pid
 //#define ENABLE_SETPOINT_WEIGHTING
@@ -52,10 +50,6 @@ const float outlimit[ PIDNUMBER ] = { 0.5, 0.5, 0.25 };
 
 // limit of integral term (abs)
 const float integrallimit[ PIDNUMBER ] = { 0.1, 0.1, 0.25 };
-
-
-// multiplier for pids at 3V - for PID_VOLTAGE_COMPENSATION - default 1.33f H101
-#define PID_VC_FACTOR 1.33f
 
 
 // non changable things below
@@ -72,7 +66,7 @@ extern float error[ PIDNUMBER ]; // control.c
 extern float gyro[ 3 ]; // sixaxis.c
 extern float gyro_notch_filtered[ 3 ]; // sixaxis.c
 extern int onground; // control.c
-extern float vbattfilt; // battery.c
+extern float vbattadc; // battery.c
 extern float battery_scale_factor; // battery.c
 extern float rxcopy[ 4 ]; // control.c
 extern float aux_analog[ 2 ]; // rx.c
@@ -145,15 +139,15 @@ void pid( int x )
 
 	if ( ! i_windup ) {
 #ifdef RECTANGULAR_RULE_INTEGRAL
-		ierror[ x ] += error[ x ] * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
+		ierror[ x ] += error[ x ] * pidki[ x ] * LOOPTIME * 1E-6f * AA_KI;
 #endif
 
 #ifdef TRAPEZOIDAL_RULE_INTEGRAL
-		ierror[ x ] += ( error[ x ] + lasterror[ x ] ) * 0.5f * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
+		ierror[ x ] += ( error[ x ] + lasterror[ x ] ) * 0.5f * pidki[ x ] * LOOPTIME * 1E-6f * AA_KI;
 #endif
 
 #ifdef SIMPSON_RULE_INTEGRAL
-		ierror[ x ] += 0.166666f * ( lasterror2[ x ] + 4 * lasterror[ x ] + error[ x ] ) * pidki[ x ] * LOOPTIME * 1E-6f * AA_pidki;
+		ierror[ x ] += 0.166666f * ( lasterror2[ x ] + 4 * lasterror[ x ] + error[ x ] ) * pidki[ x ] * LOOPTIME * 1E-6f * AA_KI;
 #endif
 	}
 	lasterror2[ x ] = lasterror[ x ];
@@ -185,9 +179,9 @@ void pid( int x )
 
 	// P term
 #ifdef ENABLE_SETPOINT_WEIGHTING
-	pidoutput[ x ] = ( setpoint[ x ] * pidb[ x ] - gyro[ x ] ) * pidkp[ x ] * AA_pidkp * pScaleValueX;
+	pidoutput[ x ] = ( setpoint[ x ] * pidb[ x ] - gyro[ x ] ) * pidkp[ x ] * AA_KP * pScaleValueX;
 #else // b disabled
-	pidoutput[ x ] = error[ x ] * pidkp[ x ] * AA_pidkp * pScaleValueX;
+	pidoutput[ x ] = error[ x ] * pidkp[ x ] * AA_KP * pScaleValueX;
 #endif
 	bb_p[ x ] = pidoutput[ x ];
 
@@ -200,7 +194,7 @@ void pid( int x )
 
 #ifdef RX_SMOOTHING
 		static float lastSetpoint[ 2 ];
-		float ff = ( setpoint[ x ] - lastSetpoint[ x ] ) * TIMEFACTOR * FEED_FORWARD_STRENGTH * pidkd[ x ] * AA_pidkd;
+		float ff = ( setpoint[ x ] - lastSetpoint[ x ] ) * TIMEFACTOR * FEED_FORWARD_STRENGTH * pidkd[ x ] * AA_KD;
 		lastSetpoint[ x ] = setpoint[ x ];
 #else
 		static float lastSetpoint[ 2 ];
@@ -216,7 +210,7 @@ void pid( int x )
 		float ff = 0.0f;
 		if ( ffCount[ x ] > 0 ) {
 			--ffCount[ x ];
-			ff = setpointDiff[ x ] * TIMEFACTOR * FEED_FORWARD_STRENGTH * pidkd[ x ] * AA_pidkd;
+			ff = setpointDiff[ x ] * TIMEFACTOR * FEED_FORWARD_STRENGTH * pidkd[ x ] * AA_KD;
 		}
 #endif // RX_SMOOTHING
 
@@ -298,10 +292,10 @@ void pid( int x )
 		float dterm;
 		static float lastrate[ 3 ];
 #ifdef CASCADE_GYRO_AND_DTERM_FILTER
-		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd * dScaleValueX;
+		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_KD * dScaleValueX;
 		lastrate[ x ] = gyro[ x ];
 #else
-		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_pidkd * dScaleValueX;
+		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_KD * dScaleValueX;
 		lastrate[ x ] = gyro_notch_filtered[ x ];
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
 #ifdef DTERM_LPF_2ND_HZ_BASE
@@ -325,14 +319,14 @@ void pid( int x )
 	}
 
 #ifdef PID_VOLTAGE_COMPENSATION
-	pidoutput[ x ] *= v_compensation;
+	pidoutput[ x ] *= v_compensation; // This adds some noise.
 #endif
 
 	pidoutput[ x ] *= battery_scale_factor;
 
 #ifdef INVERTED_ENABLE
 	if ( aux[ FN_INVERTED ] ) {
-		pidoutput[ x ] *= AA_pidScaleInverted;
+		pidoutput[ x ] *= PID_SCALE_INVERTED;
 	}
 #endif
 
@@ -342,21 +336,21 @@ void pid( int x )
 void pid_precalc()
 {
 #ifdef PID_VOLTAGE_COMPENSATION
-	v_compensation = mapf( vbattfilt, 3.0f, 4.0f, PID_VC_FACTOR, 1.0f );
-	if ( v_compensation > PID_VC_FACTOR ) {
-		v_compensation = PID_VC_FACTOR;
-	}
-	if ( v_compensation < 1.0f ) {
+	if ( vbattadc != 0.0f ) {
+		static float avg_vbattadc;
+		lpf( &avg_vbattadc, vbattadc, ALPHACALC( LOOPTIME, 1e6f / 500.0f ) ); // 500 Hz
+		v_compensation = 4.2f / avg_vbattadc;
+	} else {
 		v_compensation = 1.0f;
 	}
 #endif
 
 	pdScaleValue = 1.0f; // constant (no throttle dependent scaling)
 
-#ifdef AA_pdScaleYawStabilizer
+#ifdef PD_SCALE_YAW_STABILIZER
 	const float absyaw = fabsf( rxcopy[ 2 ] );
 	// const float absyaw = fabsf( gyro[ 2 ] / ( (float)MAX_RATEYAW * DEGTORAD ) );
-	pdScaleValue *= 1.0f + absyaw * ( AA_pdScaleYawStabilizer - 1.0f ); // Increase Kp and Kd on high yaw speeds to avoid iTerm Rotation related wobbles.
+	pdScaleValue *= 1.0f + absyaw * ( PD_SCALE_YAW_STABILIZER - 1.0f ); // Increase Kp and Kd on high yaw speeds to avoid iTerm Rotation related wobbles.
 #endif
 }
 

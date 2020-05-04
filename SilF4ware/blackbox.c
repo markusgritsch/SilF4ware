@@ -19,7 +19,7 @@ extern float rx[ 4 ];
 extern int pwmdir;
 extern float setpoint[ 3 ];
 extern float bb_throttle;
-extern float bb_battadc;
+extern float vbattadc;
 extern int packetrx;
 extern float gyro[ 3 ];
 extern float gyro_unfiltered[ 3 ];
@@ -94,7 +94,7 @@ void blackbox_log( void )
 	*(int16_t *)( &bb_buffer[ pos ] ) = -setpoint[ 2 ] * RADTODEG; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = bb_throttle * 1000.0f; pos += 2;
 	// vbatLatest
-	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_battadc * 100.0f; pos += 2;
+	*(uint16_t *)( &bb_buffer[ pos ] ) = vbattadc * 100.0f; pos += 2;
 	// amperageLatest
 	*(int16_t *)( &bb_buffer[ pos ] ) = 0; pos += 2;
 	// rssi

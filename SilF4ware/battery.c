@@ -5,13 +5,13 @@
 #include "drv_time.h"
 #include "filter.h"
 
-float bb_battadc;
-float vbattfilt = 4.2; // filtered battery voltage
-float vbatt_comp = 4.2; // compensated for sag by motor sum
-static float vbattfilt_corr = 4.2; // Huge time constant filtered, used in Li-Ion model
+float vbattadc = 0.0f;
+float vbattfilt = 4.2f; // filtered battery voltage
+float vbatt_comp = 4.2f; // compensated for sag by motor sum
+static float vbattfilt_corr = 4.2f; // Huge time constant filtered, used in Li-Ion model
 
 bool lowbatt = false;
-float battery_scale_factor = 1.0;
+float battery_scale_factor = 1.0f;
 
 #define CELL_COUNT_UNSCALED 4 // Voltage divider, idle_offset, and PID values tuned for 4S.
 
@@ -66,9 +66,8 @@ void battery_init( void )
 
 void battery( void )
 {
-	const float battadc = vbatt_read();
-	bb_battadc = battadc;
-	lpf( &vbattfilt, battadc, ALPHACALC( LOOPTIME, 2 * PI_F * 0.5e6f ) ); // 0.5 seconds time constant (tau)
+	vbattadc = vbatt_read();
+	lpf( &vbattfilt, vbattadc, ALPHACALC( LOOPTIME, 2 * PI_F * 0.5e6f ) ); // 0.5 seconds time constant (tau)
 
 	// battery low logic
 

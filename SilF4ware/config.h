@@ -1,7 +1,5 @@
 #include "defines.h"
 
-// PID values in pid.c
-
 // rate in deg/sec for acro mode
 #define MAX_RATE 1800
 #define MAX_RATEYAW 1800
@@ -199,6 +197,12 @@
 
 // throttle direct to motors for thrust measure as a flight mode
 #define MOTORS_TO_THROTTLE_MODE CH_AUX1
+
+// unscaled PID values tuned for 4S
+//             { roll, pitch, yaw }
+#define PID_KP { 0.04, 0.04, 0.04 }
+#define PID_KI { 0.40, 0.40, 2.0 }
+#define PID_KD { 0.20, 0.20, 0.0 }
 
 // Compensate PID values for sagging battery voltage
 #define PID_VOLTAGE_COMPENSATION

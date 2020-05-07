@@ -418,7 +418,19 @@ void control( bool send_motor_values )
 		thrsum = 0.0f;
 		mixmax = 0.0f;
 
-		for ( int i = 0; i < 4; ++i ) {
+		float filter_frequency_multiplier = MOTOR_FILTER_HZ_MULTIPLIER;
+		if ( (float)MOTOR_FILTER_THROTTLE_BREAKPOINT > 0.0f ) {
+			filter_frequency_multiplier = 1.0f + rxcopy[ 3 ] / (float)MOTOR_FILTER_THROTTLE_BREAKPOINT *
+				( (float)MOTOR_FILTER_HZ_MULTIPLIER - 1.0f );
+			if ( filter_frequency_multiplier > MOTOR_FILTER_HZ_MULTIPLIER ) {
+				filter_frequency_multiplier = MOTOR_FILTER_HZ_MULTIPLIER;
+			}
+		}
+		if ( filter_frequency_multiplier < 1.0f ) {
+			filter_frequency_multiplier = 1.0f;
+		}
+
+		for ( int i = 0; i < 4; ++i ) { // For each motor.
 
 #if defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
 
@@ -463,12 +475,12 @@ void control( bool send_motor_values )
 
 #ifdef MOTOR_FILTER_A_HZ
 			static float mix_filt_a[ 4 ];
-			lpf( &mix_filt_a[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( MOTOR_FILTER_A_HZ ) ) );
+			lpf( &mix_filt_a[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)( MOTOR_FILTER_A_HZ ) * filter_frequency_multiplier ) ) );
 			mix[ i ] = mix_filt_a[ i ];
 #endif // MOTOR_FILTER_A_HZ
 #ifdef MOTOR_FILTER_B_HZ
 			static float mix_filt_b[ 4 ];
-			lpf( &mix_filt_b[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / (float)( MOTOR_FILTER_B_HZ ) ) );
+			lpf( &mix_filt_b[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)( MOTOR_FILTER_B_HZ ) * filter_frequency_multiplier ) ) );
 			mix[ i ] = mix_filt_b[ i ];
 #endif // MOTOR_FILTER_B_HZ
 

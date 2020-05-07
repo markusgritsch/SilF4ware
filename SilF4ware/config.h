@@ -106,6 +106,8 @@
 // Motor first order LPFs
 #define MOTOR_FILTER_A_HZ 120
 #define MOTOR_FILTER_B_HZ 240
+#define MOTOR_FILTER_HZ_MULTIPLIER 1 // Multiply motor filter frequency by MOTOR_FILTER_HZ_MULTIPLIER
+#define MOTOR_FILTER_THROTTLE_BREAKPOINT 0.25 // at and above MOTOR_FILTER_THROTTLE_BREAKPOINT.
 
 // Switch function selection
 
@@ -154,14 +156,6 @@
 // led brightness 0 .. 15 (used for solid lights only)
 #define LED_BRIGHTNESS 15
 
-// PID tuning by gestures and/or stick position
-//#define PID_GESTURE_TUNING
-#define PID_STICK_TUNING
-#define COMBINE_PITCH_ROLL_PID_TUNING
-
-// Save gyro calibration (together with accelerometer calibration) to flash (gesture DDD)
-#define PERSISTENT_GYRO_CAL
-
 // a filter which makes throttle feel faster (aka Throttle Boost) (not active in LOW_RATES or lowbatt)
 #define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 
@@ -197,6 +191,14 @@
 
 // throttle direct to motors for thrust measure as a flight mode
 #define MOTORS_TO_THROTTLE_MODE CH_AUX1
+
+// PID tuning by gestures and/or stick position
+//#define PID_GESTURE_TUNING
+#define PID_STICK_TUNING
+#define COMBINE_PITCH_ROLL_PID_TUNING
+
+// Save gyro calibration (together with accelerometer calibration) to flash (gesture DDD)
+#define PERSISTENT_GYRO_CAL
 
 // unscaled PID values tuned for 4S
 //             { roll, pitch, yaw }

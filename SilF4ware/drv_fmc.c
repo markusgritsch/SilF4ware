@@ -11,7 +11,7 @@
 // Sector 4    0x08010000 - 0x0801FFFF 64 Kbytes
 // Sector 5    0x08020000 - 0x0803FFFF 128 Kbytes
 // Sector 6    0x08040000 - 0x0805FFFF 128 Kbytes
-// Sector 7    0x08060000 - 0x0807FFFF 128 Kbytes
+// Sector 7    0x08060000 - 0x0807FFFF 128 Kbytes ____ 512 Kbyte MCUs end here
 // Sector 8    0x08080000 - 0x0809FFFF 128 Kbytes
 // Sector 9    0x080A0000 - 0x080BFFFF 128 Kbytes
 // Sector 10   0x080C0000 - 0x080DFFFF 128 Kbytes

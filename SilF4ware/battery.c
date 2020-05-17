@@ -8,7 +8,7 @@
 float vbattadc = 0.0f;
 float vbattfilt = 4.2f; // filtered battery voltage
 float vbatt_comp = 4.2f; // compensated for sag by motor sum
-static float vbattfilt_corr = 4.2f; // Huge time constant filtered, used in Li-Ion model
+float vbattfilt_corr = 4.2f; // Huge time constant filtered, used in Li-Ion model
 
 bool lowbatt = false;
 float battery_scale_factor = 1.0f;

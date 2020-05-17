@@ -23,6 +23,7 @@ float looptime; // in seconds
 uint32_t lastlooptime;
 uint32_t used_loop_time;
 uint32_t max_used_loop_time;
+uint32_t most_frequently_used_loop_time;
 bool telemetry_transmitted;
 
 extern char aux[ AUXNUMBER ];
@@ -74,7 +75,7 @@ void usermain()
 		} else {
 			gyro_read(); // read just gyro data
 		}
-		// Gyro filtering is done in sixaxis.c
+		// Gyro filtering is done in sixaxis.c, i.e., at the end of gyro_read() and sixaxis_read().
 
 #ifdef LEVELMODE
 		imu(); // attitude calculations for level mode
@@ -99,6 +100,28 @@ void usermain()
 		if ( used_loop_time > max_used_loop_time ) {
 			max_used_loop_time = used_loop_time;
 		}
+
+//#define LOOP_TIME_STATS
+#ifdef LOOP_TIME_STATS
+		static uint32_t loop_count;
+		static uint32_t loop_time_stats[ 256 ];
+		if ( used_loop_time > 255 ) {
+			used_loop_time = 255;
+		}
+		++loop_time_stats[ used_loop_time ];
+		++loop_count;
+		if ( loop_count == 100 ) {
+			loop_count = 0;
+			uint32_t max_value = 0;
+			for ( int i = 0; i < 256; ++i ) {
+				if ( loop_time_stats[ i ] > max_value ) {
+					max_value = loop_time_stats[ i ];
+					most_frequently_used_loop_time = i;
+				}
+				loop_time_stats[ i ] = 0;
+			}
+		}
+#endif // LOOP_TIME_STATS
 
 		static uint32_t next_loop_start = 0;
 		if ( next_loop_start == 0 ) {

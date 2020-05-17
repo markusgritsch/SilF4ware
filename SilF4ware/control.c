@@ -27,6 +27,7 @@ float setpoint[ PIDNUMBER ];
 
 extern float vbattfilt; // battery.c
 extern float vbatt_comp;
+extern float vbattfilt_corr;
 extern float battery_scale_factor;
 
 extern float gyro[ 3 ]; // sixaxis.c
@@ -254,13 +255,20 @@ void control( bool send_motor_values )
 
 		float throttle = rxcopy[ 3 ];
 
+#ifdef THROTTLE_VOLTAGE_COMPENSATION
+		throttle *= 4.2f / vbattfilt_corr;
+		if ( throttle > 1.0f ) {
+			throttle = 1.0f;
+		}
+#endif // THROTTLE_VOLTAGE_COMPENSATION
+
 #ifdef THROTTLE_TRANSIENT_COMPENSATION_FACTOR
 		const float throttle_boost = throttle_hpf( throttle ); // Keep the HPF call in the loop to keep its state updated.
 		extern bool lowbatt;
 		if ( aux[ RATES ] && ! lowbatt ) {
 			throttle += (float)THROTTLE_TRANSIENT_COMPENSATION_FACTOR * throttle_boost;
 			if ( throttle < 0.0f ) {
-				throttle = 0;
+				throttle = 0.0f;
 			} else if ( throttle > 1.0f ) {
 				throttle = 1.0f;
 			}

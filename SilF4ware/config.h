@@ -159,6 +159,9 @@
 // a filter which makes throttle feel faster (aka Throttle Boost) (not active in LOW_RATES or lowbatt)
 #define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 
+// Compensate throttle for sagging battery voltage
+#define THROTTLE_VOLTAGE_COMPENSATION
+
 // For more consistent motor reversing in 3D flight
 #define THROTTLE_REVERSING_KICK 0.15
 #define THROTTLE_REVERSING_DEADTIME 20000 // 20 ms (increase this in case of over-propped motors)

@@ -109,6 +109,9 @@
 #define MOTOR_FILTER_HZ_MULTIPLIER 1 // Multiply motor filter frequency by MOTOR_FILTER_HZ_MULTIPLIER
 #define MOTOR_FILTER_THROTTLE_BREAKPOINT 0.25 // at and above MOTOR_FILTER_THROTTLE_BREAKPOINT.
 
+// Limit maximum motor speed change rate from MIX_CHANGE_LIMIT at zero to 2 * MIX_CHANGE_LIMIT at full motor speed
+#define MIX_CHANGE_LIMIT 25 // 25/s == 25%/10ms
+
 // Switch function selection
 
 #define RATES DEVO_CHAN_9 // LOW_RATES_MULTI gets applied when RATES is 0.
@@ -171,7 +174,7 @@
 // Add linear interpolation between the otherwise 5 ms staircase steps of the RX signal
 #define RX_SMOOTHING
 // Limit maximum stick velocity from STICK_VELOCITY_LIMIT around center to 2 * STICK_VELOCITY_LIMIT at full deflection
-//#define STICK_VELOCITY_LIMIT 5 // deflection/s (It takes 1/STICK_VELOCITY_LIMIT seconds to rech full stick deflection)
+#define STICK_VELOCITY_LIMIT 7 // deflection/s (It takes 1/STICK_VELOCITY_LIMIT seconds to reach full stick deflection)
 
 // Betaflight like mix scaling (aka Airmode)
 #define MIX_SCALING

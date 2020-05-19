@@ -127,7 +127,7 @@ void control( bool send_motor_values )
 #ifdef STICK_VELOCITY_LIMIT
 	static float rxcopy_limited[ 4 ];
 	for ( int i = 0; i < 4; ++i ) {
-		const float delta_limit = ( 1 + fabsf( rxcopy_limited[ i ] ) ) * (float)STICK_VELOCITY_LIMIT * LOOPTIME * 1e-6f;
+		const float delta_limit = ( 1.0f + fabsf( rxcopy_limited[ i ] ) ) * (float)STICK_VELOCITY_LIMIT * LOOPTIME * 1e-6f;
 		float abs_delta = fabsf( rxcopy[ i ] - rxcopy_limited[ i ] );
 		if ( abs_delta > delta_limit ) {
 			abs_delta = delta_limit;
@@ -139,7 +139,7 @@ void control( bool send_motor_values )
 		}
 		rxcopy[ i ] = rxcopy_limited[ i ];
 	}
-#endif
+#endif // STICK_VELOCITY_LIMIT
 
 	pid_precalc();
 
@@ -275,17 +275,24 @@ void control( bool send_motor_values )
 		}
 #endif // THROTTLE_TRANSIENT_COMPENSATION_FACTOR
 
+		static int prevent_motor_filtering_state = 0;
 #ifdef THROTTLE_REVERSING_KICK
 		if ( throttle_reversing_kick_sawtooth > 0.0f ) {
 			if ( throttle_reversing_kick_sawtooth > throttle_reversing_kick ) {
 				throttle = 0.0f;
 				pidoutput[ 0 ] = pidoutput[ 1 ] = pidoutput[ 2 ] = 0.0f;
+				if ( prevent_motor_filtering_state == 0 ) {
+					prevent_motor_filtering_state = 1;
+				}
 			} else {
 				const float transitioning_factor = ( throttle_reversing_kick - throttle_reversing_kick_sawtooth ) / throttle_reversing_kick;
 				throttle = throttle_reversing_kick_sawtooth + throttle * transitioning_factor;
 				pidoutput[ 0 ] *= transitioning_factor;
 				pidoutput[ 1 ] *= transitioning_factor;
 				pidoutput[ 2 ] *= transitioning_factor;
+				if ( prevent_motor_filtering_state == 1 ) {
+					prevent_motor_filtering_state = 2;
+				}
 			}
 			throttle_reversing_kick_sawtooth -= throttle_reversing_kick_decrement;
 		}
@@ -426,6 +433,7 @@ void control( bool send_motor_values )
 		thrsum = 0.0f;
 		mixmax = 0.0f;
 
+#if defined(MOTOR_FILTER_A_HZ) || defined(MOTOR_FILTER_B_HZ)
 		float filter_frequency_multiplier = MOTOR_FILTER_HZ_MULTIPLIER;
 		if ( (float)MOTOR_FILTER_THROTTLE_BREAKPOINT > 0.0f ) {
 			filter_frequency_multiplier = 1.0f + rxcopy[ 3 ] / (float)MOTOR_FILTER_THROTTLE_BREAKPOINT *
@@ -437,6 +445,7 @@ void control( bool send_motor_values )
 		if ( filter_frequency_multiplier < 1.0f ) {
 			filter_frequency_multiplier = 1.0f;
 		}
+#endif // defined(MOTOR_FILTER_A_HZ) || defined(MOTOR_FILTER_B_HZ)
 
 		for ( int i = 0; i < 4; ++i ) { // For each motor.
 
@@ -483,13 +492,21 @@ void control( bool send_motor_values )
 
 #ifdef MOTOR_FILTER_A_HZ
 			static float mix_filt_a[ 4 ];
-			lpf( &mix_filt_a[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)( MOTOR_FILTER_A_HZ ) * filter_frequency_multiplier ) ) );
-			mix[ i ] = mix_filt_a[ i ];
+			if ( prevent_motor_filtering_state == 2 ) {
+				mix_filt_a[ i ] = mix[ i ];
+			} else {
+				lpf( &mix_filt_a[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)( MOTOR_FILTER_A_HZ ) * filter_frequency_multiplier ) ) );
+				mix[ i ] = mix_filt_a[ i ];
+			}
 #endif // MOTOR_FILTER_A_HZ
 #ifdef MOTOR_FILTER_B_HZ
 			static float mix_filt_b[ 4 ];
-			lpf( &mix_filt_b[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)( MOTOR_FILTER_B_HZ ) * filter_frequency_multiplier ) ) );
-			mix[ i ] = mix_filt_b[ i ];
+			if ( prevent_motor_filtering_state == 2 ) {
+				mix_filt_b[ i ] = mix[ i ];
+			} else {
+				lpf( &mix_filt_b[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)( MOTOR_FILTER_B_HZ ) * filter_frequency_multiplier ) ) );
+				mix[ i ] = mix_filt_b[ i ];
+			}
 #endif // MOTOR_FILTER_B_HZ
 
 #ifdef THRUST_LINEARIZATION
@@ -513,6 +530,26 @@ void control( bool send_motor_values )
 			mix[ i ] *= 1.0f + mr * mr * (float)( ALTERNATIVE_THRUST_LINEARIZATION );
 #endif // ALTERNATIVE_THRUST_LINEARIZATION
 
+#ifdef MIX_CHANGE_LIMIT
+			static float mix_limited[ 4 ];
+			if ( prevent_motor_filtering_state == 2 ) {
+				mix_limited[ i ] = mix[ i ];
+			} else {
+				const float delta_limit = ( 1.0f + fabsf( mix_limited[ i ] ) ) * (float)MIX_CHANGE_LIMIT * LOOPTIME * 1e-6f;
+				// const float delta_limit = (float)MIX_CHANGE_LIMIT * LOOPTIME * 1e-6f;
+				float abs_delta = fabsf( mix[ i ] - mix_limited[ i ] );
+				if ( abs_delta > delta_limit ) {
+					abs_delta = delta_limit;
+				}
+				if ( mix[ i ] > mix_limited[ i ] ) {
+					mix_limited[ i ] += abs_delta;
+				} else {
+					mix_limited[ i ] -= abs_delta;
+				}
+				mix[ i ] = mix_limited[ i ];
+			}
+#endif // MIX_CHANGE_LIMIT
+
 			if ( send_motor_values ) {
 				pwm_set( i, mix[ i ] );
 			}
@@ -522,8 +559,11 @@ void control( bool send_motor_values )
 			if ( mixmax < mix[ i ] ) {
 				mixmax = mix[ i ];
 			}
-		}
+		} // For each motor.
 
+		if ( prevent_motor_filtering_state == 2 ) {
+	 		prevent_motor_filtering_state = 0;
+	 	}
 		thrsum = thrsum / 4.0f;
 	} // end motors on
 }

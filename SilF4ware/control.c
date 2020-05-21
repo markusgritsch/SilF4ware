@@ -550,6 +550,17 @@ void control( bool send_motor_values )
 			}
 #endif // MIX_CHANGE_LIMIT
 
+#ifdef MIX_FILTER_HZ
+			static float mix_filt[ 4 ];
+			if ( prevent_motor_filtering_state == 2 ) {
+				mix_filt[ i ] = mix[ i ];
+			} else {
+				const float mix_filter_hz = ( 1.0f + fabsf( mix_filt[ i ] ) ) * (float)( MIX_FILTER_HZ );
+				lpf( &mix_filt[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / mix_filter_hz ) );
+				mix[ i ] = mix_filt[ i ];
+			}
+#endif // MIX_FILTER_HZ
+
 			if ( send_motor_values ) {
 				pwm_set( i, mix[ i ] );
 			}

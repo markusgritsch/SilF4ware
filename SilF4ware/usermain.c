@@ -15,6 +15,7 @@
 #include "imu.h"
 #include "led.h"
 #include "rx.h"
+#include "sdft.h"
 #include "sixaxis.h"
 
 #include "debug.h"
@@ -23,6 +24,7 @@ float looptime; // in seconds
 uint32_t lastlooptime;
 uint32_t used_loop_time;
 uint32_t max_used_loop_time;
+uint32_t avg_used_loop_time;
 uint32_t most_frequently_used_loop_time;
 bool telemetry_transmitted;
 
@@ -46,6 +48,9 @@ void usermain()
 	gyro_cal_check_flash();
 	// imu_init(); Not really necessary since the gravity vector in brought in sync with accel values in imu() all the time.
 	blackbox_init();
+#ifdef BIQUAD_SDFT_NOTCH
+	sdft_init();
+#endif // BIQUAD_SDFT_NOTCH
 
 #ifdef AUTO_BOOTLOADER
 	if ( vbattfilt < 1.0f ) {
@@ -95,10 +100,23 @@ void usermain()
 
 		process_led_command();
 
-		// for debug
+		// max_used_loop_time (for debug)
 		used_loop_time = gettime() - loop_start_time;
 		if ( used_loop_time > max_used_loop_time ) {
 			max_used_loop_time = used_loop_time;
+		}
+
+		// avg_used_loop_time (for debug)
+		static uint32_t cumulated_used_loop_time, cumulated_used_loop_time_counter;
+		cumulated_used_loop_time += used_loop_time;
+		++cumulated_used_loop_time_counter;
+		if ( cumulated_used_loop_time_counter > 1024 ) { // 0.256 second at 4k loop frequency
+			cumulated_used_loop_time /= 1024;
+			if ( cumulated_used_loop_time > avg_used_loop_time ) {
+				avg_used_loop_time = cumulated_used_loop_time;
+			}
+			cumulated_used_loop_time = 0;
+			cumulated_used_loop_time_counter = 0;
 		}
 
 //#define LOOP_TIME_STATS

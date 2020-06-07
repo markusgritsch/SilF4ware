@@ -4,6 +4,7 @@ float notch_a_filter( float in, int num );
 float notch_b_filter( float in, int num );
 float notch_c_filter( float in, int num );
 float auto_notch_filter( float in, int num );
+float sdft_notch_filter( float in, int num );
 float peak_filter( float in, int num );
 float gyro_lpf_filter( float in, int num );
 float gyro_lpf2_filter( float in, int num );

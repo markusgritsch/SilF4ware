@@ -118,15 +118,24 @@ void blackbox_log( void )
 	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_BL - 1 ] * 1000.0f; pos += 2; // BL
 	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_FL - 1 ] * 1000.0f; pos += 2; // FL
 	// pos is 90
-#ifdef RPM_FILTER
-	// motor Hz
+#if 1 // select between logging motor Hz (1) or sdft notch Hz (0)
+	#ifdef RPM_FILTER
 	extern float motor_hz[ 4 ];
 	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_BR - 1 ] * 10.0f; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_FR - 1 ] * 10.0f; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_BL - 1 ] * 10.0f; pos += 2;
 	*(int16_t *)( &bb_buffer[ pos ] ) = motor_hz[ MOTOR_FL - 1 ] * 10.0f; pos += 2;
+	#endif // RPM_FILTER
+#else
+	#ifdef BIQUAD_SDFT_NOTCH
+	extern float sdft_notch_Hz[ 4 ];
+	*(int16_t *)( &bb_buffer[ pos ] ) = sdft_notch_Hz[ 0 ] * 10.0f; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = sdft_notch_Hz[ 1 ] * 10.0f; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = sdft_notch_Hz[ 2 ] * 10.0f; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = sdft_notch_Hz[ 3 ] * 10.0f; pos += 2;
+	#endif // BIQUAD_SDFT_NOTCH
+#endif
 	// pos is 98
-#endif // RPM_FILTER
 	++bb_iteration;
 
 #if defined FC_BOARD_OMNIBUS

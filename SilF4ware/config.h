@@ -64,8 +64,11 @@
 //#define BIQUAD_NOTCH_C_HZ 256 // GemFan WinDacer 51433
 //#define BIQUAD_NOTCH_C_Q 6
 
-#define BIQUAD_AUTO_NOTCH // Performs an FFT of the last second of stored gyro data with the RRR gesture.
-#define BIQUAD_AUTO_NOTCH_Q 6
+//#define BIQUAD_AUTO_NOTCH // Performs an FFT of the last second of stored gyro data with the RRR gesture.
+//#define BIQUAD_AUTO_NOTCH_Q 6 // (frequency bin resolution is defined via FFT_SIZE in fft.h)
+
+#define BIQUAD_SDFT_NOTCH // Sliding DFT dynamic notch filters. Two per filtered axis.
+#define BIQUAD_SDFT_NOTCH_Q 6
 
 // Dynamic Gyro first and second order LPFs
 
@@ -111,8 +114,8 @@
 
 // Limit maximum motor speed change rate from MIX_CHANGE_LIMIT at zero to 2 * MIX_CHANGE_LIMIT at full motor speed
 #define MIX_CHANGE_LIMIT 25 // 25/s == 25%/10ms
-// Post-MIX_CHANGE_LIMIT motor filter
-#define MIX_FILTER_HZ 120 // MIX_FILTER_HZ at zero to 2 * MIX_FILTER_HZ at full motor speed
+// Optional post-MIX_CHANGE_LIMIT motor filter
+//#define MIX_FILTER_HZ 120 // MIX_FILTER_HZ at zero to 2 * MIX_FILTER_HZ at full motor speed
 
 // Switch function selection
 

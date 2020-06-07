@@ -663,6 +663,11 @@
               <FilePath>..\..\SilF4ware\rx_xn297_bayang.c</FilePath>
             </File>
             <File>
+              <FileName>sdft.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\SilF4ware\sdft.c</FilePath>
+            </File>
+            <File>
               <FileName>sixaxis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\SilF4ware\sixaxis.c</FilePath>

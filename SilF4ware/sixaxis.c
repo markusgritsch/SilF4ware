@@ -8,6 +8,7 @@
 #include "drv_time.h"
 #include "fft.h"
 #include "filter.h"
+#include "sdft.h"
 #include "sixaxis.h"
 #include "util.h"
 
@@ -282,6 +283,16 @@ static void process_gyronew_to_gyro( float gyronew[] )
 			}
 		}
 		gyro[ i ] = auto_notch_filter( gyro[ i ], i );
+#endif
+
+#ifdef BIQUAD_SDFT_NOTCH
+		if ( i == 0 ) { // Only once per main loop cycle.
+			sdft_step();
+		}
+		if ( i < 2 ) { // Only for roll and pitch.
+			gyro[ i ] = sdft_notch_filter( gyro[ i ], i * 2 );
+			gyro[ i ] = sdft_notch_filter( gyro[ i ], i * 2 + 1 );
+		}
 #endif
 
 		gyro_notch_filtered[ i ] = gyro[ i ];

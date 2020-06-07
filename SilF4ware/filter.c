@@ -288,6 +288,21 @@ float auto_notch_filter( float input, int num )
 #endif // BIQUAD_AUTO_NOTCH
 
 
+#ifdef BIQUAD_SDFT_NOTCH
+
+float sdft_notch_Hz[ 4 ];
+
+float sdft_notch_filter( float input, int num )
+{
+	static FilterBiquadCoeff_t gyro_notch_coeff;
+	static FilterBiquad_t gyro_notch[ 4 ];
+	filter_notch_coeff( &gyro_notch_coeff, sdft_notch_Hz[ num ], BIQUAD_SDFT_NOTCH_Q );
+	return filter_biquad_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
+}
+
+#endif // BIQUAD_SDFT_NOTCH
+
+
 #ifdef BIQUAD_PEAK_HZ
 
 float peak_filter( float input, int num )

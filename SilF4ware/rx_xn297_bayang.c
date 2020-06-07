@@ -292,10 +292,17 @@ static void send_telemetry()
 
 #ifdef DISPLAY_MAX_USED_LOOP_TIME_INSTEAD_OF_RX_PACKETS
 	extern uint32_t max_used_loop_time;
+	extern uint32_t avg_used_loop_time;
 	if ( aux[ MOTOR_BEEPS_CHANNEL ] ) { // reset displayed max_used_loop_time
 		max_used_loop_time = 0;
+		avg_used_loop_time = 0;
 	}
-	temp = max_used_loop_time / 2;
+	const bool show_max = ( gettime() & 0x1FFFFF ) < 0x100000; // toggle roughly every second (1048576 µs)
+	if ( show_max ) {
+		temp = max_used_loop_time / 2;
+	} else {
+		temp = avg_used_loop_time / 2;
+	}
 #endif // DISPLAY_MAX_USED_LOOP_TIME_INSTEAD_OF_RX_PACKETS
 
 #ifdef BIQUAD_AUTO_NOTCH
@@ -323,7 +330,7 @@ static void send_telemetry()
 	extern int current_pid_axis, current_pid_term;
 	extern uint32_t pid_blink_offset;
 	static uint32_t pid_term = 0;
-	const bool blink = ( ( gettime() - pid_blink_offset ) & 0xFFFFF ) < 200000; // roughly every second (1048575 µs) for 0.2 s
+	const bool blink = ( ( gettime() - pid_blink_offset ) & 0xFFFFF ) < 200000; // roughly every second (1048576 µs) for 0.2 s
 	int pid_value;
 	if ( current_pid_term == pid_term && blink ) {
 		pid_value = 0;

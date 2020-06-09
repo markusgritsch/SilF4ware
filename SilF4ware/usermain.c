@@ -27,6 +27,7 @@ uint32_t max_used_loop_time;
 uint32_t avg_used_loop_time;
 uint32_t most_frequently_used_loop_time;
 bool telemetry_transmitted;
+bool packet_received;
 
 extern char aux[ AUXNUMBER ];
 extern int onground; // control.c
@@ -87,7 +88,7 @@ void usermain()
 #endif // LEVELMODE
 
 		telemetry_transmitted = false;
-		checkrx(); // receiver function (This sets telemetry_transmitted = true in case telemetry was transmitted)
+		packet_received = checkrx(); // receiver function (This sets telemetry_transmitted = true in case telemetry was transmitted)
 
 		const bool send_motor_values = ! telemetry_transmitted; // Skip to not interfere with sending telemetry.
 		control( send_motor_values ); // all flight calculations, pid and motors

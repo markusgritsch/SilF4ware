@@ -294,10 +294,14 @@ float sdft_notch_Hz[ 4 ];
 
 float sdft_notch_filter( float input, int num )
 {
-	static FilterBiquadCoeff_t gyro_notch_coeff;
+	static FilterBiquadCoeff_t gyro_notch_coeff[ 4 ];
 	static FilterBiquad_t gyro_notch[ 4 ];
-	filter_notch_coeff( &gyro_notch_coeff, sdft_notch_Hz[ num ], BIQUAD_SDFT_NOTCH_Q );
-	return filter_biquad_step( &gyro_notch[ num ], &gyro_notch_coeff, input );
+	static float notch_Hz[ 4 ];
+	if ( notch_Hz[ num ] != sdft_notch_Hz[ num ] ) {
+		notch_Hz[ num ] = sdft_notch_Hz[ num ];
+		filter_notch_coeff( &gyro_notch_coeff[ num ], sdft_notch_Hz[ num ], BIQUAD_SDFT_NOTCH_Q );
+	}
+	return filter_biquad_step( &gyro_notch[ num ], &gyro_notch_coeff[ num ], input );
 }
 
 #endif // BIQUAD_SDFT_NOTCH

@@ -532,7 +532,7 @@ unsigned int skipchannel = 0;
 int lastrxchan;
 int timingfail = 0;
 
-void checkrx( void )
+bool checkrx( void )
 {
 	if ( LOOPTIME < 500 ) { // Kludge. 500 works perfectly for telemetry on nrf24, so we skip some invocations accordingly.
 		static int count;
@@ -540,17 +540,17 @@ void checkrx( void )
 			count = 500 / LOOPTIME - 1;
 		} else {
 			--count;
-			return;
+			return false;
 		}
 	}
 
 	if ( send_telemetry_next_loop ) {
 		beacon_sequence();
 		send_telemetry_next_loop = 0;
-		return;
+		return false;
 	}
 
-	const int packetreceived = checkpacket();
+	bool packetreceived = checkpacket();
 
 	static unsigned long last_good_rx_time;
 	static unsigned long next_predictor_time;
@@ -561,7 +561,7 @@ void checkrx( void )
 		if ( rxmode == RX_MODE_BIND ) { // rx startup, bind mode
 			if ( nrf24_read_xn297_payload( rxdata, 15 + 2 * crc_en ) ) {
 			} else {
-				return;
+				return false;
 			}
 
 			if ( rxdata[ 0 ] == 0xa4 || rxdata[ 0 ] == 0xa3 || rxdata[ 0 ] == 0xa2 || rxdata[ 0 ] == 0xa1 ) { // bind packet
@@ -632,6 +632,7 @@ void checkrx( void )
 				}
 #endif // RX_PREDICTOR
 			} else {
+				packetreceived = false;
 #ifdef RXDEBUG
 				++failcount;
 #endif
@@ -728,6 +729,8 @@ void checkrx( void )
 		packetrx = 0;
 		secondtimer = gettime();
 	}
+
+	return packetreceived;
 }
 
 #endif // RX_NRF24_BAYANG_TELEMETRY

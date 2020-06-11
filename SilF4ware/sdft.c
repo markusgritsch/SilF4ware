@@ -44,11 +44,15 @@ void sdft_step() // called every LOOPTIME
 	accu[ 1 ] += gyro[ 1 ];
 #endif
 
+	bool was_in_sync = true;
 	extern bool packet_received; // usermain.c
 	++subsample_count;
 	if ( subsample_count == SUBSAMPLES
 		|| packet_received ) // This way we sync SDFT processing to the subsequent loop after receiving a radio packet.
 	{
+		if ( packet_received && subsample_count != SUBSAMPLES ) {
+			was_in_sync = false;
+		}
 		accu[ 0 ] /= subsample_count;
 		accu[ 1 ] /= subsample_count;
 		subsample_count = 0;
@@ -72,15 +76,19 @@ void sdft_step() // called every LOOPTIME
 				index_2nd[ axis ] = temp;
 			}
 
-			const float max_Hz_high = index_1st[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
-			const float max_Hz_low = index_2nd[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
+			static float f_high_Hz = MAX_HZ;
+			static float f_low_Hz = MAX_HZ;
+			if ( was_in_sync ) {
+				f_high_Hz = index_1st[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
+				f_low_Hz = index_2nd[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
+			}
 
-			static float max_Hz_filt[ 4 ];
+			static float f_Hz_filt[ 4 ];
 			extern float sdft_notch_Hz[ 4 ]; // filter.c
-			lpf( &max_Hz_filt[ axis * 2 ], max_Hz_high, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
-			lpf( &sdft_notch_Hz[ axis * 2 ], max_Hz_filt[ axis * 2 ], ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
-			lpf( &max_Hz_filt[ axis * 2 + 1 ], max_Hz_low, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
-			lpf( &sdft_notch_Hz[ axis * 2 + 1 ], max_Hz_filt[ axis * 2 + 1 ], ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
+			lpf( &f_Hz_filt[ axis * 2 ], f_high_Hz, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
+			lpf( &sdft_notch_Hz[ axis * 2 ], f_Hz_filt[ axis * 2 ], ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
+			lpf( &f_Hz_filt[ axis * 2 + 1 ], f_low_Hz, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
+			lpf( &sdft_notch_Hz[ axis * 2 + 1 ], f_Hz_filt[ axis * 2 + 1 ], ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
 
 			index_1st[ axis ] = max_bin_index;
 			index_2nd[ axis ] = max_bin_index;

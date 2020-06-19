@@ -28,6 +28,7 @@ uint32_t avg_used_loop_time;
 uint32_t most_frequently_used_loop_time;
 bool telemetry_transmitted;
 bool packet_received;
+static uint32_t loops_since_last_packet = 1000;
 
 extern char aux[ AUXNUMBER ];
 extern int onground; // control.c
@@ -69,14 +70,12 @@ void usermain()
 		const uint32_t loop_start_time = gettime();
 		looptime = ( loop_start_time - lastlooptime ) * 1e-6f;
 		lastlooptime = loop_start_time;
+		++loops_since_last_packet;
 
 		blackbox_log(); // First thing in the loop to get equal spacing between the calls.
 
-		static uint32_t last_accel_read_time;
-		if ( telemetry_transmitted // This way we sync accel reading to the subsequent loop after sending telemetry.
-			|| loop_start_time - last_accel_read_time > 950 ) // The accel sensor gets updated only once every 1 ms.
-		{
-			last_accel_read_time = loop_start_time;
+		if ( loops_since_last_packet == 2 ) { // In this loops_since_last_packet we have enough time to waste, since telemetry
+			// gets transmitted and therefore sending motor values is omitted. This reads the accel data only once every 5 ms.
 			sixaxis_read(); // read gyro (and accelerometer data for blackbox logging)
 		} else {
 			gyro_read(); // read just gyro data
@@ -89,6 +88,9 @@ void usermain()
 
 		telemetry_transmitted = false;
 		packet_received = checkrx(); // receiver function (This sets telemetry_transmitted = true in case telemetry was transmitted)
+		if ( packet_received ) {
+			loops_since_last_packet = 0;
+		}
 
 		const bool send_motor_values = ! telemetry_transmitted; // Skip to not interfere with sending telemetry.
 		control( send_motor_values ); // all flight calculations, pid and motors

@@ -150,7 +150,7 @@ void sixaxis_read( void )
 	// Very strong accel filtering to get rid of noise:
 	static float accel_filt1st[ 3 ], accel_filt2nd[ 3 ];
 	for ( int axis = 0; axis < 3; ++axis ) {
-		#define SIXAXIS_READ_LOOPTIME 1000 // This assumes that sixaxis_read() is called every 1 ms from usermain().
+		#define SIXAXIS_READ_LOOPTIME 5000 // This assumes that sixaxis_read() is called every 5 ms from usermain().
 		#define ACCEL_FILTER_HZ 20.0f // 20 Hz
 		lpf( &accel_filt1st[ axis ], accel[ axis ], ALPHACALC( SIXAXIS_READ_LOOPTIME, 1e6f / (float)ACCEL_FILTER_HZ ) );
 		lpf( &accel_filt2nd[ axis ], accel_filt1st[ axis ], ALPHACALC( SIXAXIS_READ_LOOPTIME, 1e6f / (float)ACCEL_FILTER_HZ ) );

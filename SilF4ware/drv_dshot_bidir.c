@@ -181,7 +181,10 @@ static void dshot_dma_start()
 {
 	// Decode previous GCR telemetry just before starting the next Dshot DMA transfer.
 	// This way we ensure that receiving telemetry has finnished.
-	decode_gcr_telemetry(); // Takes about 30 us @168 MHz.
+	extern bool packet_received; // usermain.c
+	if ( ! packet_received ) { // Sacrifice decoding telemetry once every 20 loops in favor of lowering max loop time.
+		decode_gcr_telemetry(); // Takes about 30 us @168 MHz.
+	}
 
 	for ( uint8_t i = 0; i < 16 * 3; ++i ) {
 		dshot_data_port1st[ i ] = 0;

@@ -70,7 +70,7 @@ void pwm_set( uint8_t number, float pwm )
 	if ( number == 3 ) {
 		__disable_irq();
 		bitbang_data();
-		__disable_irq();
+		__enable_irq();
 	}
 }
 

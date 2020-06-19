@@ -493,6 +493,8 @@ bool checkrx( void )
 		return false;
 	}
 
+	// By returning packetreceived at the end of the function, we indicate that this call to checkrx() took longer.
+	// We do not indicate whether decoding was successful or not.
 	bool packetreceived = checkpacket();
 
 	static unsigned long last_good_rx_time;
@@ -577,7 +579,6 @@ bool checkrx( void )
 				}
 #endif // RX_PREDICTOR
 			} else {
-				packetreceived = false;
 #ifdef RXDEBUG
 				++failcount;
 #endif

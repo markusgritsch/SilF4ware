@@ -270,7 +270,7 @@
 //#define SENSOR_INVERT // Necessary if the gyro is mounted upside down. For an inverted gyro,
 // the expected orientation is with the dot on the chip in the front-right corner.
 
-#if defined FC_BOARD_OMNIBUS
+#if defined FC_BOARD_OMNIBUS || defined FC_BOARD_F4XSD
 	#define SENSOR_ROTATE_90_CCW
 #elif defined FC_BOARD_NOXE
 	#define SENSOR_ROTATE_180

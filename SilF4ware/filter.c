@@ -14,6 +14,11 @@ void lpf( float * out, float in, float alpha )
 	*out += alpha * ( in - *out );
 }
 
+void lpf_hz( float * out, float in, float f_hz )
+{
+	*out += ALPHACALC( LOOPTIME, 1e6f / f_hz ) * ( in - *out );
+}
+
 
 // Biquad
 

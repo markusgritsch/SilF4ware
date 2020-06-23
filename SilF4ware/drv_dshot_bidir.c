@@ -20,6 +20,7 @@
 #include "defines.h"
 #include "drv_dshot.h"
 #include "drv_time.h"
+#include "filter.h"
 #include "hardware.h"
 #include "main.h"
 
@@ -463,7 +464,43 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 
 	const uint32_t mantissa = telemetry_data & 0x1FF; // 9 bit
 	const uint32_t exponent = ( telemetry_data & 0xE00 ) >> 9; // 3 bit
-	const uint32_t eperiod_us = mantissa << exponent; // 1/erps
+	uint32_t eperiod_us = mantissa << exponent; // 1/erps
+
+// #define RPM_MEDIAN_FILTER
+#ifdef RPM_MEDIAN_FILTER
+	// Median filtering. Depends on being called for 4 motors.
+	#define MIN(a,b) (((a)<(b))?(a):(b))
+	#define MAX(a,b) (((a)>(b))?(a):(b))
+	static uint32_t median_array[ 4 ][ 3 ] = { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } }; // 4 motors, 3 values
+	static uint32_t motor;
+	static uint32_t idx;
+	median_array[ motor ][ idx ] = eperiod_us;
+	const uint32_t a = median_array[ motor ][ 0 ];
+	const uint32_t b = median_array[ motor ][ 1 ];
+	const uint32_t c = median_array[ motor ][ 2 ];
+	eperiod_us = MAX( MIN( a, b ), MIN( MAX( a, b ), c ) );
+	++motor;
+	if ( motor == 4 ) {
+		motor = 0;
+		++idx;
+		if ( idx == 3 ) {
+			idx = 0;
+		}
+	}
+#endif // RPM_MEDIAN_FILTER
+
+// #define RPM_LOWPASS_FILTER
+#ifdef RPM_LOWPASS_FILTER
+	// Low pass filtering. Depends on being called for 4 motors.
+	static uint32_t motor;
+	static float avg_eperiod_us[ 4 ];
+	lpf_hz( &avg_eperiod_us[ motor ], eperiod_us, 100.0f ); // 100 Hz
+	eperiod_us = avg_eperiod_us[ motor ];
+	++motor;
+	if ( motor == 4 ) {
+		motor = 0;
+	}
+#endif // RPM_LOWPASS_FILTER
 
 	return 1e6f / (float)eperiod_us * 2 / (float)MOTOR_POLE_COUNT; // motor frequency in Hz
 }

@@ -1,4 +1,5 @@
 void lpf( float * out, float in, float alpha );
+void lpf_hz( float * out, float in, float f_hz );
 float rpm_filter( float in, int num );
 float notch_a_filter( float in, int num );
 float notch_b_filter( float in, int num );

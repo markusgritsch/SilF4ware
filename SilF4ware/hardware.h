@@ -4,7 +4,7 @@
 #define ENABLE_ADC
 
 // HARDSPI or 4 wire or 3 wire SOFTSPI (for communication with radio module)
-#if defined FC_BOARD_OMNIBUS
+#if defined FC_BOARD_OMNIBUS || defined FC_BOARD_F4XSD
 	#define SOFTSPI_4WIRE
 #elif defined FC_BOARD_NOXE
 	#define HARDSPI 1

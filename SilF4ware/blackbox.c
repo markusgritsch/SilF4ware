@@ -26,17 +26,23 @@ extern float gyro_unfiltered[ 3 ];
 extern float bb_accel[ 3 ];
 extern float bb_mix[ 4 ];
 
+#if defined FC_BOARD_OMNIBUS
+	#define BB_UARTx_Init MX_UART4_Init
+	#define BB_huartx huart4
+#elif defined FC_BOARD_F4XSD
+	#define BB_UARTx_Init MX_USART3_UART_Init
+	#define BB_huartx huart3
+#elif defined FC_BOARD_NOXE || defined FC_BOARD_NOXE_V1
+	#define BB_UARTx_Init MX_USART2_UART_Init
+	#define BB_huartx huart2
+#endif // fc board
+
 void blackbox_init( void )
 {
 #ifdef BLACKBOX_LOGGING
 
-#if defined FC_BOARD_OMNIBUS
-	extern void MX_UART4_Init( void );
-	MX_UART4_Init();
-#elif defined FC_BOARD_NOXE || defined FC_BOARD_NOXE_V1
-	extern void MX_USART2_UART_Init( void );
-	MX_USART2_UART_Init();
-#endif // fc board
+	extern void BB_UARTx_Init( void );
+	BB_UARTx_Init();
 
 #endif // BLACKBOX_LOGGING
 }
@@ -138,17 +144,10 @@ void blackbox_log( void )
 	// pos is 98
 	++bb_iteration;
 
-#if defined FC_BOARD_OMNIBUS
-	extern UART_HandleTypeDef huart4;
-	// HAL_UART_IRQHandler( &huart4 ); // Resets huart->gState to HAL_UART_STATE_READY
-	huart4.gState = HAL_UART_STATE_READY; // Do it directly to save flash space.
-	HAL_UART_Transmit_DMA( &huart4, bb_buffer, sizeof( bb_buffer ) );
-#elif defined FC_BOARD_NOXE || defined FC_BOARD_NOXE_V1
-	extern UART_HandleTypeDef huart2;
-	// HAL_UART_IRQHandler( &huart2 ); // Resets huart->gState to HAL_UART_STATE_READY
-	huart2.gState = HAL_UART_STATE_READY; // Do it directly to save flash space.
-	HAL_UART_Transmit_DMA( &huart2, bb_buffer, sizeof( bb_buffer ) );
-#endif // fc board
+	extern UART_HandleTypeDef BB_huartx;
+	// HAL_UART_IRQHandler( &BB_huartx ); // Resets huart->gState to HAL_UART_STATE_READY
+	BB_huartx.gState = HAL_UART_STATE_READY; // Do it directly to save flash space.
+	HAL_UART_Transmit_DMA( &BB_huartx, bb_buffer, sizeof( bb_buffer ) );
 
 #endif // BLACKBOX_LOGGING
 }

@@ -60,6 +60,9 @@ static void dma_read_telemetry( void );
 static void decode_gcr_telemetry( void );
 static float decode_to_hz( uint32_t gcr_data[], uint16_t pin );
 
+static float motor_hz_unfiltered[ 4 ];
+float motor_hz[ 4 ];
+
 static GPIO_InitTypeDef ESC_InitStruct = {
 	.Pin = ESC1_Pin,
 	.Mode = GPIO_MODE_OUTPUT_PP,
@@ -142,6 +145,11 @@ void pwm_set( uint8_t number, float pwm )
 
 	if ( number == 3 ) {
 		dshot_dma_start();
+
+		lpf_hz( &motor_hz[ 0 ], motor_hz_unfiltered[ 0 ], 100 ); // 100 Hz
+		lpf_hz( &motor_hz[ 1 ], motor_hz_unfiltered[ 1 ], 100 ); // 100 Hz
+		lpf_hz( &motor_hz[ 2 ], motor_hz_unfiltered[ 2 ], 100 ); // 100 Hz
+		lpf_hz( &motor_hz[ 3 ], motor_hz_unfiltered[ 3 ], 100 ); // 100 Hz
 	}
 }
 
@@ -316,31 +324,30 @@ static void dma_read_telemetry()
 	HAL_TIM_Base_Start( &htim1 );
 }
 
-float motor_hz[ 4 ];
 static void decode_gcr_telemetry()
 {
 	if ( ESC1_GPIO_Port == GPIO1st ) {
-		motor_hz[ 0 ] = decode_to_hz( gcr_data_port1st, ESC1_Pin );
+		motor_hz_unfiltered[ 0 ] = decode_to_hz( gcr_data_port1st, ESC1_Pin );
 	} else {
-		motor_hz[ 0 ] = decode_to_hz( gcr_data_port2nd, ESC1_Pin );
+		motor_hz_unfiltered[ 0 ] = decode_to_hz( gcr_data_port2nd, ESC1_Pin );
 	}
 
 	if ( ESC2_GPIO_Port == GPIO1st ) {
-		motor_hz[ 1 ] = decode_to_hz( gcr_data_port1st, ESC2_Pin );
+		motor_hz_unfiltered[ 1 ] = decode_to_hz( gcr_data_port1st, ESC2_Pin );
 	} else {
-		motor_hz[ 1 ] = decode_to_hz( gcr_data_port2nd, ESC2_Pin );
+		motor_hz_unfiltered[ 1 ] = decode_to_hz( gcr_data_port2nd, ESC2_Pin );
 	}
 
 	if ( ESC3_GPIO_Port == GPIO1st ) {
-		motor_hz[ 2 ] = decode_to_hz( gcr_data_port1st, ESC3_Pin );
+		motor_hz_unfiltered[ 2 ] = decode_to_hz( gcr_data_port1st, ESC3_Pin );
 	} else {
-		motor_hz[ 2 ] = decode_to_hz( gcr_data_port2nd, ESC3_Pin );
+		motor_hz_unfiltered[ 2 ] = decode_to_hz( gcr_data_port2nd, ESC3_Pin );
 	}
 
 	if ( ESC4_GPIO_Port == GPIO1st ) {
-		motor_hz[ 3 ] = decode_to_hz( gcr_data_port1st, ESC4_Pin );
+		motor_hz_unfiltered[ 3 ] = decode_to_hz( gcr_data_port1st, ESC4_Pin );
 	} else {
-		motor_hz[ 3 ] = decode_to_hz( gcr_data_port2nd, ESC4_Pin );
+		motor_hz_unfiltered[ 3 ] = decode_to_hz( gcr_data_port2nd, ESC4_Pin );
 	}
 }
 
@@ -488,19 +495,6 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 		}
 	}
 #endif // RPM_MEDIAN_FILTER
-
-// #define RPM_LOWPASS_FILTER
-#ifdef RPM_LOWPASS_FILTER
-	// Low pass filtering. Depends on being called for 4 motors.
-	static uint32_t motor;
-	static float avg_eperiod_us[ 4 ];
-	lpf_hz( &avg_eperiod_us[ motor ], eperiod_us, 100.0f ); // 100 Hz
-	eperiod_us = avg_eperiod_us[ motor ];
-	++motor;
-	if ( motor == 4 ) {
-		motor = 0;
-	}
-#endif // RPM_LOWPASS_FILTER
 
 	return 1e6f / (float)eperiod_us * 2 / (float)MOTOR_POLE_COUNT; // motor frequency in Hz
 }

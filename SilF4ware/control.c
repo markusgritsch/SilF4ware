@@ -17,10 +17,10 @@
 int onground = 1;
 
 float thrsum;
-float mixmax;
-float throttle_reversing_kick;
-float throttle_reversing_kick_sawtooth;
-float throttle_reversing_kick_decrement;
+static float mixmax;
+static float throttle_reversing_kick;
+static float throttle_reversing_kick_sawtooth;
+static float throttle_reversing_kick_decrement;
 
 float error[ PIDNUMBER ];
 float setpoint[ PIDNUMBER ];

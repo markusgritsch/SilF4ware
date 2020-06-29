@@ -304,7 +304,10 @@ float sdft_notch_filter( float input, int num )
 	static float notch_Hz[ 4 ];
 	if ( notch_Hz[ num ] != sdft_notch_Hz[ num ] ) {
 		notch_Hz[ num ] = sdft_notch_Hz[ num ];
-		filter_notch_coeff( &gyro_notch_coeff[ num ], sdft_notch_Hz[ num ], BIQUAD_SDFT_NOTCH_Q );
+		float Q = sdft_notch_Hz[ num ] / 20.0f; // 20 Hz bandwidth
+		Q = Q > 6.0f ? 6.0f : Q; // Limit Q to 6, otherwise the settling time gets too long.
+		filter_notch_coeff( &gyro_notch_coeff[ num ], sdft_notch_Hz[ num ], Q );
+		// filter_peak_coeff( &gyro_notch_coeff[ num ], sdft_notch_Hz[ num ], Q, 0.2f );
 	}
 	return filter_biquad_step( &gyro_notch[ num ], &gyro_notch_coeff[ num ], input );
 }

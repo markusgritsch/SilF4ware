@@ -347,6 +347,16 @@ void pid_precalc()
 
 	pdScaleValue = 1.0f; // constant (no throttle dependent scaling)
 
+#if 0
+	extern float throttle_boost; // control.c
+	if ( throttle_boost > 0.0f ) {
+		pdScaleValue /= 1.0f + 50.0f * throttle_boost;
+		if ( pdScaleValue < 0.5f ) {
+			pdScaleValue = 0.5f;
+		}
+	}
+#endif
+
 #ifdef PD_SCALE_YAW_STABILIZER
 	const float absyaw = fabsf( rxcopy[ 2 ] );
 	// const float absyaw = fabsf( gyro[ 2 ] / ( (float)MAX_RATEYAW * DEGTORAD ) );

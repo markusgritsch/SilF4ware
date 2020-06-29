@@ -68,7 +68,6 @@
 //#define BIQUAD_AUTO_NOTCH_Q 6 // (frequency bin resolution is defined via FFT_SIZE in fft.h)
 
 #define BIQUAD_SDFT_NOTCH // Sliding DFT dynamic notch filters. Two per filtered axis.
-#define BIQUAD_SDFT_NOTCH_Q 6
 
 // Dynamic Gyro first and second order LPFs
 

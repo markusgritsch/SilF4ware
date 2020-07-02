@@ -145,11 +145,6 @@ void pwm_set( uint8_t number, float pwm )
 
 	if ( number == 3 ) {
 		dshot_dma_start();
-
-		lpf_hz( &motor_hz[ 0 ], motor_hz_unfiltered[ 0 ], 100 ); // 100 Hz
-		lpf_hz( &motor_hz[ 1 ], motor_hz_unfiltered[ 1 ], 100 ); // 100 Hz
-		lpf_hz( &motor_hz[ 2 ], motor_hz_unfiltered[ 2 ], 100 ); // 100 Hz
-		lpf_hz( &motor_hz[ 3 ], motor_hz_unfiltered[ 3 ], 100 ); // 100 Hz
 	}
 }
 
@@ -194,6 +189,18 @@ static void dshot_dma_start()
 	if ( ! packet_received ) { // Sacrifice decoding telemetry once every 20 loops in favor of lowering max loop time.
 		decode_gcr_telemetry(); // Takes about 30 us @168 MHz.
 	}
+
+#if 1
+	lpf_hz( &motor_hz[ 0 ], motor_hz_unfiltered[ 0 ], 100 ); // 100 Hz
+	lpf_hz( &motor_hz[ 1 ], motor_hz_unfiltered[ 1 ], 100 ); // 100 Hz
+	lpf_hz( &motor_hz[ 2 ], motor_hz_unfiltered[ 2 ], 100 ); // 100 Hz
+	lpf_hz( &motor_hz[ 3 ], motor_hz_unfiltered[ 3 ], 100 ); // 100 Hz
+#else
+	motor_hz[ 0 ] = motor_hz_unfiltered[ 0 ];
+	motor_hz[ 1 ] = motor_hz_unfiltered[ 1 ];
+	motor_hz[ 2 ] = motor_hz_unfiltered[ 2 ];
+	motor_hz[ 3 ] = motor_hz_unfiltered[ 3 ];
+#endif
 
 	for ( uint8_t i = 0; i < 16 * 3; ++i ) {
 		dshot_data_port1st[ i ] = 0;
@@ -394,12 +401,13 @@ uint32_t rpm_telemetry_no_telemetry_count;
 uint32_t rpm_telemetry_bitsize_errors; // if GCR_FREQUENCY is set to a too high value
 uint32_t rpm_telemetry_gcr_decode_errors;
 uint32_t rpm_telemetry_csum_errors;
+uint32_t rpm_telemetry_eperiod_zero_errors;
 uint32_t rpm_telemetry_sample_stats[ 12 ];
 #endif
 
 static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 {
-	uint32_t index = 23 * GCR_FREQUENCY * 3 / 1000; // Start looking at 23 us.
+	uint32_t index = 1 * GCR_FREQUENCY * 3 / 1000; // Start looking at 1 us.
 	while ( index < GCR_BUFFER_SIZE && ( ( gcr_data[ index ] & pin ) != 0 ) ) { // Find the start bit.
 		++index;
 	}
@@ -495,6 +503,13 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 		}
 	}
 #endif // RPM_MEDIAN_FILTER
+
+	if ( eperiod_us == 0 ) {
+#ifdef RPM_TELEMETRY_DEBUG
+		++rpm_telemetry_eperiod_zero_errors;
+#endif
+		return 0.0f;
+	}
 
 	return 1e6f / (float)eperiod_us * 2 / (float)MOTOR_POLE_COUNT; // motor frequency in Hz
 }

@@ -199,7 +199,7 @@ float rpm_filter( float input, int axis )
 		for ( int harmonic = 0; harmonic < RPM_FILTER_HARMONICS; ++harmonic ) {
 			if ( harmonic == 0 || ( RPM_FILTER_2ND_HARMONIC && harmonic == 1 ) || ( RPM_FILTER_3RD_HARMONIC && harmonic == 2 ) ) {
 				const float filter_hz_harmonic = motor_hz[ motor ] * ( harmonic + 1 );
-				if ( axis == 0 && filter_hz_harmonic != 0.0f ) {
+				if ( axis == 0 && filter_hz_harmonic >= RPM_FILTER_HZ_MIN ) {
 					filter_notch_coeff( &gyro_notch_coeff[ motor ][ harmonic ], filter_hz_harmonic, RPM_FILTER_Q );
 				}
 				const float filtered = filter_biquad_step( &gyro_notch[ axis ][ motor ][ harmonic ], &gyro_notch_coeff[ motor ][ harmonic ], output );

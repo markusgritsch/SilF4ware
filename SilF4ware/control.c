@@ -232,23 +232,20 @@ void control( bool send_motor_values )
 		static int count;
 		if ( count > 0 ) {
 			--count;
-		} else {
-			// Call motorbeep() only every millisecond, otherwise the beeps get slowed down by the ESC.
-			count = 500 / LOOPTIME - 1; // So we enter only every 0.5 ms and
-			static bool send_beep; // alternate between pwm_set() and motorbeep().
-			if ( send_beep ) {
-#ifdef MOTOR_BEEPS
-	#ifndef MOTOR_BEEPS_CHANNEL
-		#define MOTOR_BEEPS_CHANNEL CH_OFF
-	#endif
-				motorbeep( motors_failsafe, MOTOR_BEEPS_CHANNEL );
-#endif // MOTOR_BEEPS
-			} else if ( send_motor_values ) {
+			if ( send_motor_values ) {
 				for ( int i = 0; i < 4; ++i ) {
 					pwm_set( i, 0 );
 				}
 			}
-			send_beep = ! send_beep;
+		} else {
+			// Call motorbeep() only every 10 milliseconds, to not overwhelm BLHeli_S.
+			count = 10000 / LOOPTIME - 1;
+#ifdef MOTOR_BEEPS
+	#ifndef MOTOR_BEEPS_CHANNEL
+		#define MOTOR_BEEPS_CHANNEL CH_OFF
+	#endif
+			motorbeep( motors_failsafe, MOTOR_BEEPS_CHANNEL );
+#endif // MOTOR_BEEPS
 		}
 	} else { // motors on - normal flight
 		onground = 0;

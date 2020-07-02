@@ -525,167 +525,167 @@
             <File>
               <FileName>angle_pid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\angle_pid.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\angle_pid.c</FilePath>
             </File>
             <File>
               <FileName>battery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\battery.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\battery.c</FilePath>
             </File>
             <File>
               <FileName>blackbox.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\blackbox.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\blackbox.c</FilePath>
             </File>
             <File>
               <FileName>control.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\control.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\control.c</FilePath>
             </File>
             <File>
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\debug.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\debug.c</FilePath>
             </File>
             <File>
               <FileName>drv_adc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_adc.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_adc.c</FilePath>
             </File>
             <File>
               <FileName>drv_dshot.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_dshot.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_dshot.c</FilePath>
             </File>
             <File>
               <FileName>drv_dshot_bidir.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_dshot_bidir.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_dshot_bidir.c</FilePath>
             </File>
             <File>
               <FileName>drv_dshot_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_dshot_dma.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_dshot_dma.c</FilePath>
             </File>
             <File>
               <FileName>drv_fmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_fmc.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_fmc.c</FilePath>
             </File>
             <File>
               <FileName>drv_led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_led.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_led.c</FilePath>
             </File>
             <File>
               <FileName>drv_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_mpu.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_mpu.c</FilePath>
             </File>
             <File>
               <FileName>drv_reset.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_reset.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_reset.c</FilePath>
             </File>
             <File>
               <FileName>drv_rx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_rx.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_rx.c</FilePath>
             </File>
             <File>
               <FileName>drv_spi_3wire.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_spi_3wire.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_spi_3wire.c</FilePath>
             </File>
             <File>
               <FileName>drv_spi_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_spi_mpu.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_spi_mpu.c</FilePath>
             </File>
             <File>
               <FileName>drv_spi_rx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_spi_rx.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_spi_rx.c</FilePath>
             </File>
             <File>
               <FileName>drv_time.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_time.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_time.c</FilePath>
             </File>
             <File>
               <FileName>fft.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\fft.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\fft.c</FilePath>
             </File>
             <File>
               <FileName>filter.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\filter.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\filter.c</FilePath>
             </File>
             <File>
               <FileName>flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\flash.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\flash.c</FilePath>
             </File>
             <File>
               <FileName>gesture_detect.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\gesture_detect.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\gesture_detect.c</FilePath>
             </File>
             <File>
               <FileName>gestures.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\gestures.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\gestures.c</FilePath>
             </File>
             <File>
               <FileName>imu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\imu.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\imu.c</FilePath>
             </File>
             <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\led.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\led.c</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\pid.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\pid.c</FilePath>
             </File>
             <File>
               <FileName>rx_nrf24_bayang.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\rx_nrf24_bayang.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\rx_nrf24_bayang.c</FilePath>
             </File>
             <File>
               <FileName>rx_xn297_bayang.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\rx_xn297_bayang.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\rx_xn297_bayang.c</FilePath>
             </File>
             <File>
               <FileName>sdft.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\sdft.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\sdft.c</FilePath>
             </File>
             <File>
               <FileName>sixaxis.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\sixaxis.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\sixaxis.c</FilePath>
             </File>
             <File>
               <FileName>stick_vector.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\stick_vector.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\stick_vector.c</FilePath>
             </File>
             <File>
               <FileName>usermain.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\usermain.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\usermain.c</FilePath>
             </File>
             <File>
               <FileName>util.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\util.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\util.c</FilePath>
             </File>
           </Files>
         </Group>

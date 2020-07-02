@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>STM32F405 F4XSD</name>
+	<name>STM32F411 NOXE</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -33,14 +33,14 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>STM32F405 F4XSD.ioc</name>
+			<name>STM32F411 NOXE.ioc</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/STM32F405%20F4XSD.ioc</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/STM32F411%20NOXE.ioc</locationURI>
 		</link>
 		<link>
 			<name>SilF4ware</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/SilF4ware</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/SilF4ware</locationURI>
 		</link>
 		<link>
 			<name>Application/User/main.c</name>
@@ -136,6 +136,11 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rcc_ex.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_spi.c</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim.c</name>

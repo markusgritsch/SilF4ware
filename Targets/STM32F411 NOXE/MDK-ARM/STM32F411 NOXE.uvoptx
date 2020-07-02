@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>STM32F411 NOXE_V1</TargetName>
+    <TargetName>STM32F411 NOXE</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -514,7 +514,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\angle_pid.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\angle_pid.c</PathWithFileName>
       <FilenameWithoutPath>angle_pid.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -526,7 +526,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\battery.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\battery.c</PathWithFileName>
       <FilenameWithoutPath>battery.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -538,7 +538,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\blackbox.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\blackbox.c</PathWithFileName>
       <FilenameWithoutPath>blackbox.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -550,7 +550,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\control.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\control.c</PathWithFileName>
       <FilenameWithoutPath>control.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -562,7 +562,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\debug.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\debug.c</PathWithFileName>
       <FilenameWithoutPath>debug.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -574,7 +574,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_adc.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_adc.c</PathWithFileName>
       <FilenameWithoutPath>drv_adc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -586,7 +586,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_dshot.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_dshot.c</PathWithFileName>
       <FilenameWithoutPath>drv_dshot.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -598,7 +598,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_dshot_bidir.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_dshot_bidir.c</PathWithFileName>
       <FilenameWithoutPath>drv_dshot_bidir.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -610,7 +610,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_dshot_dma.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_dshot_dma.c</PathWithFileName>
       <FilenameWithoutPath>drv_dshot_dma.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -622,7 +622,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_fmc.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_fmc.c</PathWithFileName>
       <FilenameWithoutPath>drv_fmc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -634,7 +634,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_led.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_led.c</PathWithFileName>
       <FilenameWithoutPath>drv_led.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -646,7 +646,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_mpu.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_mpu.c</PathWithFileName>
       <FilenameWithoutPath>drv_mpu.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -658,7 +658,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_reset.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_reset.c</PathWithFileName>
       <FilenameWithoutPath>drv_reset.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -670,7 +670,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_rx.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_rx.c</PathWithFileName>
       <FilenameWithoutPath>drv_rx.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -682,7 +682,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_spi_3wire.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_spi_3wire.c</PathWithFileName>
       <FilenameWithoutPath>drv_spi_3wire.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -694,7 +694,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_spi_mpu.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_spi_mpu.c</PathWithFileName>
       <FilenameWithoutPath>drv_spi_mpu.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -706,7 +706,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_spi_rx.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_spi_rx.c</PathWithFileName>
       <FilenameWithoutPath>drv_spi_rx.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -718,7 +718,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\drv_time.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\drv_time.c</PathWithFileName>
       <FilenameWithoutPath>drv_time.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -730,7 +730,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\fft.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\fft.c</PathWithFileName>
       <FilenameWithoutPath>fft.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -742,7 +742,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\filter.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\filter.c</PathWithFileName>
       <FilenameWithoutPath>filter.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -754,7 +754,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\flash.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\flash.c</PathWithFileName>
       <FilenameWithoutPath>flash.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -766,7 +766,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\gesture_detect.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\gesture_detect.c</PathWithFileName>
       <FilenameWithoutPath>gesture_detect.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -778,7 +778,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\gestures.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\gestures.c</PathWithFileName>
       <FilenameWithoutPath>gestures.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -790,7 +790,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\imu.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\imu.c</PathWithFileName>
       <FilenameWithoutPath>imu.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -802,7 +802,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\led.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\led.c</PathWithFileName>
       <FilenameWithoutPath>led.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -814,7 +814,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\pid.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\pid.c</PathWithFileName>
       <FilenameWithoutPath>pid.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -826,7 +826,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\rx_nrf24_bayang.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\rx_nrf24_bayang.c</PathWithFileName>
       <FilenameWithoutPath>rx_nrf24_bayang.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -838,7 +838,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\rx_xn297_bayang.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\rx_xn297_bayang.c</PathWithFileName>
       <FilenameWithoutPath>rx_xn297_bayang.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -850,7 +850,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\sdft.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\sdft.c</PathWithFileName>
       <FilenameWithoutPath>sdft.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -862,7 +862,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\sixaxis.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\sixaxis.c</PathWithFileName>
       <FilenameWithoutPath>sixaxis.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -874,7 +874,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\stick_vector.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\stick_vector.c</PathWithFileName>
       <FilenameWithoutPath>stick_vector.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -886,7 +886,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\usermain.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\usermain.c</PathWithFileName>
       <FilenameWithoutPath>usermain.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -898,7 +898,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\SilF4ware\util.c</PathWithFileName>
+      <PathWithFileName>..\..\..\SilF4ware\util.c</PathWithFileName>
       <FilenameWithoutPath>util.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

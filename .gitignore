@@ -6,14 +6,14 @@ Blackbox/*
 SilF4ware/_birdseyeview.png
 SilF4ware/_birdseyeviews/
 
-STM32F4*/.mxproject
+Targets/STM32F4*/.mxproject
 
-STM32F4*/MDK-ARM/DebugConfig/
-STM32F4*/MDK-ARM/RTE/
-STM32F4*/MDK-ARM/STM32F4*/
-STM32F4*/MDK-ARM/EventRecorderStub.scvd
-STM32F4*/MDK-ARM/startup_stm32f4*.lst
-STM32F4*/MDK-ARM/STM32F4*.uvguix.mgr
+Targets/STM32F4*/MDK-ARM/DebugConfig/
+Targets/STM32F4*/MDK-ARM/RTE/
+Targets/STM32F4*/MDK-ARM/STM32F4*/
+Targets/STM32F4*/MDK-ARM/EventRecorderStub.scvd
+Targets/STM32F4*/MDK-ARM/startup_stm32f4*.lst
+Targets/STM32F4*/MDK-ARM/STM32F4*.uvguix.mgr
 
-STM32F4*/STM32CubeIDE/.settings/
-STM32F4*/STM32CubeIDE/Release/
+Targets/STM32F4*/STM32CubeIDE/.settings/
+Targets/STM32F4*/STM32CubeIDE/Release/

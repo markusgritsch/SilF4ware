@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>STM32F411 NOXE</name>
+	<name>STM32F411 NOXE_V1</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -33,14 +33,14 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>STM32F411 NOXE.ioc</name>
+			<name>STM32F411 NOXE_V1.ioc</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/STM32F411%20NOXE.ioc</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/STM32F411%20NOXE_V1.ioc</locationURI>
 		</link>
 		<link>
 			<name>SilF4ware</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/SilF4ware</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/SilF4ware</locationURI>
 		</link>
 		<link>
 			<name>Application/User/main.c</name>

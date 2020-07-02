@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>STM32F405 F4XSD</TargetName>
+      <TargetName>STM32F405 Omnibus</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>6130001::V6.13.1::.\ARMCLANG</pCCUsed>
@@ -48,8 +48,8 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>STM32F405 F4XSD\</OutputDirectory>
-          <OutputName>STM32F405 F4XSD</OutputName>
+          <OutputDirectory>STM32F405 Omnibus\</OutputDirectory>
+          <OutputName>STM32F405 Omnibus</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -335,10 +335,10 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls>-DFC_BOARD_F4XSD</MiscControls>
+              <MiscControls>-DFC_BOARD_OMNIBUS</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F405xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc; ../Drivers/STM32F4xx_HAL_Driver/Inc; ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy; ../Drivers/CMSIS/Device/ST/STM32F4xx/Include; ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -520,167 +520,167 @@
             <File>
               <FileName>angle_pid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\angle_pid.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\angle_pid.c</FilePath>
             </File>
             <File>
               <FileName>battery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\battery.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\battery.c</FilePath>
             </File>
             <File>
               <FileName>blackbox.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\blackbox.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\blackbox.c</FilePath>
             </File>
             <File>
               <FileName>control.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\control.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\control.c</FilePath>
             </File>
             <File>
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\debug.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\debug.c</FilePath>
             </File>
             <File>
               <FileName>drv_adc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_adc.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_adc.c</FilePath>
             </File>
             <File>
               <FileName>drv_dshot.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_dshot.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_dshot.c</FilePath>
             </File>
             <File>
               <FileName>drv_dshot_bidir.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_dshot_bidir.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_dshot_bidir.c</FilePath>
             </File>
             <File>
               <FileName>drv_dshot_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_dshot_dma.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_dshot_dma.c</FilePath>
             </File>
             <File>
               <FileName>drv_fmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_fmc.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_fmc.c</FilePath>
             </File>
             <File>
               <FileName>drv_led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_led.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_led.c</FilePath>
             </File>
             <File>
               <FileName>drv_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_mpu.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_mpu.c</FilePath>
             </File>
             <File>
               <FileName>drv_reset.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_reset.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_reset.c</FilePath>
             </File>
             <File>
               <FileName>drv_rx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_rx.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_rx.c</FilePath>
             </File>
             <File>
               <FileName>drv_spi_3wire.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_spi_3wire.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_spi_3wire.c</FilePath>
             </File>
             <File>
               <FileName>drv_spi_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_spi_mpu.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_spi_mpu.c</FilePath>
             </File>
             <File>
               <FileName>drv_spi_rx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_spi_rx.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_spi_rx.c</FilePath>
             </File>
             <File>
               <FileName>drv_time.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\drv_time.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\drv_time.c</FilePath>
             </File>
             <File>
               <FileName>fft.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\fft.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\fft.c</FilePath>
             </File>
             <File>
               <FileName>filter.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\filter.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\filter.c</FilePath>
             </File>
             <File>
               <FileName>flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\flash.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\flash.c</FilePath>
             </File>
             <File>
               <FileName>gesture_detect.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\gesture_detect.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\gesture_detect.c</FilePath>
             </File>
             <File>
               <FileName>gestures.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\gestures.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\gestures.c</FilePath>
             </File>
             <File>
               <FileName>imu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\imu.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\imu.c</FilePath>
             </File>
             <File>
               <FileName>led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\led.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\led.c</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\pid.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\pid.c</FilePath>
             </File>
             <File>
               <FileName>rx_nrf24_bayang.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\rx_nrf24_bayang.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\rx_nrf24_bayang.c</FilePath>
             </File>
             <File>
               <FileName>rx_xn297_bayang.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\rx_xn297_bayang.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\rx_xn297_bayang.c</FilePath>
             </File>
             <File>
               <FileName>sdft.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\sdft.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\sdft.c</FilePath>
             </File>
             <File>
               <FileName>sixaxis.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\sixaxis.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\sixaxis.c</FilePath>
             </File>
             <File>
               <FileName>stick_vector.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\stick_vector.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\stick_vector.c</FilePath>
             </File>
             <File>
               <FileName>usermain.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\usermain.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\usermain.c</FilePath>
             </File>
             <File>
               <FileName>util.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\SilF4ware\util.c</FilePath>
+              <FilePath>..\..\..\SilF4ware\util.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -697,7 +697,7 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.3.0" condition="ARMv6_7_8-M Device">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.6.0"/>
         <targetInfos>
-          <targetInfo name="STM32F405 F4XSD"/>
+          <targetInfo name="STM32F405 Omnibus"/>
         </targetInfos>
       </component>
     </components>

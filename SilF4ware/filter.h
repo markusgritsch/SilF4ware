@@ -17,3 +17,5 @@ void throttle_hpf_reset( int holdoff_time_ms );
 // This is used to calculate alpha. filtertime = 1 / filter-cutoff-frequency.
 // The approximation is good only for filtertime >> dT, maybe filtertime > dT * 5.
 #define ALPHACALC( dT, filtertime ) ( ( 6.6f * (float)dT ) / ( 4.2f * (float)dT + (float)filtertime ) )
+
+#define SDFT_AXES 3 // 2 .. only for roll and pitch, 3 .. roll, pitch, and yaw

@@ -295,13 +295,13 @@ float auto_notch_filter( float input, int num )
 
 #ifdef BIQUAD_SDFT_NOTCH
 
-float sdft_notch_Hz[ 4 ];
+float sdft_notch_Hz[ SDFT_AXES * 2 ];
 
 float sdft_notch_filter( float input, int num )
 {
-	static FilterBiquadCoeff_t gyro_notch_coeff[ 4 ];
-	static FilterBiquad_t gyro_notch[ 4 ];
-	static float notch_Hz[ 4 ];
+	static FilterBiquadCoeff_t gyro_notch_coeff[ SDFT_AXES * 2 ];
+	static FilterBiquad_t gyro_notch[ SDFT_AXES * 2 ];
+	static float notch_Hz[ SDFT_AXES * 2 ];
 	if ( notch_Hz[ num ] != sdft_notch_Hz[ num ] ) {
 		notch_Hz[ num ] = sdft_notch_Hz[ num ];
 		float Q = sdft_notch_Hz[ num ] / 20.0f; // 20 Hz bandwidth

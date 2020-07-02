@@ -190,7 +190,7 @@ static void dshot_dma_start()
 		decode_gcr_telemetry(); // Takes about 30 us @168 MHz.
 	}
 
-#if 1
+#if 1 // select between filtered (1) and unfiltered (0) motor_hz
 	lpf_hz( &motor_hz[ 0 ], motor_hz_unfiltered[ 0 ], 100 ); // 100 Hz
 	lpf_hz( &motor_hz[ 1 ], motor_hz_unfiltered[ 1 ], 100 ); // 100 Hz
 	lpf_hz( &motor_hz[ 2 ], motor_hz_unfiltered[ 2 ], 100 ); // 100 Hz

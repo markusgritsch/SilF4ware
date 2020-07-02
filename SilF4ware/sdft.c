@@ -15,8 +15,8 @@
 // #define DAMPING_FACTOR nextafterf( 1.0f, 0.0f )
 
 static int idx = 0;
-static float x[ 2 ][ SDFT_SIZE ];
-static float complex X[ 2 ][ SDFT_SIZE ];
+static float x[ SDFT_AXES ][ SDFT_SIZE ];
+static float complex X[ SDFT_AXES ][ SDFT_SIZE ];
 static float complex coeff[ SDFT_SIZE ];
 
 void sdft_init()
@@ -31,17 +31,19 @@ void sdft_step() // called every LOOPTIME
 {
 	#define SUBSAMPLES ( SAMPLE_PERIOD / LOOPTIME )
 
-	static float accu[ 2 ]; // Accumulated and then averaged input signal.
+	static float accu[ 3 ]; // Accumulated and then averaged input signal.
 	static int subsample_count = 0;
 
 #if 1 // Analyze pidoutput (1) or gyro (0) signal
 	extern float pidoutput[ PIDNUMBER ]; // pid.c
 	accu[ 0 ] += pidoutput[ 0 ];
 	accu[ 1 ] += pidoutput[ 1 ];
+	accu[ 2 ] += pidoutput[ 2 ];
 #else
 	extern float gyro[ 3 ]; // sixaxis.c
 	accu[ 0 ] += gyro[ 0 ];
 	accu[ 1 ] += gyro[ 1 ];
+	accu[ 2 ] += gyro[ 2 ];
 #endif
 
 	bool was_in_sync = true;
@@ -55,15 +57,16 @@ void sdft_step() // called every LOOPTIME
 		}
 		accu[ 0 ] /= subsample_count;
 		accu[ 1 ] /= subsample_count;
+		accu[ 2 ] /= subsample_count;
 		subsample_count = 0;
 	}
 
-	for ( int axis = 0; axis < 2; ++axis ) { // Only for roll and pitch.
-		static int index_1st[ 2 ];
-		static int index_2nd[ 2 ];
-		static float value_1st[ 2 ];
-		static float value_2nd[ 2 ];
-		static float delta[ 2 ];
+	for ( int axis = 0; axis < SDFT_AXES; ++axis ) {
+		static int index_1st[ SDFT_AXES ];
+		static int index_2nd[ SDFT_AXES ];
+		static float value_1st[ SDFT_AXES ];
+		static float value_2nd[ SDFT_AXES ];
+		static float delta[ SDFT_AXES ];
 
 		const int min_bin_index = (float)MIN_HZ * (float)SDFT_SIZE * ( SAMPLE_PERIOD * 1e-6f ) + 0.5f;
 		const int max_bin_index = (float)MAX_HZ * (float)SDFT_SIZE * ( SAMPLE_PERIOD * 1e-6f ) + 0.5f;
@@ -83,8 +86,8 @@ void sdft_step() // called every LOOPTIME
 				f_low_Hz = index_2nd[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
 			}
 
-			static float f_Hz_filt[ 4 ];
-			extern float sdft_notch_Hz[ 4 ]; // filter.c
+			static float f_Hz_filt[ SDFT_AXES * 2 ];
+			extern float sdft_notch_Hz[ SDFT_AXES * 2 ]; // filter.c
 			lpf( &f_Hz_filt[ axis * 2 ], f_high_Hz, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
 			lpf( &sdft_notch_Hz[ axis * 2 ], f_Hz_filt[ axis * 2 ], ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
 			lpf( &f_Hz_filt[ axis * 2 + 1 ], f_low_Hz, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz

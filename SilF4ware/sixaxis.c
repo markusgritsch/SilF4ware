@@ -289,7 +289,7 @@ static void process_gyronew_to_gyro( float gyronew[] )
 		if ( i == 0 ) { // Only once per main loop cycle.
 			sdft_step();
 		}
-		if ( i < 2 ) { // Only for roll and pitch.
+		if ( i < SDFT_AXES ) {
 			gyro[ i ] = sdft_notch_filter( gyro[ i ], i * 2 );
 			gyro[ i ] = sdft_notch_filter( gyro[ i ], i * 2 + 1 );
 		}

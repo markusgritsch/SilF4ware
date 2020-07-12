@@ -48,6 +48,14 @@ float rxcopy[ 4 ];
 float bb_throttle;
 float bb_mix[ 4 ];
 
+static void throttle_kick( float kick_strength )
+{
+	throttle_reversing_kick = kick_strength * ( ( battery_scale_factor - 1.0f ) * 1.5f + 1.0f );
+	#define TRKD 100000.0f // 100 ms throttle reversing kick duration
+	throttle_reversing_kick_sawtooth = throttle_reversing_kick * ( TRKD + (float)THROTTLE_REVERSING_DEADTIME ) / TRKD;
+	throttle_reversing_kick_decrement = throttle_reversing_kick_sawtooth * (float)LOOPTIME / ( TRKD + (float)THROTTLE_REVERSING_DEADTIME );
+}
+
 void control( bool send_motor_values )
 {
 	// rates / expert mode
@@ -64,10 +72,7 @@ void control( bool send_motor_values )
 		ierror[ 0 ] = ierror[ 1 ] = ierror[ 2 ] = 0.0f;
 		throttle_hpf_reset( 200 ); // ms
 #ifdef THROTTLE_REVERSING_KICK
-		throttle_reversing_kick = (float)THROTTLE_REVERSING_KICK * ( ( battery_scale_factor - 1.0f ) * 1.5f + 1.0f );
-		#define TRKD 100000.0f // 100 ms throttle reversing kick duration
-		throttle_reversing_kick_sawtooth = throttle_reversing_kick * ( TRKD + (float)THROTTLE_REVERSING_DEADTIME ) / TRKD;
-		throttle_reversing_kick_decrement = throttle_reversing_kick_sawtooth * (float)LOOPTIME / ( TRKD + (float)THROTTLE_REVERSING_DEADTIME );
+		throttle_kick( THROTTLE_REVERSING_KICK );
 #endif // THROTTLE_REVERSING_KICK
 	}
 
@@ -248,6 +253,12 @@ void control( bool send_motor_values )
 #endif // MOTOR_BEEPS
 		}
 	} else { // motors on - normal flight
+#ifdef THROTTLE_STARTUP_KICK
+		if ( onground == 1 ) {
+			throttle_kick( THROTTLE_STARTUP_KICK ); // Some startup kick.
+		}
+#endif // THROTTLE_STARTUP_KICK
+
 		onground = 0;
 
 		float throttle = rxcopy[ 3 ];
@@ -557,6 +568,15 @@ void control( bool send_motor_values )
 				mix[ i ] = mix_filt[ i ];
 			}
 #endif // MIX_FILTER_HZ
+
+#ifdef KALMAN_q
+			const float mix_kalman = kalman_filter( mix[ i ], i );
+			if ( prevent_motor_filtering_state == 2 ) {
+				kalman_set( mix[ i ], i );
+			} else {
+				mix[ i ] = mix_kalman;
+			}
+#endif // KALMAN_q
 
 			if ( send_motor_values ) {
 				pwm_set( i, mix[ i ] );

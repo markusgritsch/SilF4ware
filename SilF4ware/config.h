@@ -112,9 +112,11 @@
 //#define MOTOR_FILTER_THROTTLE_BREAKPOINT 0.25 // at and above MOTOR_FILTER_THROTTLE_BREAKPOINT.
 
 // Limit maximum motor speed change rate from MIX_CHANGE_LIMIT at zero to 2 * MIX_CHANGE_LIMIT at full motor speed
-#define MIX_CHANGE_LIMIT 25 // 25/s == 25%/10ms
-// Optional post-MIX_CHANGE_LIMIT motor filter
-#define MIX_FILTER_HZ 120 // MIX_FILTER_HZ at zero to 2 * MIX_FILTER_HZ at full motor speed
+//#define MIX_CHANGE_LIMIT 25 // 25/s == 25%/10ms
+// Post-MIX_CHANGE_LIMIT motor filter
+//#define MIX_FILTER_HZ 120 // MIX_FILTER_HZ at zero to 2 * MIX_FILTER_HZ at full motor speed
+// Kalman motor filter. The specified value is not Hz but the process noise covariance in micro units.
+#define KALMAN_q 100 // Higher value is less filtering
 
 // Switch function selection
 
@@ -172,6 +174,7 @@
 // For more consistent motor reversing in 3D flight
 #define THROTTLE_REVERSING_KICK 0.15
 #define THROTTLE_REVERSING_DEADTIME 20000 // 20 ms (increase this in case of over-propped motors)
+//#define THROTTLE_STARTUP_KICK 0.10
 
 // Continue stick movement with the current stick velocity in case of lost packets
 #define RX_PREDICTOR
@@ -236,7 +239,7 @@
 #define RFS_RATE_MAX 720 // °/s, Linear transition to full scaling at and above RFS_RATE_MAX.
 #define RFS_P_SCALER 0.5 // Scale P by this factor at and above RFS_RATE_MAX.
 #define RFS_I_SCALER 0.0 // Scale I by this factor at and above RFS_RATE_MAX.
-#define RFS_D_SCALER 0.0 // Scale D by this factor at and above RFS_RATE_MAX.
+#define RFS_D_SCALER 0.5 // Scale D by this factor at and above RFS_RATE_MAX.
 #define RFS_THROTTLE_BREAKPOINT 0.5 // No smoothing at and above RFS_THROTTLE_BREAKPOINT.
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response

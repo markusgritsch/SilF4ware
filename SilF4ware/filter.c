@@ -125,7 +125,7 @@ static void filter_bessel_coeff( FilterBiquadCoeff_t * coeff, float filter_Hz )
 	coeff->f_Hz = filter_Hz;
 }
 
-float filter_biquad_step( FilterBiquad_t * filter, FilterBiquadCoeff_t * coeff, float input )
+static float filter_biquad_step( FilterBiquad_t * filter, FilterBiquadCoeff_t * coeff, float input )
 {
 #ifdef USE_DIRECT_FORM_I
 	// Direct Form I
@@ -478,3 +478,72 @@ void throttle_hpf_reset( int holdoff_time_ms )
 	throttle_hpf1.in_lpf = 0.0f;
 	throttle_hpf1.holdoff_steps = holdoff_time_ms * 1000 / LOOPTIME;
 }
+
+
+#ifdef KALMAN_q
+
+#define KALMAN_WINDOW_SIZE 256
+
+typedef struct Kalman_s {
+	float q; // process noise covariance
+	float r; // measurement noise covariance
+	float p; // estimation error covariance matrix
+	float k; // kalman gain
+	float x; // state
+	float lastX; // previous state
+
+	float window[ KALMAN_WINDOW_SIZE ];
+	float meanSum;
+	float varianceSum;
+	int index;
+} Kalman_t;
+
+static float kalman_step( Kalman_t * filter, float input )
+{
+	// update variance
+	filter->window[ filter->index ] = input;
+	filter->meanSum += filter->window[ filter->index ];
+	filter->varianceSum += filter->window[ filter->index ] * filter->window[ filter->index ];
+	++filter->index;
+	if ( filter->index == KALMAN_WINDOW_SIZE ) {
+		filter->index = 0;
+	}
+	filter->meanSum -= filter->window[ filter->index ];
+	filter->varianceSum -= filter->window[ filter->index ] * filter->window[ filter->index ];
+	const float mean = filter->meanSum / KALMAN_WINDOW_SIZE;
+	const float variance = fabsf( filter->varianceSum / KALMAN_WINDOW_SIZE - mean * mean );
+	filter->r = sqrtf( variance );
+
+	// project the state ahead using acceleration
+	filter->x += filter->x - filter->lastX;
+	// update last state
+	filter->lastX = filter->x;
+	// prediction update
+	filter->p += filter->q;
+	// measurement update
+	filter->k = filter->p / ( filter->p + filter->r );
+	filter->x += filter->k * ( input - filter->x );
+	filter->p = ( 1.0f - filter->k ) * filter->p;
+
+	return filter->x;
+}
+
+static Kalman_t kalman_lpf[ 4 ] = {
+	{ .q = KALMAN_q * 1e-6f },
+	{ .q = KALMAN_q * 1e-6f },
+	{ .q = KALMAN_q * 1e-6f },
+	{ .q = KALMAN_q * 1e-6f },
+};
+
+float kalman_filter( float input, int num )
+{
+	return kalman_step( &kalman_lpf[ num ], input );
+}
+
+void kalman_set( float input, int num )
+{
+	kalman_lpf[ num ].x = input;
+	kalman_lpf[ num ].lastX = input;
+}
+
+#endif // KALMAN_q

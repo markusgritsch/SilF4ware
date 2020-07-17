@@ -485,7 +485,7 @@ void throttle_hpf_reset( int holdoff_time_ms )
 #define KALMAN_WINDOW_SIZE 256
 
 typedef struct Kalman_s {
-	float q; // process noise covariance
+	// float q; // process noise covariance
 	float r; // measurement noise covariance
 	float p; // estimation error covariance matrix
 	float k; // kalman gain
@@ -519,7 +519,7 @@ static float kalman_step( Kalman_t * filter, float input )
 	// update last state
 	filter->lastX = filter->x;
 	// prediction update
-	filter->p += filter->q;
+	filter->p += KALMAN_q * 1e-6f;
 	// measurement update
 	filter->k = filter->p / ( filter->p + filter->r );
 	filter->x += filter->k * ( input - filter->x );
@@ -528,12 +528,7 @@ static float kalman_step( Kalman_t * filter, float input )
 	return filter->x;
 }
 
-static Kalman_t kalman_lpf[ 4 ] = {
-	{ .q = KALMAN_q * 1e-6f },
-	{ .q = KALMAN_q * 1e-6f },
-	{ .q = KALMAN_q * 1e-6f },
-	{ .q = KALMAN_q * 1e-6f },
-};
+static Kalman_t kalman_lpf[ 4 ];
 
 float kalman_filter( float input, int num )
 {

@@ -44,6 +44,7 @@ extern int packet_period; // rx.c
 
 extern bool ledcommand; // led.c
 
+float idle_offset = IDLE_OFFSET; // gets corrected by battery_scale_factor in battery.c
 float rxcopy[ 4 ];
 float bb_throttle;
 float bb_mix[ 4 ];
@@ -87,13 +88,13 @@ void control( bool send_motor_values )
 		rxcopy[ i ] = rx[ i ];
 
 #ifdef STICKS_DEADBAND
-		if ( fabsf( rxcopy[ i ] ) <= STICKS_DEADBAND ) {
+		if ( fabsf( rxcopy[ i ] ) <= (float)STICKS_DEADBAND ) {
 			rxcopy[ i ] = 0.0f;
 		} else {
-			if ( rxcopy[ i ] >= 0 ) {
-				rxcopy[ i ] = mapf( rxcopy[ i ], STICKS_DEADBAND, 1, 0, 1 );
+			if ( rxcopy[ i ] > 0.0f ) {
+				rxcopy[ i ] = ( rxcopy[ i ] - (float)STICKS_DEADBAND ) * ( 1.0f + (float)STICKS_DEADBAND );
 			} else {
-				rxcopy[ i ] = mapf( rxcopy[ i ], -STICKS_DEADBAND, -1, 0, -1 );
+				rxcopy[ i ] = ( rxcopy[ i ] + (float)STICKS_DEADBAND ) * ( 1.0f + (float)STICKS_DEADBAND );
 			}
 		}
 #endif // STICKS_DEADBAND
@@ -459,8 +460,7 @@ void control( bool send_motor_values )
 
 #if defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
 
-			extern int idle_offset;
-			static int orig_idle_offset = 0;
+			static float orig_idle_offset = 0.0f;
 #if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
 			if ( orig_idle_offset == 0 ) {
 				orig_idle_offset = idle_offset;
@@ -476,7 +476,7 @@ void control( bool send_motor_values )
 					( i == MOTOR_FR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] > 0 ) ||
 					( i == MOTOR_BR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] < 0 ) )
 				{
-					idle_offset = 0;
+					idle_offset = 0.0f;
 					mix[ i ] = fabsf( rxcopy[ ROLL ] * rxcopy[ PITCH ] );
 #ifdef RPM_FILTER
 					extern float motor_hz[ 4 ];
@@ -497,6 +497,8 @@ void control( bool send_motor_values )
 			} else if ( mix[ i ] > 1.0f )	{
 				mix[ i ] = 1.0f;
 			}
+
+			mix[ i ] = idle_offset + mix[ i ] * ( 1.0f - idle_offset ); // maps 0 .. 1 -> idle_offset .. 1
 
 #ifdef MOTOR_FILTER_A_HZ
 			static float mix_filt_a[ 4 ];

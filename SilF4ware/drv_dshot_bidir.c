@@ -1,9 +1,6 @@
 // Enable this for 3D. The 'Motor Direction' setting in BLHeliSuite must be set to 'Bidirectional' (or 'Bidirectional Rev.') accordingly:
 #define BIDIRECTIONAL
 
-// IDLE_OFFSET is added to the throttle. Adjust its value so that the motors still spin at minimum throttle.
-#define IDLE_OFFSET 30 // 4S
-
 // Select Dshot1200, Dshot600, Dshot300, or Dshot150
 // #define DSHOT 1200 // BLHeli_32 only
 // #define DSHOT 600 // BLHeli_S BB2 (not supported by BB1)
@@ -108,14 +105,13 @@ void pwm_init()
 	HAL_GPIO_Init( ESC4_GPIO_Port, &ESC_InitStruct );
 }
 
-int idle_offset = IDLE_OFFSET; // gets corrected by battery_scale_factor in battery.c
 void pwm_set( uint8_t number, float pwm )
 {
 	if ( pwm < 0.0f ) {
 		pwm = 0.0f;
 	}
-	if ( pwm > 0.999f ) {
-		pwm = 0.999f;
+	if ( pwm > 0.9991f ) {
+		pwm = 0.9991f;
 	}
 
 	uint16_t value = 0;
@@ -123,17 +119,17 @@ void pwm_set( uint8_t number, float pwm )
 #ifdef BIDIRECTIONAL
 
 	if ( pwmdir == FORWARD ) {
-		// maps 0.0 .. 0.999 to 48 + IDLE_OFFSET .. 1047
-		value = 48 + idle_offset + (uint16_t)( pwm * ( 1000 - idle_offset ) );
+		// maps 0.0 .. 0.999 to 48 .. 1047
+		value = 48 + (uint16_t)( pwm * 1000.0f );
 	} else if ( pwmdir == REVERSE ) {
-		// maps 0.0 .. 0.999 to 1048 + IDLE_OFFSET .. 2047
-		value = 1048 + idle_offset + (uint16_t)( pwm * ( 1000 - idle_offset ) );
+		// maps 0.0 .. 0.999 to 1048 .. 2047
+		value = 1048 + (uint16_t)( pwm * 1000.0f );
 	}
 
 #else
 
-	// maps 0.0 .. 0.999 to 48 + IDLE_OFFSET * 2 .. 2047
-	value = 48 + idle_offset * 2 + (uint16_t)( pwm * ( 2001 - idle_offset * 2 ) );
+	// maps 0.0 .. 0.999 to 48 .. 2047
+	value = 48 + (uint16_t)( pwm * 2001 );
 
 #endif
 
@@ -425,7 +421,8 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 	++index;
 	while ( index < GCR_BUFFER_SIZE ) {
 		++sample_count;
-		if ( ( gcr_data[ index ] & pin ) != previous_sample ) {
+		const uint32_t sample = gcr_data[ index ] & pin;
+		if ( sample != previous_sample ) {
 			if ( sample_count <= 1 * 3 + 1 ) {
 				gcr_value = ( gcr_value << 1 ) | 0x01;
 				bits_decoded += 1;
@@ -444,7 +441,7 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 #endif
 			sample_count = 0;
 		}
-		previous_sample = gcr_data[ index ] & pin;
+		previous_sample = sample;
 		++index;
 	}
 	if ( bits_decoded < 20 ) {

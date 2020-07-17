@@ -50,7 +50,7 @@ void battery_init( void )
 		}
 	}
 	vbattfilt *= battery_scale_factor;
-	extern int idle_offset; // drv_dshot.c
+	extern float idle_offset; // control.c
 	idle_offset *= battery_scale_factor;
 #endif // BATTERY_CELL_COUNT_DETECTION
 

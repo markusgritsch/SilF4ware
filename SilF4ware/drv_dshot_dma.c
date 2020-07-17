@@ -256,14 +256,13 @@ void DMA2_Stream2_IRQHandler(void)
 	}
 }
 
-int idle_offset = IDLE_OFFSET; // gets corrected by battery_scale_factor in battery.c
 void pwm_set( uint8_t number, float pwm )
 {
 	if ( pwm < 0.0f ) {
 		pwm = 0.0f;
 	}
-	if ( pwm > 0.999f ) {
-		pwm = 0.999f;
+	if ( pwm > 0.9991f ) {
+		pwm = 0.9991f;
 	}
 
 	uint16_t value = 0;
@@ -271,17 +270,17 @@ void pwm_set( uint8_t number, float pwm )
 #ifdef BIDIRECTIONAL
 
 	if ( pwmdir == FORWARD ) {
-		// maps 0.0 .. 0.999 to 48 + IDLE_OFFSET .. 1047
-		value = 48 + idle_offset + (uint16_t)( pwm * ( 1000 - idle_offset ) );
+		// maps 0.0 .. 0.999 to 48 .. 1047
+		value = 48 + (uint16_t)( pwm * 1000.0f );
 	} else if ( pwmdir == REVERSE ) {
-		// maps 0.0 .. 0.999 to 1048 + IDLE_OFFSET .. 2047
-		value = 1048 + idle_offset + (uint16_t)( pwm * ( 1000 - idle_offset ) );
+		// maps 0.0 .. 0.999 to 1048 .. 2047
+		value = 1048 + (uint16_t)( pwm * 1000.0f );
 	}
 
 #else
 
-	// maps 0.0 .. 0.999 to 48 + IDLE_OFFSET * 2 .. 2047
-	value = 48 + idle_offset * 2 + (uint16_t)( pwm * ( 2001 - idle_offset * 2 ) );
+	// maps 0.0 .. 0.999 to 48 .. 2047
+	value = 48 + (uint16_t)( pwm * 2001 );
 
 #endif
 

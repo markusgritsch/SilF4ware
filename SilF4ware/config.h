@@ -172,7 +172,7 @@
 #define THROTTLE_VOLTAGE_COMPENSATION
 
 // For more consistent motor reversing in 3D flight
-#define THROTTLE_REVERSING_KICK 0.15
+#define THROTTLE_REVERSING_KICK 0.15 // 4S
 #define THROTTLE_REVERSING_DEADTIME 20000 // 20 ms (increase this in case of over-propped motors)
 //#define THROTTLE_STARTUP_KICK 0.10
 
@@ -191,6 +191,9 @@
 #define TRANSIENT_MIX_INCREASING_HZ 2.0
 // Can be used to limit maximum motor RPM, i.e. tone down a too fast quad.
 #define MIX_RANGE_LIMIT 1.0f // aux[ DEVO_CHAN_11 ] ? 0.75f : 1.0f
+
+// Adjust IDLE_OFFSET so that the motors still spin reliably at zero throttle.
+#define IDLE_OFFSET 0.02 // 4S
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
 //#define THRUST_LINEARIZATION 0.4 // 0.0 .. no compensation, 1.0 .. full square root curve

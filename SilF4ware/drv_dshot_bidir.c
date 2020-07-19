@@ -405,22 +405,28 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 {
 	uint32_t index = 1 * GCR_FREQUENCY * 3 / 1000; // Start looking at 1 us.
 	while ( index < GCR_BUFFER_SIZE && ( ( gcr_data[ index ] & pin ) != 0 ) ) { // Find the start bit.
-		++index;
+		index += 2;
 	}
-	if ( index == GCR_BUFFER_SIZE ) {
+	if ( index >= GCR_BUFFER_SIZE ) {
 #ifdef RPM_TELEMETRY_DEBUG
 		++rpm_telemetry_no_telemetry_count;
 #endif
 		return 0.0f; // No RPM telemetry found, which is allowed in case of overburdened ESC.
 	}
+	if ( ( gcr_data[ index - 1 ] & pin ) == 0 ) { // Backtrack to find the exact start index position.
+		--index;
+	}
 
 	uint32_t gcr_value = 0;
-	uint32_t previous_sample = 0;
-	uint32_t sample_count = 0;
 	uint32_t bits_decoded = 0;
-	++index;
-	while ( index < GCR_BUFFER_SIZE ) {
-		++sample_count;
+	uint32_t previous_sample = 0;
+	int end_index = index + 21 * 3; // 21 bits
+	if ( end_index > GCR_BUFFER_SIZE ) {
+		end_index = GCR_BUFFER_SIZE;
+	}
+	index += 2;
+	uint32_t sample_count = 2;
+	while ( index < end_index ) {
 		const uint32_t sample = gcr_data[ index ] & pin;
 		if ( sample != previous_sample ) {
 			if ( sample_count <= 1 * 3 + 1 ) {
@@ -439,10 +445,13 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 			}
 			++rpm_telemetry_sample_stats[ sample_count ];
 #endif
-			sample_count = 0;
+			previous_sample = sample;
+			index += 2;
+			sample_count = 2;
+		} else {
+			++index;
+			++sample_count;
 		}
-		previous_sample = sample;
-		++index;
 	}
 	if ( bits_decoded < 20 ) {
 		gcr_value <<= 1; // Handle the case when the last quintet ends with a zero.

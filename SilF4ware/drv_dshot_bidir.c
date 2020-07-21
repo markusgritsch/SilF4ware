@@ -57,7 +57,7 @@ static void dma_read_telemetry( void );
 static void decode_gcr_telemetry( void );
 static float decode_to_hz( uint32_t gcr_data[], uint16_t pin );
 
-static float motor_hz_unfiltered[ 4 ];
+static float motor_hz_decoded[ 4 ];
 float motor_hz[ 4 ];
 
 static GPIO_InitTypeDef ESC_InitStruct = {
@@ -186,17 +186,17 @@ static void dshot_dma_start()
 		decode_gcr_telemetry(); // Takes about 30 us @168 MHz.
 	}
 
+	for ( uint8_t i = 0; i < 4; ++i ) {
 #if 1 // select between filtered (1) and unfiltered (0) motor_hz
-	lpf_hz( &motor_hz[ 0 ], motor_hz_unfiltered[ 0 ], 100 ); // 100 Hz
-	lpf_hz( &motor_hz[ 1 ], motor_hz_unfiltered[ 1 ], 100 ); // 100 Hz
-	lpf_hz( &motor_hz[ 2 ], motor_hz_unfiltered[ 2 ], 100 ); // 100 Hz
-	lpf_hz( &motor_hz[ 3 ], motor_hz_unfiltered[ 3 ], 100 ); // 100 Hz
+		static float motor_hz_unfiltered[ 4 ];
+		if ( motor_hz_decoded[ i ] != 0.0f ) {
+			motor_hz_unfiltered[ i ] = motor_hz_decoded[ i ];
+		}
+		lpf_hz( &motor_hz[ i ], motor_hz_unfiltered[ i ], 100 ); // 100 Hz
 #else
-	motor_hz[ 0 ] = motor_hz_unfiltered[ 0 ];
-	motor_hz[ 1 ] = motor_hz_unfiltered[ 1 ];
-	motor_hz[ 2 ] = motor_hz_unfiltered[ 2 ];
-	motor_hz[ 3 ] = motor_hz_unfiltered[ 3 ];
+		motor_hz[ i ] = motor_hz_decoded[ i ];
 #endif
+	}
 
 	for ( uint8_t i = 0; i < 16 * 3; ++i ) {
 		dshot_data_port1st[ i ] = 0;
@@ -330,27 +330,27 @@ static void dma_read_telemetry()
 static void decode_gcr_telemetry()
 {
 	if ( ESC1_GPIO_Port == GPIO1st ) {
-		motor_hz_unfiltered[ 0 ] = decode_to_hz( gcr_data_port1st, ESC1_Pin );
+		motor_hz_decoded[ 0 ] = decode_to_hz( gcr_data_port1st, ESC1_Pin );
 	} else {
-		motor_hz_unfiltered[ 0 ] = decode_to_hz( gcr_data_port2nd, ESC1_Pin );
+		motor_hz_decoded[ 0 ] = decode_to_hz( gcr_data_port2nd, ESC1_Pin );
 	}
 
 	if ( ESC2_GPIO_Port == GPIO1st ) {
-		motor_hz_unfiltered[ 1 ] = decode_to_hz( gcr_data_port1st, ESC2_Pin );
+		motor_hz_decoded[ 1 ] = decode_to_hz( gcr_data_port1st, ESC2_Pin );
 	} else {
-		motor_hz_unfiltered[ 1 ] = decode_to_hz( gcr_data_port2nd, ESC2_Pin );
+		motor_hz_decoded[ 1 ] = decode_to_hz( gcr_data_port2nd, ESC2_Pin );
 	}
 
 	if ( ESC3_GPIO_Port == GPIO1st ) {
-		motor_hz_unfiltered[ 2 ] = decode_to_hz( gcr_data_port1st, ESC3_Pin );
+		motor_hz_decoded[ 2 ] = decode_to_hz( gcr_data_port1st, ESC3_Pin );
 	} else {
-		motor_hz_unfiltered[ 2 ] = decode_to_hz( gcr_data_port2nd, ESC3_Pin );
+		motor_hz_decoded[ 2 ] = decode_to_hz( gcr_data_port2nd, ESC3_Pin );
 	}
 
 	if ( ESC4_GPIO_Port == GPIO1st ) {
-		motor_hz_unfiltered[ 3 ] = decode_to_hz( gcr_data_port1st, ESC4_Pin );
+		motor_hz_decoded[ 3 ] = decode_to_hz( gcr_data_port1st, ESC4_Pin );
 	} else {
-		motor_hz_unfiltered[ 3 ] = decode_to_hz( gcr_data_port2nd, ESC4_Pin );
+		motor_hz_decoded[ 3 ] = decode_to_hz( gcr_data_port2nd, ESC4_Pin );
 	}
 }
 

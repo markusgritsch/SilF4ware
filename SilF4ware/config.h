@@ -4,13 +4,15 @@
 #define MAX_RATE 1800
 #define MAX_RATEYAW 1800
 
+#define LOW_RATES_MULTI 0.5
+
+#define POLAR_EXPO 0.2 // 0.0 .. linear, 1.0 .. square curve
+
 // max angle for level mode
 #define LEVEL_MAX_ANGLE 80
 
 // max rate used by level pid (limit)
 #define LEVEL_MAX_RATE 1800
-
-#define LOW_RATES_MULTI 0.5
 
 // Change this factor to get a correct battery voltage.
 #define ADC_SCALEFACTOR 11.111 // 11.0 for an ideal 10k/1k voltage divider

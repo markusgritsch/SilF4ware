@@ -98,8 +98,6 @@ void control( bool send_motor_values )
 			}
 		}
 #endif // STICKS_DEADBAND
-
-		rxcopy[ i ] *= rate_multiplier;
 	}
 
 	rxcopy[ 3 ] = rx[ 3 ]; // throttle
@@ -185,9 +183,29 @@ void control( bool send_motor_values )
 	} else
 #endif // LEVELMODE
 	{ // rate mode
-		setpoint[ 0 ] = rxcopy[ 0 ] * (float)MAX_RATE * DEGTORAD;
-		setpoint[ 1 ] = rxcopy[ 1 ] * (float)MAX_RATE * DEGTORAD;
-		setpoint[ 2 ] = rxcopy[ 2 ] * (float)MAX_RATEYAW * DEGTORAD;
+		float rx_roll = rxcopy[ 0 ];
+		float rx_pitch = rxcopy[ 1 ];
+		float rx_yaw = rxcopy[ 2 ];
+
+#ifdef POLAR_EXPO
+	const float roll_pitch_mag = sqrtf( rx_roll * rx_roll + rx_pitch * rx_pitch );
+	float roll_pitch_scale;
+	if ( roll_pitch_mag > 1.0f ) {
+		roll_pitch_scale = 1.0f / roll_pitch_mag;
+	} else {
+		roll_pitch_scale = roll_pitch_mag * (float)POLAR_EXPO + 1.0f - (float)POLAR_EXPO;
+	}
+	rx_roll *= roll_pitch_scale;
+	rx_pitch *= roll_pitch_scale;
+
+	const float yaw_mag = fabsf( rxcopy[ 2 ] );
+	const float yaw_scale = yaw_mag * (float)POLAR_EXPO + 1.0f - (float)POLAR_EXPO;
+	rx_yaw *= yaw_scale;
+#endif // POLAR_EXPO
+
+		setpoint[ 0 ] = rx_roll * (float)MAX_RATE * DEGTORAD * rate_multiplier;
+		setpoint[ 1 ] = rx_pitch * (float)MAX_RATE * DEGTORAD * rate_multiplier;
+		setpoint[ 2 ] = rx_yaw * (float)MAX_RATEYAW * DEGTORAD * rate_multiplier;
 
 		for ( int i = 0; i < 3; ++i ) {
 			error[ i ] = setpoint[ i ] - gyro[ i ];
@@ -477,7 +495,7 @@ void control( bool send_motor_values )
 					( i == MOTOR_BR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] < 0 ) )
 				{
 					idle_offset = 0.0f;
-					mix[ i ] = fabsf( rxcopy[ ROLL ] * rxcopy[ PITCH ] );
+					mix[ i ] = fabsf( rxcopy[ ROLL ] * rxcopy[ PITCH ] * rate_multiplier );
 #ifdef RPM_FILTER
 					extern float motor_hz[ 4 ];
 					notify_telemetry_value( motor_hz[ i ] );

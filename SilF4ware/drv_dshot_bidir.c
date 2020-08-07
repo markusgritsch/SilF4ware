@@ -490,8 +490,6 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 // #define RPM_MEDIAN_FILTER
 #ifdef RPM_MEDIAN_FILTER
 	// Median filtering. Depends on being called for 4 motors.
-	#define MIN(a,b) (((a)<(b))?(a):(b))
-	#define MAX(a,b) (((a)>(b))?(a):(b))
 	static uint32_t median_array[ 4 ][ 3 ] = { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } }; // 4 motors, 3 values
 	static uint32_t motor;
 	static uint32_t idx;

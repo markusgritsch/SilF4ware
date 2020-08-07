@@ -105,4 +105,7 @@
 #define gpioset(port, pin) (port->BSRR = pin)
 #define gpioreset(port, pin) (port->BSRR = (uint32_t)pin << 16U)
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 #endif // __defines_h__

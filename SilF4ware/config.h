@@ -6,7 +6,7 @@
 
 #define LOW_RATES_MULTI 0.5
 
-#define POLAR_EXPO 0.2 // 0.0 .. linear, 1.0 .. square curve
+#define POLAR_EXPO 0.3 // 0.0 .. linear, 1.0 .. square curve
 
 // max angle for level mode
 #define LEVEL_MAX_ANGLE 80

@@ -9,9 +9,9 @@
 #include "util.h"
 
 
-// #define RECTANGULAR_RULE_INTEGRAL // a.k.a. Midpoint Rule Integral
-// #define TRAPEZOIDAL_RULE_INTEGRAL
-#define SIMPSON_RULE_INTEGRAL
+#define RECTANGULAR_RULE_INTEGRAL // a.k.a. Midpoint Rule Integral
+//#define TRAPEZOIDAL_RULE_INTEGRAL
+//#define SIMPSON_RULE_INTEGRAL
 
 
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
@@ -74,11 +74,6 @@ extern float mixmax; // control.c
 extern char aux[ AUXNUMBER ]; // rx.c
 extern int packet_period; // rx.c
 
-static float lasterror[ PIDNUMBER ];
-#ifdef SIMPSON_RULE_INTEGRAL
-static float lasterror2[ PIDNUMBER ];
-#endif
-
 // 0.0032f is there for legacy purposes, should be 0.001f = looptime
 #define TIMEFACTOR ( 0.0032f / ( LOOPTIME * 1E-6f ) )
 static float v_compensation = 1.0f;
@@ -104,7 +99,7 @@ void pid( int x )
 		i_windup = 1;
 	}
 
-	if ( ( pidoutput[ x ] <= -out_limit) && ( error[ x ] < 0.0f ) ) {
+	if ( ( pidoutput[ x ] <= -out_limit ) && ( error[ x ] < 0.0f ) ) {
 		i_windup = 1;
 	}
 
@@ -137,21 +132,29 @@ void pid( int x )
 	lastError[ x ] = error[ x ];
 #endif // DYNAMIC_ITERM_RESET
 
-	if ( ! i_windup ) {
 #ifdef RECTANGULAR_RULE_INTEGRAL
+	if ( ! i_windup ) {
 		ierror[ x ] += error[ x ] * pidki[ x ] * LOOPTIME * 1E-6f * AA_KI;
+	}
 #endif
 
 #ifdef TRAPEZOIDAL_RULE_INTEGRAL
+	static float lasterror[ PIDNUMBER ];
+	if ( ! i_windup ) {
 		ierror[ x ] += ( error[ x ] + lasterror[ x ] ) * 0.5f * pidki[ x ] * LOOPTIME * 1E-6f * AA_KI;
+	}
+	lasterror[ x ] = error[ x ];
 #endif
 
 #ifdef SIMPSON_RULE_INTEGRAL
+	static float lasterror[ PIDNUMBER ];
+	static float lasterror2[ PIDNUMBER ];
+	if ( ! i_windup ) {
 		ierror[ x ] += 0.166666f * ( lasterror2[ x ] + 4 * lasterror[ x ] + error[ x ] ) * pidki[ x ] * LOOPTIME * 1E-6f * AA_KI;
-#endif
 	}
 	lasterror2[ x ] = lasterror[ x ];
 	lasterror[ x ] = error[ x ];
+#endif
 
 	limitf( &ierror[ x ], integrallimit[ x ] * battery_scale_factor );
 

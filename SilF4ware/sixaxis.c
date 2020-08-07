@@ -148,10 +148,25 @@ void sixaxis_read( void )
 #endif
 
 	// Very strong accel filtering to get rid of noise:
-	static float accel_filt1st[ 3 ], accel_filt2nd[ 3 ];
 	for ( int axis = 0; axis < 3; ++axis ) {
+		// Median filtering:
+		static int median_array[ 3 ][ 3 ]; // 3 axes, 3 values
+		static int idx;
+		median_array[ axis ][ idx ] = accel[ axis ];
+		const int a = median_array[ axis ][ 0 ];
+		const int b = median_array[ axis ][ 1 ];
+		const int c = median_array[ axis ][ 2 ];
+		accel[ axis ] = MAX( MIN( a, b ), MIN( MAX( a, b ), c ) );
+		if ( axis == 2 ) {
+			++idx;
+			if ( idx == 3 ) {
+				idx = 0;
+			}
+		}
+		// 2nd order LPF:
+		static float accel_filt1st[ 3 ], accel_filt2nd[ 3 ];
 		#define SIXAXIS_READ_LOOPTIME 5000 // This assumes that sixaxis_read() is called every 5 ms from usermain().
-		#define ACCEL_FILTER_HZ 20.0f // 20 Hz
+		#define ACCEL_FILTER_HZ 10.0f // 10 Hz
 		lpf( &accel_filt1st[ axis ], accel[ axis ], ALPHACALC( SIXAXIS_READ_LOOPTIME, 1e6f / (float)ACCEL_FILTER_HZ ) );
 		lpf( &accel_filt2nd[ axis ], accel_filt1st[ axis ], ALPHACALC( SIXAXIS_READ_LOOPTIME, 1e6f / (float)ACCEL_FILTER_HZ ) );
 		accel[ axis ] = accel_filt2nd[ axis ];

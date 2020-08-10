@@ -13,9 +13,10 @@
 
 #ifdef DSHOT_DRIVER
 
-extern int onground;
+extern int onground; // control.c
+extern int pwmdir; // control.c
+extern bool reverse_motor_direction[ 4 ]; // control.c
 
-int pwmdir = 0;
 static uint32_t motor_data[ 48 ] = { 0 }; // Access to uint32_t array is overall 4 us faster than uint8_t.
 
 static void make_packet( uint8_t number, uint16_t value, bool telemetry );
@@ -41,10 +42,10 @@ void pwm_set( uint8_t number, float pwm )
 
 #ifdef BIDIRECTIONAL
 
-	if ( pwmdir == FORWARD ) {
+	if ( ( pwmdir == FORWARD && ! reverse_motor_direction[ number ] ) || ( pwmdir == REVERSE && reverse_motor_direction[ number ] ) ) {
 		// maps 0.0 .. 0.999 to 48 .. 1047
 		value = 48 + (uint16_t)( pwm * 1000.0f );
-	} else if ( pwmdir == REVERSE ) {
+	} else if ( ( pwmdir == REVERSE && ! reverse_motor_direction[ number ] ) || ( pwmdir == FORWARD && reverse_motor_direction[ number ] ) ) {
 		// maps 0.0 .. 0.999 to 1048 .. 2047
 		value = 1048 + (uint16_t)( pwm * 1000.0f );
 	}

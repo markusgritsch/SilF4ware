@@ -27,9 +27,9 @@
 
 #ifdef DSHOT_DMA_DRIVER
 
-extern int onground;
-
-int pwmdir = FORWARD;
+extern int onground; // control.c
+extern int pwmdir; // control.c
+extern bool reverse_motor_direction[ 4 ]; // control.c
 
 volatile int dshot_dma_phase = 0; // 1: port1st, 2: port2nd, 0: idle
 uint16_t dshot_packet[ 4 ]; // 16bits dshot data for 4 motors
@@ -94,7 +94,7 @@ void pwm_init()
 		*dshot_port2nd |= ESC4_Pin;
 	}
 
-	// The bidir DMA driver needs to also inclrement the memory address associated with the
+	// The bidir DMA driver needs to also increment the memory address associated with the
 	// TIM1_CH2 DMA stream, so we also provide an array of 16 values here to be able to use
 	// the same CubeMX initialization code.
 	for ( uint8_t i = 0; i < 16; ++i ) {
@@ -269,10 +269,10 @@ void pwm_set( uint8_t number, float pwm )
 
 #ifdef BIDIRECTIONAL
 
-	if ( pwmdir == FORWARD ) {
+	if ( ( pwmdir == FORWARD && ! reverse_motor_direction[ number ] ) || ( pwmdir == REVERSE && reverse_motor_direction[ number ] ) ) {
 		// maps 0.0 .. 0.999 to 48 .. 1047
 		value = 48 + (uint16_t)( pwm * 1000.0f );
-	} else if ( pwmdir == REVERSE ) {
+	} else if ( ( pwmdir == REVERSE && ! reverse_motor_direction[ number ] ) || ( pwmdir == FORWARD && reverse_motor_direction[ number ] ) ) {
 		// maps 0.0 .. 0.999 to 1048 .. 2047
 		value = 1048 + (uint16_t)( pwm * 1000.0f );
 	}

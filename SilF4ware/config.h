@@ -293,6 +293,9 @@
 #define MOTOR_BR 4
 #define MOTOR_FR 3
 
+// For BIDIRECTIONAL motor direction, the motors can be reversed below.
+#define REVERSE_MOTOR_DIRECTION { [ MOTOR_BL - 1 ] = false, [ MOTOR_FL - 1 ] = false, [ MOTOR_BR - 1 ] = false, [ MOTOR_FR - 1 ] = false }
+
 // Disable the check for known gyro that causes the 4 times LED flash.
 #define GYRO_CHECK
 

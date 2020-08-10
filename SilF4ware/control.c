@@ -15,6 +15,8 @@
 #include "debug.h"
 
 int onground = 1;
+int pwmdir = FORWARD;
+bool reverse_motor_direction[ 4 ] = REVERSE_MOTOR_DIRECTION;
 
 float thrsum;
 static float mixmax;
@@ -32,7 +34,6 @@ extern float battery_scale_factor;
 
 extern float gyro[ 3 ]; // sixaxis.c
 
-extern int pwmdir; // drv_dshot.c
 extern float pidoutput[ PIDNUMBER ]; // pid.c
 extern float ierror[ PIDNUMBER ]; // pid.c
 

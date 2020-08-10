@@ -28,9 +28,10 @@
 
 #ifdef DSHOT_DMA_BIDIR
 
-extern int onground;
+extern int onground; // control.c
+extern int pwmdir; // control.c
+extern bool reverse_motor_direction[ 4 ]; // control.c
 
-int pwmdir = FORWARD;
 static uint32_t dshot_data[ 16 * 3 ] = { 0 };
 
 static uint32_t dshot_data_port1st[ 16 * 3 ] = { 0 }; // DMA buffer
@@ -118,10 +119,10 @@ void pwm_set( uint8_t number, float pwm )
 
 #ifdef BIDIRECTIONAL
 
-	if ( pwmdir == FORWARD ) {
+	if ( ( pwmdir == FORWARD && ! reverse_motor_direction[ number ] ) || ( pwmdir == REVERSE && reverse_motor_direction[ number ] ) ) {
 		// maps 0.0 .. 0.999 to 48 .. 1047
 		value = 48 + (uint16_t)( pwm * 1000.0f );
-	} else if ( pwmdir == REVERSE ) {
+	} else if ( ( pwmdir == REVERSE && ! reverse_motor_direction[ number ] ) || ( pwmdir == FORWARD && reverse_motor_direction[ number ] ) ) {
 		// maps 0.0 .. 0.999 to 1048 .. 2047
 		value = 1048 + (uint16_t)( pwm * 1000.0f );
 	}

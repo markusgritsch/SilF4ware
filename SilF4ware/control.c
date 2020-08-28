@@ -16,7 +16,12 @@
 
 int onground = 1;
 int pwmdir = FORWARD;
-bool reverse_motor_direction[ 4 ] = REVERSE_MOTOR_DIRECTION;
+bool reverse_motor_direction[ 4 ] = {
+	[ MOTOR_BL - 1 ] = REVERSE_MOTOR_BL,
+	[ MOTOR_FL - 1 ] = REVERSE_MOTOR_FL,
+	[ MOTOR_BR - 1 ] = REVERSE_MOTOR_BR,
+	[ MOTOR_FR - 1 ] = REVERSE_MOTOR_FR
+};
 
 float thrsum;
 static float mixmax;
@@ -189,19 +194,19 @@ void control( bool send_motor_values )
 		float rx_yaw = rxcopy[ 2 ];
 
 #ifdef POLAR_EXPO
-	const float roll_pitch_mag = sqrtf( rx_roll * rx_roll + rx_pitch * rx_pitch );
-	float roll_pitch_scale;
-	if ( roll_pitch_mag > 1.0f ) {
-		roll_pitch_scale = 1.0f / roll_pitch_mag;
-	} else {
-		roll_pitch_scale = roll_pitch_mag * (float)POLAR_EXPO + 1.0f - (float)POLAR_EXPO;
-	}
-	rx_roll *= roll_pitch_scale;
-	rx_pitch *= roll_pitch_scale;
+		const float roll_pitch_mag = sqrtf( rx_roll * rx_roll + rx_pitch * rx_pitch );
+		float roll_pitch_scale;
+		if ( roll_pitch_mag > 1.0f ) {
+			roll_pitch_scale = 1.0f / roll_pitch_mag;
+		} else {
+			roll_pitch_scale = roll_pitch_mag * (float)POLAR_EXPO + 1.0f - (float)POLAR_EXPO;
+		}
+		rx_roll *= roll_pitch_scale;
+		rx_pitch *= roll_pitch_scale;
 
-	const float yaw_mag = fabsf( rxcopy[ 2 ] );
-	const float yaw_scale = yaw_mag * (float)POLAR_EXPO + 1.0f - (float)POLAR_EXPO;
-	rx_yaw *= yaw_scale;
+		const float yaw_mag = fabsf( rxcopy[ 2 ] );
+		const float yaw_scale = yaw_mag * (float)POLAR_EXPO + 1.0f - (float)POLAR_EXPO;
+		rx_yaw *= yaw_scale;
 #endif // POLAR_EXPO
 
 		setpoint[ 0 ] = rx_roll * (float)MAX_RATE * DEGTORAD * rate_multiplier;

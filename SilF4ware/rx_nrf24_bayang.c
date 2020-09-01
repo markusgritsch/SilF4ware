@@ -182,10 +182,9 @@ void rx_init()
 
 	drv_rx_init();
 
-	// always on (CH_ON) channel set 1
-	aux[ AUXNUMBER - 2 ] = 1;
-	// always off (CH_OFF) channel set 0
-	aux[ AUXNUMBER - 1 ] = 0;
+	aux[ CH_ON ] = 1; // always on (CH_ON) channel set 1
+	aux[ CH_OFF ] = 0; // always off (CH_OFF) channel set 0
+	aux[ THROTTLE_KILL_SWITCH ] = 1;
 #ifdef AUX1_START_ON
 	aux[ CH_AUX1 ] = 1;
 #endif

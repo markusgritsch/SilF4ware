@@ -461,13 +461,13 @@ static FilterHPF_t throttle_hpf1;
 
 float throttle_hpf( float in )
 {
-	lpf( &throttle_hpf1.in_lpf, in, ALPHACALC( LOOPTIME, 1e6f / 16.0f ) ); // 16 Hz for HPF
-
 	if ( throttle_hpf1.holdoff_steps > 0 ) {
 		--throttle_hpf1.holdoff_steps;
+		throttle_hpf1.in_lpf = in;
 		return 0.0f;
 	}
 
+	lpf( &throttle_hpf1.in_lpf, in, ALPHACALC( LOOPTIME, 1e6f / 16.0f ) ); // 16 Hz for HPF
 	const float boost = in - throttle_hpf1.in_lpf; // HPF = input - average_input
 	lpf( &throttle_hpf1.avg_boost, boost, ALPHACALC( LOOPTIME, 1e6f / 8.0f ) ); // 8 Hz for LPF
 	return throttle_hpf1.avg_boost;
@@ -476,6 +476,7 @@ float throttle_hpf( float in )
 void throttle_hpf_reset( int holdoff_time_ms )
 {
 	throttle_hpf1.in_lpf = 0.0f;
+	throttle_hpf1.avg_boost = 0.0f;
 	throttle_hpf1.holdoff_steps = holdoff_time_ms * 1000 / LOOPTIME;
 }
 

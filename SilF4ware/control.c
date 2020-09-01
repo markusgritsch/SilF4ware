@@ -254,7 +254,19 @@ void control( bool send_motor_values )
 		// }
 	}
 
-	if ( motors_failsafe || aux[ THROTTLE_KILL_SWITCH ] || prevent_start ) {
+	// Debounce THROTTLE_KILL_SWITCH:
+	static bool debounced_throttle_kill_switch = true;
+	static bool previous_throttle_kill_switch = true;
+	static unsigned long throttle_kill_switch_time = 0;
+	if ( previous_throttle_kill_switch != aux[ THROTTLE_KILL_SWITCH ] ) {
+		throttle_kill_switch_time = gettime();
+		previous_throttle_kill_switch = aux[ THROTTLE_KILL_SWITCH ];
+	}
+	if ( gettime() - throttle_kill_switch_time > 10000 ) { // 2 packet intervals
+		debounced_throttle_kill_switch = aux[ THROTTLE_KILL_SWITCH ];
+	}
+
+	if ( motors_failsafe || debounced_throttle_kill_switch || prevent_start ) {
 		onground = 1; // This stops the motors.
 		thrsum = 0.0f;
 		mixmax = 0.0f;

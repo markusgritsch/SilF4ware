@@ -11,13 +11,13 @@ extern char aux[];
 float errorvect[ 3 ];
 float stickvector[ 3 ] = { 0, 0, 1};
 
-void stick_vector( float rx_input[], float maxangle )
+void stick_vector( float rx_roll, float rx_pitch )
 {
 	float pitch, roll;
 
 	// rotate down vector to match stick position
-	pitch = rx_input[ 1 ] * (float)LEVEL_MAX_ANGLE * DEGTORAD;
-	roll = rx_input[ 0 ] * (float)LEVEL_MAX_ANGLE * DEGTORAD;
+	roll = rx_roll * (float)LEVEL_MAX_ANGLE * DEGTORAD;
+	pitch = rx_pitch * (float)LEVEL_MAX_ANGLE * DEGTORAD;
 
 	stickvector[ 0 ] = sin_approx( roll );
 	stickvector[ 1 ] = sin_approx( pitch );

@@ -62,7 +62,7 @@ void rx_init()
 
 	aux[ CH_ON ] = 1; // always on (CH_ON) channel set 1
 	aux[ CH_OFF ] = 0; // always off (CH_OFF) channel set 0
-	aux[ THROTTLE_KILL_SWITCH ] = 1;
+	aux[ THROTTLE_KILL_SWITCH ] = 0;
 #ifdef AUX1_START_ON
 	aux[ CH_AUX1 ] = 1;
 #endif

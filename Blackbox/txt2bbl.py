@@ -212,14 +212,15 @@ def parseFile( f, f_out ):
 				# 98 bytes read
 			except struct.error, message:
 				if f.tell() == size:
-					print '  100%'
+					print '  [' + '#' * 50 + ']',
+					print '100%'
 					print 'file ended with partial frame'
 					break
 				else:
-					print 'struct.error:', message
+					print '\nstruct.error:', message
 			if f.read( 10 ) == 'FRAMESTART':
 				if iter < iteration:
-					print '  new logging session'
+					print '\n  new logging session'
 					writeLogEndMarker( f_out )
 					writeLogStartMarker( f_out )
 				iteration = iter
@@ -228,15 +229,18 @@ def parseFile( f, f_out ):
 			else:
 				if f.tell() == size:
 					writeData( f_out )
-					print '  100%'
+					print '  [' + '#' * 50 + ']',
+					print '100% '
 					print 'file ended with complete frame'
 					break
 				else:
-					print '  bad frame'
+					print '\n  bad frame'
 					nextFramestartFound = False
 					f.seek( -9, 1 )
 			if iteration % 2000 == 0:
-				print '  %4.1f%%' % ( f.tell() / float( size ) * 100 )
+				percent = f.tell() / float( size ) * 100
+				print '  [' + '#' * int( percent / 2 ) + '.' * ( 50 - int( percent / 2 ) ) + ']',
+				print '%4.1f%%\r' % percent,
 		else:
 			if f.tell() == size:
 				print 'no FRAMESTART found'
@@ -259,3 +263,4 @@ if __name__ == '__main__':
 			os.rename( filename, os.path.join( 'trash', datePrefix + filename ) )
 			print
 	print 'all done'
+	raw_input()

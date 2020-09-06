@@ -243,11 +243,23 @@ void control( bool send_motor_values )
 		motors_failsafe_time = 0;
 	}
 
+	// Debounce THROTTLE_KILL_SWITCH:
+	static bool debounced_throttle_kill_switch = false;
+	static bool previous_throttle_kill_switch = false;
+	static unsigned long throttle_kill_switch_time = 0;
+	if ( previous_throttle_kill_switch != aux[ THROTTLE_KILL_SWITCH ] ) {
+		throttle_kill_switch_time = gettime();
+		previous_throttle_kill_switch = aux[ THROTTLE_KILL_SWITCH ];
+	}
+	if ( gettime() - throttle_kill_switch_time > 10000 ) { // 2 packet intervals
+		debounced_throttle_kill_switch = aux[ THROTTLE_KILL_SWITCH ];
+	}
+
 	// Prevent startup if the TX is turned on with the THROTTLE_KILL_SWITCH not activated:
 	static bool tx_just_turned_on = true;
 	bool prevent_start = false;
 	if ( tx_just_turned_on ) {
-		if ( ! aux[ THROTTLE_KILL_SWITCH ] ) {
+		if ( ! debounced_throttle_kill_switch ) {
 			prevent_start = true;
 		} else {
 			tx_just_turned_on = false;
@@ -256,18 +268,6 @@ void control( bool send_motor_values )
 		// if ( motors_failsafe ) {
 		// 	tx_just_turned_on = true;
 		// }
-	}
-
-	// Debounce THROTTLE_KILL_SWITCH:
-	static bool debounced_throttle_kill_switch = true;
-	static bool previous_throttle_kill_switch = true;
-	static unsigned long throttle_kill_switch_time = 0;
-	if ( previous_throttle_kill_switch != aux[ THROTTLE_KILL_SWITCH ] ) {
-		throttle_kill_switch_time = gettime();
-		previous_throttle_kill_switch = aux[ THROTTLE_KILL_SWITCH ];
-	}
-	if ( gettime() - throttle_kill_switch_time > 10000 ) { // 2 packet intervals
-		debounced_throttle_kill_switch = aux[ THROTTLE_KILL_SWITCH ];
 	}
 
 	if ( motors_failsafe || debounced_throttle_kill_switch || prevent_start ) {

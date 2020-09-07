@@ -14,7 +14,7 @@ tabWidth = 4
 lineHeight = 3
 outputFolder = '_birdseyeviews'
 
-columnWidth = 158
+columnWidth = 128
 
 pixmapMap = {}
 def render( filepath ):
@@ -68,7 +68,7 @@ bgcolor=grey95
     f.close()
 
 def compose():
-    columns = 10
+    columns = 11
     margin = 40
     width = columns * columnWidth + ( columns - 1 ) * margin + 4* margin
     height = width * 1.4142 + 1
@@ -77,7 +77,7 @@ def compose():
     painter.begin( pixmap )
     painter.eraseRect( pixmap.rect() )
     painter.fillRect( 0, 0, width, height, QBrush( QColor( 0xEE, 0xEE, 0xEE ) ) )
-    painter.setFont( QFont( 'Calibri', 64, QFont.Bold ) )
+    painter.setFont( QFont( 'Calibri', 59, QFont.Bold ) )
     painter.drawText( margin * 2, margin * 3, 'SilF4ware Metrics: %s Lines of Code in %s Source Files' % ( sum( map( lambda value: value[ 1 ], pixmapMap.values() ) ) / lineHeight, len( pixmapMap ) ) )
     painter.setFont( QFont( 'Tahoma', 8 ) )
     pixmapList = list( pixmapMap.keys() )

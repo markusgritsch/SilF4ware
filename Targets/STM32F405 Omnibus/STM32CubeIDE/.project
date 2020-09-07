@@ -138,6 +138,11 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_spi.c</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</locationURI>

@@ -15,6 +15,7 @@ static void spi_mpu_csoff()
 
 void mpu_init()
 {
+	spi_mpu_init();
 	spi_mpu_csoff();
 	delay( 1 );
 }

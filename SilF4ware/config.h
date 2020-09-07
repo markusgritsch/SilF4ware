@@ -157,8 +157,8 @@
 #define RX_NRF24_BAYANG_TELEMETRY // For nRF24L01+ radio module
 //#define RX_XN297_BAYANG_TELEMETRY // For XN297 radio module harvested from toy TX
 
-#define RADIO_XN297 // also enable HARDSPI or SOFTSPI_4WIRE in hardware.h
-//#define RADIO_XN297L // also enable SOFTSPI_3WIRE in hardware.h
+#define RADIO_XN297 // also enable RX_HARDSPI or RX_SOFTSPI_4WIRE in hardware.h
+//#define RADIO_XN297L // also enable RX_SOFTSPI_3WIRE in hardware.h
 
 #define TX_POWER 3 // 0 .. 3 (use 1 when using an nRF24L01+PA+LNA module)
 

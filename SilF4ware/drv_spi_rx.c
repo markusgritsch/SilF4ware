@@ -3,16 +3,16 @@
 #include "hardware.h"
 #include "main.h"
 
-#ifdef HARDSPI
+#ifdef RX_HARDSPI
 
-#if HARDSPI == 1
+#if RX_HARDSPI == 1
 	#define HARDSPIx SPI1
 	#define HARDSPI_INIT_FUNC MX_SPI1_Init
-#elif HARDSPI == 2
+#elif RX_HARDSPI == 2
 	#define HARDSPIx SPI2
 	#define HARDSPI_INIT_FUNC MX_SPI2_Init
 #else
-	#error "HARDSPI must be 1 or 2."
+	#error "RX_HARDSPI must be 1 or 2."
 #endif
 
 void spi_rx_init()
@@ -38,11 +38,11 @@ int spi_rx_sendzerorecvbyte()
 	return HARDSPIx->DR;
 }
 
-#endif // HARDSPI
+#endif // RX_HARDSPI
 
 // ==========================================================================
 
-#ifdef SOFTSPI_4WIRE
+#ifdef RX_SOFTSPI_4WIRE
 
 #define MOSIHIGH gpioset(SPI_RX_MOSI_GPIO_Port, SPI_RX_MOSI_Pin);
 #define MOSILOW gpioreset(SPI_RX_MOSI_GPIO_Port, SPI_RX_MOSI_Pin);
@@ -156,4 +156,4 @@ int spi_rx_sendzerorecvbyte()
 // 	return recv;
 // }
 
-#endif // SOFTSPI_4WIRE
+#endif // RX_SOFTSPI_4WIRE

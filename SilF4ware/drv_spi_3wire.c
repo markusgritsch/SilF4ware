@@ -4,7 +4,7 @@
 #include "hardware.h"
 #include "main.h"
 
-#ifdef SOFTSPI_3WIRE
+#ifdef RX_SOFTSPI_3WIRE
 
 static GPIO_InitTypeDef MOSI_InitStruct = {
 	.Pin = SPI_RX_MOSI_Pin,
@@ -91,4 +91,4 @@ int spi_rx_sendzerorecvbyte()
 	return recv;
 }
 
-#endif
+#endif // RX_SOFTSPI_3WIRE

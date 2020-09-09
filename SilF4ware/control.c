@@ -28,6 +28,7 @@ static float mixmax;
 static float throttle_reversing_kick;
 static float throttle_reversing_kick_sawtooth;
 static float throttle_reversing_kick_decrement;
+static int prevent_motor_filtering_state = 0;
 
 float error[ PIDNUMBER ];
 float setpoint[ PIDNUMBER ];
@@ -61,6 +62,7 @@ static void throttle_kick( float kick_strength )
 	#define TRKD 100000.0f // 100 ms throttle reversing kick duration
 	throttle_reversing_kick_sawtooth = throttle_reversing_kick * ( TRKD + (float)THROTTLE_REVERSING_DEADTIME ) / TRKD;
 	throttle_reversing_kick_decrement = throttle_reversing_kick_sawtooth * (float)LOOPTIME / ( TRKD + (float)THROTTLE_REVERSING_DEADTIME );
+	prevent_motor_filtering_state = 1;
 }
 
 void control( bool send_motor_values )
@@ -324,15 +326,11 @@ void control( bool send_motor_values )
 		}
 #endif // THROTTLE_TRANSIENT_COMPENSATION_FACTOR
 
-		static int prevent_motor_filtering_state = 0;
 #ifdef THROTTLE_REVERSING_KICK
 		if ( throttle_reversing_kick_sawtooth > 0.0f ) {
 			if ( throttle_reversing_kick_sawtooth > throttle_reversing_kick ) {
 				throttle = 0.0f;
 				pidoutput[ 0 ] = pidoutput[ 1 ] = pidoutput[ 2 ] = 0.0f;
-				if ( prevent_motor_filtering_state == 0 ) {
-					prevent_motor_filtering_state = 1;
-				}
 			} else {
 				const float transitioning_factor = ( throttle_reversing_kick - throttle_reversing_kick_sawtooth ) / throttle_reversing_kick;
 				throttle = throttle_reversing_kick_sawtooth + throttle * transitioning_factor;

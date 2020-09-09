@@ -32,7 +32,7 @@ void sixaxis_init( void )
 	// gyro soft reset
 	// mpu_writereg( 107, 128 );
 
-	delay( 40000 ); // 30 ms gyro start up time, 10 ms PLL settling time
+	delay( 50000 ); // 30 ms gyro start up time, 10 ms PLL settling time, 10 ms safety margin
 
 	// disable I2C
 	mpu_writereg( 106, 0x10 );

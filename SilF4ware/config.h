@@ -184,6 +184,8 @@
 #define RX_SMOOTHING
 // Limit maximum stick velocity from STICK_VELOCITY_LIMIT around center to 2 * STICK_VELOCITY_LIMIT at full deflection
 #define STICK_VELOCITY_LIMIT 7 // deflection/s (It takes 1/STICK_VELOCITY_LIMIT seconds to reach full stick deflection)
+// Apply LPF to roll, pitch, and yaw sticks
+//#define STICK_FILTER_HZ 10
 
 // Betaflight like mix scaling (aka Airmode)
 #define MIX_SCALING

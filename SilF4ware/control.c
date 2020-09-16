@@ -153,6 +153,14 @@ void control( bool send_motor_values )
 	}
 #endif // STICK_VELOCITY_LIMIT
 
+#ifdef STICK_FILTER_HZ
+	static float rxcopy_filt[ 3 ]; // roll, pitch, and yaw sticks
+	for ( int i = 0; i < 3; ++i ) {
+		lpf_hz( &rxcopy_filt[ i ], rxcopy[ i ], STICK_FILTER_HZ );
+		rxcopy[ i ] = rxcopy_filt[ i ];
+	}
+#endif // STICK_FILTER_HZ
+
 	pid_precalc();
 
 	// flight control
@@ -467,7 +475,9 @@ void control( bool send_motor_values )
 		if ( reduceAmount > 0.0f ) {
 	#endif // ALLOW_MIX_INCREASING
 	#ifdef TRANSIENT_MIX_INCREASING_HZ
-			if ( reduceAmount < -transientMixIncreaseLimit ) {
+			if ( reduceAmount < -transientMixIncreaseLimit &&
+				mixmax > idle_offset + 0.1f ) // Do not apply the limit on idling (e.g. after throttle punches) to prevent from slow wobbles.
+			{
 				reduceAmount = -transientMixIncreaseLimit;
 			}
 	#endif // TRANSIENT_MIX_INCREASING_HZ

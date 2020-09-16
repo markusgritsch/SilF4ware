@@ -174,9 +174,9 @@ void pid( int x )
 		if ( absGyroX < 0.0f ) { // and limit it to 0.0 above RFS_THROTTLE_BREAKPOINT
 			absGyroX = 0.0f;
 		}
-		pScaleValueX = 1.0f + absGyroX * ( (float)RFS_P_SCALER - 1.0f );
-		iScaleValueX = 1.0f + absGyroX * ( (float)RFS_I_SCALER - 1.0f );
-		dScaleValueX = 1.0f + absGyroX * ( (float)RFS_D_SCALER - 1.0f );
+		pScaleValueX = 1.0f - absGyroX * ( 1.0f - (float)RFS_P_SCALER );
+		iScaleValueX = 1.0f - absGyroX * ( 1.0f - (float)RFS_I_SCALER );
+		dScaleValueX = 1.0f - absGyroX * ( 1.0f - (float)RFS_D_SCALER );
 	}
 #endif // ROLL_FLIP_SMOOTHER
 

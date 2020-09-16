@@ -42,6 +42,9 @@ void gestures( void )
 				skip_accel_cal_on_save = 0;
 			}
 			flash_save();
+#if 1
+			perform_system_reset();
+#else
 			flash_load();
 #ifdef PID_GESTURE_TUNING
 			// reset flash numbers
@@ -55,6 +58,7 @@ void gestures( void )
 			// reset loop time
 			extern uint32_t lastlooptime;
 			lastlooptime = gettime();
+#endif
 		}
 
 #if ( defined RX_XN297_BAYANG_TELEMETRY || defined RX_NRF24_BAYANG_TELEMETRY )

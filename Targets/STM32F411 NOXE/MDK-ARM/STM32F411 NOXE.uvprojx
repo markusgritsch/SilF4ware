@@ -583,6 +583,11 @@
               <FilePath>..\..\..\SilF4ware\drv_mpu.c</FilePath>
             </File>
             <File>
+              <FileName>drv_osd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SilF4ware\drv_osd.c</FilePath>
+            </File>
+            <File>
               <FileName>drv_reset.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SilF4ware\drv_reset.c</FilePath>
@@ -601,6 +606,11 @@
               <FileName>drv_spi_mpu.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SilF4ware\drv_spi_mpu.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_spi_osd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SilF4ware\drv_spi_osd.c</FilePath>
             </File>
             <File>
               <FileName>drv_spi_rx.c</FileName>
@@ -646,6 +656,11 @@
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SilF4ware\led.c</FilePath>
+            </File>
+            <File>
+              <FileName>osd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SilF4ware\osd.c</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>

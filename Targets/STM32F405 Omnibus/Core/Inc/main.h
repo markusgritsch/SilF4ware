@@ -82,6 +82,8 @@ void Error_Handler(void);
 #define SPI_RX_MOSI_GPIO_Port GPIOA
 #define SPI_RX_MISO_Pin GPIO_PIN_10
 #define SPI_RX_MISO_GPIO_Port GPIOA
+#define SPI_OSD_NSS_Pin GPIO_PIN_15
+#define SPI_OSD_NSS_GPIO_Port GPIOA
 #define SPI_RX_SCK_Pin GPIO_PIN_2
 #define SPI_RX_SCK_GPIO_Port GPIOD
 #define BEEPER_Pin GPIO_PIN_4

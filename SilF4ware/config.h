@@ -307,5 +307,8 @@
 // Disable the check for development without RX module (3 times LED flash).
 #define RADIO_CHECK
 
-// Logs various information to an externally connected OpenLager logger
+// Logs various information to an externally connected OpenLager logger.
 //#define BLACKBOX_LOGGING
+
+// Display battery status and RSSI info in the OSD.
+//#define OSD_ENABLE NTSC // PAL or NTSC

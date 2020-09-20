@@ -88,8 +88,8 @@ void Error_Handler(void);
 #define PA8_GPIO_Port GPIOA
 #define PA9_Pin GPIO_PIN_9
 #define PA9_GPIO_Port GPIOA
-#define PA10_Pin GPIO_PIN_10
-#define PA10_GPIO_Port GPIOA
+#define SPI_OSD_NSS_Pin GPIO_PIN_10
+#define SPI_OSD_NSS_GPIO_Port GPIOA
 #define SPI_RX_NSS_Pin GPIO_PIN_15
 #define SPI_RX_NSS_GPIO_Port GPIOA
 #define SPI_RX_SCK_Pin GPIO_PIN_3

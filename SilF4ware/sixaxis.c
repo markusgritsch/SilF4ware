@@ -27,6 +27,10 @@ static void process_gyronew_to_gyro( float gyronew[] ); // To avoid code duplica
 
 void sixaxis_init( void )
 {
+#ifdef BIQUAD_SDFT_NOTCH
+	sdft_init();
+#endif // BIQUAD_SDFT_NOTCH
+
 	mpu_init();
 
 	// gyro soft reset

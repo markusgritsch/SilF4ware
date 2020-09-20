@@ -14,8 +14,8 @@
 #include "gestures.h"
 #include "imu.h"
 #include "led.h"
+#include "osd.h"
 #include "rx.h"
-#include "sdft.h"
 #include "sixaxis.h"
 
 #include "debug.h"
@@ -50,9 +50,9 @@ void usermain()
 	gyro_cal_check_flash();
 	// imu_init(); Not really necessary since the gravity vector in brought in sync with accel values in imu() all the time.
 	blackbox_init();
-#ifdef BIQUAD_SDFT_NOTCH
-	sdft_init();
-#endif // BIQUAD_SDFT_NOTCH
+#ifdef OSD_ENABLE
+	osd_init();
+#endif // OSD_ENABLE
 
 #ifdef AUTO_BOOTLOADER
 	if ( vbattfilt < 1.0f ) {
@@ -102,6 +102,10 @@ void usermain()
 		}
 
 		process_led_command();
+
+#ifdef OSD_ENABLE
+		osd();
+#endif // OSD_ENABLE
 
 		// max_used_loop_time (for debug)
 		used_loop_time = gettime() - loop_start_time;

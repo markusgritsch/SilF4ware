@@ -15,6 +15,10 @@
 #define PAL 1
 #define NONE 2
 
+#ifndef OSD_ENABLE
+#define OSD_ENABLE NTSC
+#endif
+
 // osd video system (PAL/NTSC) at startup if no video input is present
 // after input is present the last detected system will be used.
 static uint8_t osdsystem = OSD_ENABLE;

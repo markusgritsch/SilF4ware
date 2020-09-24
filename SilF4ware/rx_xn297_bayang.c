@@ -669,11 +669,31 @@ bool checkrx( void )
 		rx_command( FLUSH_RX );
 	}
 
-	if ( gettime() - secondtimer > (uint32_t)( 1000000 / WALLTIME_CORRECTION_FACTOR ) ) {
+	if ( time - secondtimer > (uint32_t)( 1000000 / WALLTIME_CORRECTION_FACTOR ) ) {
 		packetpersecond = packetrx;
 		packetrx = 0;
-		secondtimer = gettime();
+		secondtimer = time;
 	}
+
+#ifdef OSD_ENABLE
+	#define ARRAY_SIZE 1000000 / PACKET_PERIOD_TELEMETRY
+	static uint32_t smooth_packetpersecond;
+	static uint8_t packetreceived_array[ ARRAY_SIZE ];
+	static uint32_t packetreceived_array_index;
+	static uint32_t packetperiodtimer;
+	if ( packetreceived || time - packetperiodtimer >= PACKET_PERIOD_TELEMETRY ) {
+		packetperiodtimer = time;
+		smooth_packetpersecond -= packetreceived_array[ packetreceived_array_index ];
+		const int value = packetreceived ? 1 : 0;
+		smooth_packetpersecond += value;
+		packetreceived_array[ packetreceived_array_index ] = value;
+		++packetreceived_array_index;
+		if ( packetreceived_array_index == ARRAY_SIZE ) {
+			packetreceived_array_index = 0;
+		}
+	}
+	packetpersecond = smooth_packetpersecond;
+#endif // OSD_ENABLE
 
 	return packetreceived;
 }

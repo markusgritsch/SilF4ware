@@ -53,21 +53,21 @@ void osd_init( void )
 	osd_restore_baudrate();
 }
 
+// x: 0 .. 29, y: 0 .. 15 PAL (12 NTSC)
 static void osd_print( const char data[], uint32_t size, uint8_t x, uint8_t y )
 {
-	// x: 0 .. 29, y: 0 .. 15 PAL (12 NTSC)
-	if ( lastsystem == NTSC && y > 7 ) { //NTSC adjustment 3 lines up if after line 7.
-		y = y - 3;
+	if ( y > 12 && lastsystem == NTSC) {
+		y = 12;
 	}
 	const uint32_t pos = x + y * 30;
 	osd_print_display_memory( (uint8_t *)data, size, pos );
 }
 
+// x: 0 .. 29, y: 0 .. 15 PAL (12 NTSC)
 static void osd_putc( const char character, uint8_t x, uint8_t y )
 {
-	// x: 0 .. 29, y: 0 .. 15 PAL (12 NTSC)
-	if ( lastsystem == NTSC && y > 7 ) { //NTSC adjustment 3 lines up if after line 7.
-		y = y - 3;
+	if ( y > 12 && lastsystem == NTSC) {
+		y = 12;
 	}
 	const uint32_t pos = x + y * 30;
 	osd_putc_display_memory( (uint8_t)character, pos );
@@ -137,10 +137,12 @@ static void osd_checksystem()
 #define RSSI_SYMBOL 0x01
 #define VOLT_SYMBOL 0x06
 #define ZERO_SYMBOL 0x30
+#define HORIZON_SYMBOL 0x80 // .. 0x88
 #define BAR_LEFT_SYMBOL 0x8A
 #define BAR_FILLED_SYMBOL 0x8B
 #define BAR_HALF_SYMBOL 0x8C
 #define BAR_EMPTY_SYMBOL 0x8D
+#define BAR_LINE_SYMBOL 0x8E
 #define BAR_RIGHT_SYMBOL 0x8F
 #define BATT_SYMBOL 0x97
 
@@ -148,41 +150,40 @@ static char data[ 26 ];
 
 static void fill_data( void )
 {
-	data[ 0 ] = BATT_SYMBOL;
+	// data[ 0 ] = BATT_SYMBOL;
 
 	extern float vbatt_comp; // battery.c
 	const float voltage = vbatt_comp + 0.005f;
-	data[ 1 ] = ZERO_SYMBOL + (uint32_t)voltage % 10;
-	data[ 2 ] = '.';
-	data[ 3 ] = ZERO_SYMBOL + (uint32_t)( voltage * 10.0f ) % 10;
-	data[ 4 ] = ZERO_SYMBOL + (uint32_t)( voltage * 100.0f ) % 10;
-	data[ 5 ] = VOLT_SYMBOL;
+	data[ 0 ] = ZERO_SYMBOL + (uint32_t)voltage % 10;
+	data[ 1 ] = '.';
+	data[ 2 ] = ZERO_SYMBOL + (uint32_t)( voltage * 10.0f ) % 10;
+	data[ 3 ] = ZERO_SYMBOL + (uint32_t)( voltage * 100.0f ) % 10;
+	data[ 4 ] = VOLT_SYMBOL;
 
 #ifdef WARN_ON_LOW_BATTERY
-	float vbatt_min = WARN_ON_LOW_BATTERY;
+	const float vbatt_min = WARN_ON_LOW_BATTERY;
 #else
-	float vbatt_min = 3.0f;
+	const float vbatt_min = 3.0f;
 #endif
-	#define BAR_LEFT_SYMBOL_POS 6
+	#define BAR_LEFT_SYMBOL_POS 5
 	#define BAR_RIGHT_SYMBOL_POS 20
-	extern bool lowbatt; // battery.c
 	const bool blink = ( gettime() & 0x7FFFF ) < 200000; // roughly every second (524288 µs) for 0.2 s
-	if ( lowbatt && blink ) {
+	if ( vbatt_comp < vbatt_min + VOLTAGE_HYSTERESIS && blink ) {
 		for ( uint8_t i = BAR_LEFT_SYMBOL_POS; i <= BAR_RIGHT_SYMBOL_POS; ++i ) {
 			data[ i ] = SPACE_SYMBOL;
 		}
 	} else {
 		data[ BAR_LEFT_SYMBOL_POS ] = BAR_LEFT_SYMBOL;
 		data[ BAR_RIGHT_SYMBOL_POS ] = BAR_RIGHT_SYMBOL;
-		const float step_size = ( 4.2f - vbatt_min ) / ( 2 * ( BAR_RIGHT_SYMBOL_POS - BAR_LEFT_SYMBOL_POS - 1 ) );
-		const int steps = ( voltage - vbatt_min ) / step_size;
+		const float volt_per_step = ( 4.2f - vbatt_min ) / ( 2 * ( BAR_RIGHT_SYMBOL_POS - BAR_LEFT_SYMBOL_POS - 1 ) );
+		const int steps = ( voltage - vbatt_min ) / volt_per_step + 0.5f;
 		uint8_t i = BAR_LEFT_SYMBOL_POS + 1;
 		while ( i < BAR_LEFT_SYMBOL_POS + 1 + steps / 2 && i < BAR_RIGHT_SYMBOL_POS ) {
 			data[ i ] = BAR_FILLED_SYMBOL;
 			++i;
 		}
-		if ( steps % 2 != 0 && steps > 0 && i < BAR_RIGHT_SYMBOL_POS ) {
-			data[ i ] = BAR_HALF_SYMBOL;
+		if ( steps > 0 && i < BAR_RIGHT_SYMBOL_POS ) {
+			data[ i ] = steps % 2 == 0 ? BAR_LINE_SYMBOL : BAR_HALF_SYMBOL;
 			++i;
 		}
 		while ( i < BAR_RIGHT_SYMBOL_POS ) {
@@ -191,13 +192,25 @@ static void fill_data( void )
 		}
 	}
 
-	data[ 21 ] = SPACE_SYMBOL;
-	data[ 22 ] = RSSI_SYMBOL;
-
+	#define MIN_PACKETS 150
+	#define MAX_PACKETS 200
 	extern int packetpersecond; // rx.c
-	data[ 23 ] = ZERO_SYMBOL + packetpersecond / 100;
-	data[ 24 ] = ZERO_SYMBOL + packetpersecond / 10 % 10;
-	data[ 25 ] = ZERO_SYMBOL + packetpersecond % 10;
+	int8_t level = 8 * ( packetpersecond - MIN_PACKETS ) / ( MAX_PACKETS - MIN_PACKETS );
+	if ( level < 0 ) {
+		level = 0;
+	}
+	data[ 21 ] = HORIZON_SYMBOL + 8 - level;
+	if ( packetpersecond < MIN_PACKETS && blink ) {
+		data[ 22 ] = SPACE_SYMBOL;
+		data[ 23 ] = SPACE_SYMBOL;
+		data[ 24 ] = SPACE_SYMBOL;
+		data[ 25 ] = SPACE_SYMBOL;
+	} else {
+		data[ 22 ] = RSSI_SYMBOL;
+		data[ 23 ] = ZERO_SYMBOL + packetpersecond / 100;
+		data[ 24 ] = ZERO_SYMBOL + packetpersecond / 10 % 10;
+		data[ 25 ] = ZERO_SYMBOL + packetpersecond % 10;
+	}
 }
 
 static int32_t data_index = -1;

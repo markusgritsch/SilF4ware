@@ -22,6 +22,7 @@
 
 float looptime; // in seconds
 uint32_t lastlooptime;
+uint32_t fly_time;
 uint32_t used_loop_time;
 uint32_t max_used_loop_time;
 uint32_t avg_used_loop_time;
@@ -106,6 +107,10 @@ void usermain()
 #ifdef OSD_ENABLE
 		osd();
 #endif // OSD_ENABLE
+
+		if ( ! onground ) {
+			fly_time += LOOPTIME;
+		}
 
 		// max_used_loop_time (for debug)
 		used_loop_time = gettime() - loop_start_time;

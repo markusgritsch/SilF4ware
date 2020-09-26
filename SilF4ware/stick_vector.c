@@ -9,7 +9,7 @@ extern char aux[];
 // error vector between stick position and quad orientation
 // this is the output of this function
 float errorvect[ 3 ];
-float stickvector[ 3 ] = { 0, 0, 1};
+float stickvector[ 3 ] = { 0, 0, 1 };
 
 void stick_vector( float rx_roll, float rx_pitch )
 {

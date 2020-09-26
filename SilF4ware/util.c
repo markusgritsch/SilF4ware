@@ -1,3 +1,5 @@
+#include <math.h> // fabsf
+
 #include "defines.h"
 #include "util.h"
 
@@ -33,7 +35,7 @@ float fastsin( float x )
 	while ( x < -3.14159265f ) {
 		x += 6.28318531f;
 	}
-	while ( x >  3.14159265f ) {
+	while ( x > 3.14159265f ) {
 		x -= 6.28318531f;
 	}
 	float sin1;
@@ -86,4 +88,55 @@ float sin_approx( float x )
 float cos_approx( float x )
 {
 	return sin_approx( x + 0.5f * PI_F );
+}
+
+// Initial implementation by Crashpilot1000 (https://github.com/Crashpilot1000/HarakiriWebstore1/blob/396715f73c6fcf859e0db0f34e12fe44bace6483/src/mw.c#L1292)
+// Polynomial coefficients by Andor (http://www.dsprelated.com/showthread/comp.dsp/21872-1.php) optimized by Ledvinap to save one multiplication
+// Max absolute error 0,000027 degree
+// atan2_approx maximum absolute error = 7.152557e-07 rads (4.098114e-05 degree)
+float atan2_approx( float y, float x )
+{
+	#define atanPolyCoef1 3.14551665884836e-07f
+	#define atanPolyCoef2 0.99997356613987f
+	#define atanPolyCoef3 0.14744007058297684f
+	#define atanPolyCoef4 0.3099814292351353f
+	#define atanPolyCoef5 0.05030176425872175f
+	#define atanPolyCoef6 0.1471039133652469f
+	#define atanPolyCoef7 0.6444640676891548f
+
+	float res;
+	const float absX = fabsf( x );
+	const float absY = fabsf( y );
+	res = MAX( absX, absY );
+	if ( res ) {
+		res = MIN( absX, absY ) / res;
+	} else {
+		res = 0.0f;
+	}
+	res = -( ( ( ( atanPolyCoef5 * res - atanPolyCoef4 ) * res - atanPolyCoef3 ) * res - atanPolyCoef2 ) * res - atanPolyCoef1 ) / ( ( atanPolyCoef7 * res + atanPolyCoef6 ) * res + 1.0f );
+	if ( absY > absX ) {
+		res = ( PI_F / 2.0f ) - res;
+	}
+	if ( x < 0 ) {
+		res = PI_F - res;
+	}
+	if ( y < 0 ) {
+		res = -res;
+	}
+	return res;
+}
+
+// http://http.developer.nvidia.com/Cg/acos.html
+// Handbook of Mathematical Functions
+// M. Abramowitz and I.A. Stegun, Ed.
+// acos_approx maximum absolute error = 6.760856e-05 rads (3.873685e-03 degree)
+float acos_approx( float x )
+{
+	float xa = fabsf( x );
+	float result = sqrtf( 1.0f - xa ) * ( 1.5707288f + xa * ( -0.2121144f + xa * ( 0.0742610f + ( -0.0187293f * xa ) ) ) );
+	if ( x < 0.0f ) {
+		return PI_F - result;
+	} else {
+		return result;
+	}
 }

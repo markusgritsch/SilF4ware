@@ -310,5 +310,10 @@
 // Logs various information to an externally connected OpenLager logger.
 //#define BLACKBOX_LOGGING
 
-// Display battery status and RSSI info in the OSD.
+// OSD usage requires uploading the custom SilF4ware.mcm font from the Utilities folder to the FC using Betaflight Configurator.
+// Display battery status, flight time, and RSSI info in the OSD.
 //#define OSD_ENABLE NTSC // PAL or NTSC
+// Artificial horizon.
+#define ARTIFICIAL_HORIZON // Comment out to disable the artificial horizon completely.
+#define HORIZON_SENSITIVITY 70 // Depends on the camera's field of view.
+#define HORIZON_LENS_EXPO 0.65 // 0.0 .. linear, 1.0 .. square curve

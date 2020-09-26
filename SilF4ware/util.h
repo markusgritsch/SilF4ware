@@ -5,3 +5,5 @@ float fastsin( float x );
 float fastcos( float x );
 float sin_approx( float x );
 float cos_approx( float x );
+float atan2_approx( float y, float x );
+float acos_approx( float x );

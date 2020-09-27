@@ -315,5 +315,4 @@
 //#define OSD_ENABLE NTSC // PAL or NTSC
 // Artificial horizon.
 #define ARTIFICIAL_HORIZON // Comment out to disable the artificial horizon completely.
-#define HORIZON_SENSITIVITY 70 // Depends on the camera's field of view.
-#define HORIZON_LENS_EXPO 0.65 // 0.0 .. linear, 1.0 .. square curve
+#define CAMERA_FOV 130 // Horizontal camera field of view in ° (needed for correct artificial horizon movement).

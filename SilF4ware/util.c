@@ -126,7 +126,7 @@ float atan2_approx( float y, float x )
 	return res;
 }
 
-// http://http.developer.nvidia.com/Cg/acos.html
+// https://developer.download.nvidia.com/cg/acos.html
 // Handbook of Mathematical Functions
 // M. Abramowitz and I.A. Stegun, Ed.
 // acos_approx maximum absolute error = 6.760856e-05 rads (3.873685e-03 degree)
@@ -139,4 +139,9 @@ float acos_approx( float x )
 	} else {
 		return result;
 	}
+}
+
+float asin_approx( float x )
+{
+	return 0.5f * PI_F - acos_approx( x );
 }

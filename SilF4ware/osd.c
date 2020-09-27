@@ -272,15 +272,11 @@ void calc_horizon()
 		direction_x /= direction_mag;
 		direction_y /= direction_mag;
 	}
-	float vect_x = -GEstG[ 1 ] * direction_x;
-	float vect_y = -GEstG[ 1 ] * direction_y;
-	float vect_mag = sqrtf( vect_x * vect_x + vect_y * vect_y );
-	const float expo = vect_mag * (float)HORIZON_LENS_EXPO + 1.0f - (float)HORIZON_LENS_EXPO;
-	vect_x *= expo;
-	vect_y *= expo;
-	vect_mag *= expo;
-	const float base_x = vect_x * HORIZON_SENSITIVITY + HORIZON_POS_X * 4 + 1;
-	const float base_y = vect_y * HORIZON_SENSITIVITY + HORIZON_POS_Y * 6 + 2;
+	const float length = asin_approx( -GEstG[ 1 ] ) / ( CAMERA_FOV * DEGTORAD ) * 30 * 4;
+	const float vect_x = length * direction_x;
+	const float vect_y = length * direction_y;
+	const float base_x = vect_x + HORIZON_POS_X * 4 + 1;
+	const float base_y = vect_y + HORIZON_POS_Y * 6 + 2;
 	for ( int i = 0; i < HORIZON_DOTS; ++i ) {
 		const int offset = i - HORIZON_DOTS / 2;
 		const int8_t x = lroundf( base_x + direction_y * 7 * offset );
@@ -304,7 +300,8 @@ void calc_horizon()
 		horizon_y[ i ] = pos_y;
 	}
 
-	if ( vect_mag * HORIZON_SENSITIVITY > 35.0f ) {
+	const float vect_mag = sqrtf( vect_x * vect_x + vect_y * vect_y );
+	if ( vect_mag > 6 * 6 ) {
 		const int direction =  lroundf( atan2_approx( vect_y, vect_x ) / ( 2.0f * PI_F ) * 16.0f );
 		const float scale = 5.5f / vect_mag;
 		horizon_ord[ HORIZON_DOTS ] = ORD_DIRECTION + ( 4 + 16 + direction ) % 16;

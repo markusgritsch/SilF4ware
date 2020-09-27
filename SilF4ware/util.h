@@ -7,3 +7,4 @@ float sin_approx( float x );
 float cos_approx( float x );
 float atan2_approx( float y, float x );
 float acos_approx( float x );
+float asin_approx( float x );

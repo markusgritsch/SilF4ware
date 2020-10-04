@@ -8,11 +8,12 @@
 #include "pid.h"
 #include "util.h"
 
-
 #define RECTANGULAR_RULE_INTEGRAL // a.k.a. Midpoint Rule Integral
 //#define TRAPEZOIDAL_RULE_INTEGRAL
 //#define SIMPSON_RULE_INTEGRAL
 
+#define FIRST_DIFFERENCE
+//#define CENTRAL_DIFFERENCE
 
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
@@ -293,14 +294,22 @@ void pid( int x )
 	// D term
 	if ( pidkd[ x ] > 0.0f ) { // skip yaw D term if not set
 		float dterm;
-		static float lastrate[ 3 ];
 #ifdef CASCADE_GYRO_AND_DTERM_FILTER
-		dterm = - ( gyro[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_KD * dScaleValueX;
-		lastrate[ x ] = gyro[ x ];
+		const float rate = gyro[ x ];
 #else
-		dterm = - ( gyro_notch_filtered[ x ] - lastrate[ x ] ) * pidkd[ x ] * TIMEFACTOR * AA_KD * dScaleValueX;
-		lastrate[ x ] = gyro_notch_filtered[ x ];
+		const float rate = gyro_notch_filtered[ x ];
 #endif // CASCADE_GYRO_AND_DTERM_FILTER
+#ifdef FIRST_DIFFERENCE
+		static float lastrate[ 3 ];
+		dterm = - ( rate - lastrate[ x ] ) * TIMEFACTOR * pidkd[ x ] * AA_KD * dScaleValueX;
+		lastrate[ x ] = rate;
+#endif // FIRST_DIFFERENCE
+#ifdef CENTRAL_DIFFERENCE
+		static float lastrate[ PIDNUMBER ][ 2 ];
+		dterm = - ( rate - lastrate[ x ][ 1 ] ) / 2.0f * TIMEFACTOR * pidkd[ x ] * AA_KD * dScaleValueX;
+		lastrate[ x ][ 1 ] = lastrate[ x ][ 0 ];
+		lastrate[ x ][ 0 ] = rate;
+#endif // CENTRAL_DIFFERENCE
 #ifdef DTERM_LPF_2ND_HZ_BASE
 		dterm = dterm_filter( dterm, x );
 #endif // DTERM_LPF_2ND_HZ_BASE
@@ -350,10 +359,21 @@ void pid_precalc()
 
 	pdScaleValue = 1.0f; // constant (no throttle dependent scaling)
 
+#ifdef THROTTLE_PD_ATTENUATION
+	extern int pwmdir; // control.c
+	extern float bb_throttle; // To include throttle HPF.
+	if ( pwmdir == FORWARD ) { // No PD reduction for inverted flying, as prop grip is already weak there.
+		pdScaleValue *= 1.0f - bb_throttle * ( 1.0f - (float)TPDA_VALUE ) / (float)TPDA_BREAKPOINT;
+		if ( pdScaleValue < (float)TPDA_VALUE ) {
+			pdScaleValue = (float)TPDA_VALUE;
+		}
+	}
+#endif // THROTTLE_PD_ATTENUATION
+
 #if 0
 	extern float throttle_boost; // control.c
 	if ( throttle_boost > 0.0f ) {
-		pdScaleValue /= 1.0f + 50.0f * throttle_boost;
+		pdScaleValue *= 1.0f - 50.0f * throttle_boost;
 		if ( pdScaleValue < 0.5f ) {
 			pdScaleValue = 0.5f;
 		}

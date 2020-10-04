@@ -249,6 +249,11 @@
 #define RFS_D_SCALER 0.5 // Scale D by this factor at and above RFS_RATE_MAX.
 #define RFS_THROTTLE_BREAKPOINT 0.5 // No smoothing at and above RFS_THROTTLE_BREAKPOINT.
 
+// Attenuate P and D linearly with rising throttle until TPDA_VALUE is reached at TPDA_BREAKPOINT.
+//#define THROTTLE_PD_ATTENUATION // No scaling at zero throttle.
+#define TPDA_VALUE 0.5 // Scale P and D by this factor at TPDA_BREAKPOINT.
+#define TPDA_BREAKPOINT 0.5 // Constant scaling with TPDA_VALUE at and above this throttle value.
+
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response
 // 0.0f (or commented out) equates D-term on measurement, 1.0f equates D-term on error.
 //#define FEED_FORWARD_STRENGTH 1.0f
@@ -313,6 +318,6 @@
 // OSD usage requires uploading the custom SilF4ware.mcm font from the Utilities folder to the FC using Betaflight Configurator.
 // Display battery status, flight time, and RSSI info in the OSD.
 //#define OSD_ENABLE NTSC // PAL or NTSC
-// Artificial horizon.
+// Artificial horizon for OSD.
 #define ARTIFICIAL_HORIZON // Comment out to disable the artificial horizon completely.
 #define CAMERA_FOV 130 // Horizontal camera field of view in ° (needed for correct artificial horizon movement).

@@ -250,7 +250,7 @@
 #define RFS_THROTTLE_BREAKPOINT 0.5 // No smoothing at and above RFS_THROTTLE_BREAKPOINT.
 
 // Attenuate P and D linearly with rising throttle until TPDA_VALUE is reached at TPDA_BREAKPOINT.
-//#define THROTTLE_PD_ATTENUATION // No scaling at zero throttle.
+//#define THROTTLE_PD_ATTENUATION // No scaling at zero throttle. No scaling for inverted flying.
 #define TPDA_VALUE 0.5 // Scale P and D by this factor at TPDA_BREAKPOINT.
 #define TPDA_BREAKPOINT 0.5 // Constant scaling with TPDA_VALUE at and above this throttle value.
 

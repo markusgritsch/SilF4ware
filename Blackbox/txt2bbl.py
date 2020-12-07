@@ -139,9 +139,14 @@ def writeData( f_out ):
 		rssiIndex %= len( rssiArray )
 	rssi = unsignedVariableByte( 1024 * rssiAvg / len( rssiArray ) ) # 0 .. 1024 -> 0% .. 100%
 	# Gyros
-	gyroADC[0] = signedVariableByte( gyroADC[0] ) # -2000 .. 2000 deg/s
-	gyroADC[1] = signedVariableByte( gyroADC[1] )
-	gyroADC[2] = signedVariableByte( gyroADC[2] ) # (not represented in craft orientation display)
+	if 1: # Select between showing filtered (1) or unfiltered (0) gyro data
+		gyroADC[0] = signedVariableByte( gyroADC[0] ) # -2000 .. 2000 deg/s
+		gyroADC[1] = signedVariableByte( gyroADC[1] )
+		gyroADC[2] = signedVariableByte( gyroADC[2] ) # (not represented in craft orientation display)
+	else:
+		gyroADC[0] = signedVariableByte( debug[0] ) # -2000 .. 2000 deg/s
+		gyroADC[1] = signedVariableByte( debug[1] )
+		gyroADC[2] = signedVariableByte( debug[2] ) # (not represented in craft orientation display)
 	# Accelerometers
 	if craftOrientationMode == 0:
 		accSmooth[0] = signedVariableByte( accSmooth[0] ) # 2048 -> 1g

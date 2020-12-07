@@ -72,25 +72,27 @@ void sdft_step() // called every LOOPTIME
 		const int max_bin_index = (float)MAX_HZ * (float)SDFT_SIZE * ( SAMPLE_PERIOD * 1e-6f ) + 0.5f;
 
 		if ( subsample_count == 0 ) {
-			// Ensure index_1st is the high frequency:
+			// Changing the notch filter frequency is not instantaneous and transitioning to a new frequency
+			// takes some time. To avoid long transients for example if the 1st and 2nd filter switch places,
+			// we ensure that index_1st is always higher than index_2nd:
 			if ( index_1st[ axis ] < index_2nd[ axis ] ) {
 				const int temp = index_1st[ axis ];
 				index_1st[ axis ] = index_2nd[ axis ];
 				index_2nd[ axis ] = temp;
 			}
 
-			static float f_high_Hz = MAX_HZ;
-			static float f_low_Hz = MAX_HZ;
+			static float f_1st_Hz = MAX_HZ;
+			static float f_2nd_Hz = MAX_HZ;
 			if ( was_in_sync ) {
-				f_high_Hz = index_1st[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
-				f_low_Hz = index_2nd[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
+				f_1st_Hz = index_1st[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
+				f_2nd_Hz = index_2nd[ axis ] / ( SAMPLE_PERIOD * 1e-6f ) / (float)SDFT_SIZE;
 			}
 
 			static float f_Hz_filt[ SDFT_AXES * 2 ];
 			extern float sdft_notch_Hz[ SDFT_AXES * 2 ]; // filter.c
-			lpf( &f_Hz_filt[ axis * 2 ], f_high_Hz, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
+			lpf( &f_Hz_filt[ axis * 2 ], f_1st_Hz, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
 			lpf( &sdft_notch_Hz[ axis * 2 ], f_Hz_filt[ axis * 2 ], ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
-			lpf( &f_Hz_filt[ axis * 2 + 1 ], f_low_Hz, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
+			lpf( &f_Hz_filt[ axis * 2 + 1 ], f_2nd_Hz, ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
 			lpf( &sdft_notch_Hz[ axis * 2 + 1 ], f_Hz_filt[ axis * 2 + 1 ], ALPHACALC( SAMPLE_PERIOD, 1e6f / 20.0f ) ); // 20 Hz
 
 			index_1st[ axis ] = max_bin_index;

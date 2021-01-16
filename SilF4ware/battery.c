@@ -50,8 +50,19 @@ void battery_init( void )
 		}
 	}
 	vbattfilt *= battery_scale_factor;
+
 	extern float idle_offset; // control.c
 	idle_offset *= battery_scale_factor;
+#ifdef THRUST_LINEARIZATION
+	const float aa = THRUST_LINEARIZATION;
+	idle_offset *= idle_offset * aa + 1 - aa;
+#endif // THRUST_LINEARIZATION
+#ifdef ALTERNATIVE_THRUST_LINEARIZATION
+	const float aa = 1.2f * (float)( ALTERNATIVE_THRUST_LINEARIZATION );
+	const float ior = 1.0f - idle_offset; // idle_offset reversed
+	idle_offset /=  1.0f + ior * ior * aa;
+#endif // ALTERNATIVE_THRUST_LINEARIZATION
+
 #endif // BATTERY_CELL_COUNT_DETECTION
 
 	vbatt_comp = vbattfilt_corr = vbattfilt;

@@ -509,14 +509,14 @@ void control( bool send_motor_values )
 #if defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
 
 			static float orig_idle_offset = 0.0f;
-#if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
-			if ( orig_idle_offset == 0 ) {
+			if ( orig_idle_offset == 0.0f ) {
 				orig_idle_offset = idle_offset;
 			}
+#if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
 			if ( aux[ MOTORS_TO_THROTTLE_MODE ] ) {
 #endif
 				mix[ i ] = throttle;
-				if ( throttle > 0 ) {
+				if ( throttle > 0.0f ) {
 					idle_offset = orig_idle_offset;
 				}
 				if ( ( i == MOTOR_FL - 1 && rxcopy[ ROLL ] < 0 && rxcopy[ PITCH ] > 0 ) ||

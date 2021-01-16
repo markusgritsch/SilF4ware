@@ -197,7 +197,7 @@
 #define MIX_RANGE_LIMIT 1.0f // aux[ DEVO_CHAN_11 ] ? 0.75f : 1.0f
 
 // Adjust IDLE_OFFSET so that the motors still spin reliably at zero throttle.
-#define IDLE_OFFSET 0.02 // 4S
+#define IDLE_OFFSET 0.03 // 4S
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
 //#define THRUST_LINEARIZATION 0.4 // 0.0 .. no compensation, 1.0 .. full square root curve

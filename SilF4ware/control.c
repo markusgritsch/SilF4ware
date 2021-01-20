@@ -56,12 +56,12 @@ float rxcopy[ 4 ];
 float bb_throttle;
 float bb_mix[ 4 ];
 
-static void throttle_kick( float kick_strength )
+static void throttle_kick( float kick_strength, float deadtime_duration )
 {
 	throttle_reversing_kick = kick_strength * ( ( battery_scale_factor - 1.0f ) * 1.5f + 1.0f );
 	#define TRKD 100000.0f // 100 ms throttle reversing kick duration
-	throttle_reversing_kick_sawtooth = throttle_reversing_kick * ( TRKD + (float)THROTTLE_REVERSING_DEADTIME ) / TRKD;
-	throttle_reversing_kick_decrement = throttle_reversing_kick_sawtooth * (float)LOOPTIME / ( TRKD + (float)THROTTLE_REVERSING_DEADTIME );
+	throttle_reversing_kick_sawtooth = throttle_reversing_kick * ( TRKD + deadtime_duration ) / TRKD;
+	throttle_reversing_kick_decrement = throttle_reversing_kick_sawtooth * (float)LOOPTIME / ( TRKD + deadtime_duration );
 	prevent_motor_filtering_state = 1;
 }
 
@@ -81,7 +81,7 @@ void control( bool send_motor_values )
 		ierror[ 0 ] = ierror[ 1 ] = ierror[ 2 ] = 0.0f;
 		throttle_hpf_reset( 200 ); // ms
 #ifdef THROTTLE_REVERSING_KICK
-		throttle_kick( THROTTLE_REVERSING_KICK );
+		throttle_kick( THROTTLE_REVERSING_KICK, THROTTLE_REVERSING_DEADTIME );
 #endif // THROTTLE_REVERSING_KICK
 	}
 
@@ -306,7 +306,7 @@ void control( bool send_motor_values )
 	} else { // motors on - normal flight
 #ifdef THROTTLE_STARTUP_KICK
 		if ( onground == 1 ) {
-			throttle_kick( THROTTLE_STARTUP_KICK ); // Some startup kick.
+			throttle_kick( THROTTLE_STARTUP_KICK, 0 ); // Startup kick uses zero deadtime.
 		}
 #endif // THROTTLE_STARTUP_KICK
 
@@ -334,7 +334,7 @@ void control( bool send_motor_values )
 		}
 #endif // THROTTLE_TRANSIENT_COMPENSATION_FACTOR
 
-#ifdef THROTTLE_REVERSING_KICK
+#if defined THROTTLE_REVERSING_KICK || defined THROTTLE_STARTUP_KICK
 		if ( throttle_reversing_kick_sawtooth > 0.0f ) {
 			if ( throttle_reversing_kick_sawtooth > throttle_reversing_kick ) {
 				throttle = 0.0f;
@@ -351,7 +351,7 @@ void control( bool send_motor_values )
 			}
 			throttle_reversing_kick_sawtooth -= throttle_reversing_kick_decrement;
 		}
-#endif // THROTTLE_REVERSING_KICK
+#endif // defined THROTTLE_REVERSING_KICK || defined THROTTLE_STARTUP_KICK
 
 #ifdef LVC_LOWER_THROTTLE
 		static float throttle_i = 0.0f;

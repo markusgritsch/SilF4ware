@@ -262,7 +262,7 @@
 //#define FEED_FORWARD_YAW 0.2f
 
 // Loop time in us
-#define LOOPTIME 250
+#define LOOPTIME 250 // 125 us (8k) needs DSHOT 600 in drv_dshot_bidir.c and an STM32F405 board.
 // Correction for ceramic resonator frequency variation
 #define WALLTIME_CORRECTION_FACTOR 1.000 // set to >1 to compensate for a too slow resonator
 

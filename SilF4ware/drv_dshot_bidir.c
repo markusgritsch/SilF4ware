@@ -189,10 +189,26 @@ static void dshot_dma_start()
 
 	for ( uint8_t i = 0; i < 4; ++i ) {
 #if 1 // select between filtered (1) and unfiltered (0) motor_hz
+		// Filter out decode errors represented as 0.0f:
 		static float motor_hz_unfiltered[ 4 ];
 		if ( motor_hz_decoded[ i ] != 0.0f ) {
 			motor_hz_unfiltered[ i ] = motor_hz_decoded[ i ];
 		}
+		// Median filtering:
+		static int median_array[ 4 ][ 3 ]; // 4 motors, 3 values
+		static int idx;
+		median_array[ i ][ idx ] = motor_hz_unfiltered[ i ];
+		const int a = median_array[ i ][ 0 ];
+		const int b = median_array[ i ][ 1 ];
+		const int c = median_array[ i ][ 2 ];
+		motor_hz_unfiltered[ i ] = MAX( MIN( a, b ), MIN( MAX( a, b ), c ) );
+		if ( i == 3 ) {
+			++idx;
+			if ( idx == 3 ) {
+				idx = 0;
+			}
+		}
+		// 1st order LPF:
 		lpf_hz( &motor_hz[ i ], motor_hz_unfiltered[ i ], 100 ); // 100 Hz
 #else
 		motor_hz[ i ] = motor_hz_decoded[ i ];
@@ -487,27 +503,6 @@ static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 	const uint32_t mantissa = telemetry_data & 0x1FF; // 9 bit
 	const uint32_t exponent = ( telemetry_data & 0xE00 ) >> 9; // 3 bit
 	uint32_t eperiod_us = mantissa << exponent; // 1/erps
-
-// #define RPM_MEDIAN_FILTER
-#ifdef RPM_MEDIAN_FILTER
-	// Median filtering. Depends on being called for 4 motors.
-	static uint32_t median_array[ 4 ][ 3 ] = { { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 }, { 1, 1, 1 } }; // 4 motors, 3 values
-	static uint32_t motor;
-	static uint32_t idx;
-	median_array[ motor ][ idx ] = eperiod_us;
-	const uint32_t a = median_array[ motor ][ 0 ];
-	const uint32_t b = median_array[ motor ][ 1 ];
-	const uint32_t c = median_array[ motor ][ 2 ];
-	eperiod_us = MAX( MIN( a, b ), MIN( MAX( a, b ), c ) );
-	++motor;
-	if ( motor == 4 ) {
-		motor = 0;
-		++idx;
-		if ( idx == 3 ) {
-			idx = 0;
-		}
-	}
-#endif // RPM_MEDIAN_FILTER
 
 	if ( eperiod_us == 0 ) {
 #ifdef RPM_TELEMETRY_DEBUG

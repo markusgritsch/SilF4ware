@@ -133,6 +133,7 @@ void usermain()
 
 //#define LOOP_TIME_STATS
 #ifdef LOOP_TIME_STATS
+		// determines most_frequently_used_loop_time (for debug)
 		static uint32_t loop_count;
 		static uint32_t loop_time_stats[ 256 ];
 		if ( used_loop_time > 255 ) {
@@ -157,7 +158,10 @@ void usermain()
 		if ( next_loop_start == 0 ) {
 			next_loop_start = loop_start_time;
 		}
-		next_loop_start += (uint32_t)( LOOPTIME / WALLTIME_CORRECTION_FACTOR + 0.5 ); // calculated by the preprocessor
+		static float correction = 0;
+		correction += LOOPTIME / (float)WALLTIME_CORRECTION_FACTOR;
+		next_loop_start += (uint32_t)correction;
+		correction -= (uint32_t)correction;
 		while ( gettime() < next_loop_start );
 	}
 }

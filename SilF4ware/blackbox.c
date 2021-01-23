@@ -7,7 +7,7 @@
 
 #ifdef BLACKBOX_LOGGING
 // 100 bytes maximum at 2 Mbit/s UART speed and a logged data frame every 0.5 ms.
-static uint8_t bb_buffer[ 98 ] = "FRAMESTART"; // 98 bytes practical limit
+static uint8_t bb_buffer[ 93 ] = "FRAME"; // 98 bytes practical limit
 #endif // BLACKBOX_LOGGING
 
 extern int onground;
@@ -68,7 +68,7 @@ void blackbox_log( void )
 		}
 	}
 
-	int pos = 10; // size of FRAMESTART
+	int pos = 5; // size of FRAME
 
 	// iteration
 	*(uint32_t *)( &bb_buffer[ pos ] ) = bb_iteration; pos += 4;
@@ -123,7 +123,7 @@ void blackbox_log( void )
 	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_FR - 1 ] * 1000.0f; pos += 2; // FR
 	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_BL - 1 ] * 1000.0f; pos += 2; // BL
 	*(uint16_t *)( &bb_buffer[ pos ] ) = bb_mix[ MOTOR_FL - 1 ] * 1000.0f; pos += 2; // FL
-	// pos is 90
+	// pos is 85
 #if 1 // select between logging motor Hz (1) or sdft notch Hz (0)
 	#ifdef RPM_FILTER
 	extern float motor_hz[ 4 ];
@@ -141,7 +141,7 @@ void blackbox_log( void )
 	*(int16_t *)( &bb_buffer[ pos ] ) = sdft_notch_Hz[ 3 ] * 10.0f; pos += 2;
 	#endif // BIQUAD_SDFT_NOTCH
 #endif
-	// pos is 98
+	// pos is 93
 	++bb_iteration;
 
 	extern UART_HandleTypeDef BB_huartx;

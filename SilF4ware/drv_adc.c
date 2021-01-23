@@ -18,7 +18,7 @@ void adc_init( void )
 	extern ADC_HandleTypeDef hadc1;
 	HAL_ADC_Start_DMA( &hadc1, adc_array, 2 );
 
-	// Wait until the first transfer finnished.
+	// Wait until the first transfer has finished.
 	delay( 100 );
 #endif // ENABLE_ADC
 }

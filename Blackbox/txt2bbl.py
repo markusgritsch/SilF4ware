@@ -193,9 +193,8 @@ def parseFile( f, f_out ):
 	nextFramestartFound = False
 	iteration = 0
 	while True:
-		if ( nextFramestartFound or
-			f.read( 1 ) == 'F' and f.read( 1 ) == 'R' and f.read( 1 ) == 'A' and f.read( 1 ) == 'M' and f.read( 1 ) == 'E' and
-			f.read( 1 ) == 'S' and f.read( 1 ) == 'T' and f.read( 1 ) == 'A' and f.read( 1 ) == 'R' and f.read( 1 ) == 'T' ):
+		if ( nextFramestartFound or # try reading 'FRAME'
+			f.read( 1 ) == 'F' and f.read( 1 ) == 'R' and f.read( 1 ) == 'A' and f.read( 1 ) == 'M' and f.read( 1 ) == 'E' ):
 			try:
 			# h .. int16_t, H .. uint16_t, i .. int32_t, I .. uint32_t
 				iter, = struct.unpack( '<I', f.read( 4 ) )
@@ -214,7 +213,7 @@ def parseFile( f, f_out ):
 				debug = list( struct.unpack( '<hhhh', f.read( 8 ) ) )
 				motor = list( struct.unpack( '<HHHH', f.read( 8 ) ) )
 				motorHz = list( struct.unpack( '<hhhh', f.read( 8 ) ) )
-				# 98 bytes read
+				# 93 bytes read
 			except struct.error, message:
 				if f.tell() == size:
 					print '  [' + '#' * 50 + ']',
@@ -223,7 +222,7 @@ def parseFile( f, f_out ):
 					break
 				else:
 					print '\nstruct.error:', message
-			if f.read( 10 ) == 'FRAMESTART':
+			if f.read( 5 ) == 'FRAME':
 				if iter < iteration:
 					print '\n  new logging session'
 					writeLogEndMarker( f_out )
@@ -241,14 +240,14 @@ def parseFile( f, f_out ):
 				else:
 					print '\n  bad frame'
 					nextFramestartFound = False
-					f.seek( -9, 1 )
+					f.seek( -4, 1 ) # 4 .. len( 'FRAME' ) - 1, 1 .. relative to the current position
 			if iteration % 2000 == 0:
 				percent = f.tell() / float( size ) * 100
 				print '  [' + '#' * int( percent / 2 ) + '.' * ( 50 - int( percent / 2 ) ) + ']',
 				print '%4.1f%%\r' % percent,
 		else:
 			if f.tell() == size:
-				print 'no FRAMESTART found'
+				print 'no FRAME found'
 				break
 
 	writeLogEndMarker( f_out )

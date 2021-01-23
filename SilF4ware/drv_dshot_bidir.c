@@ -180,41 +180,6 @@ static void make_packet( uint8_t number, uint16_t value, bool telemetry )
 // make Dshot dma packet, then fire
 static void dshot_dma_start()
 {
-	// Decode previous GCR telemetry just before starting the next Dshot DMA transfer.
-	// This way we ensure that receiving telemetry has finnished.
-	extern bool packet_received; // usermain.c
-	if ( ! packet_received ) { // Sacrifice decoding telemetry once every 20 loops in favor of lowering max loop time.
-		decode_gcr_telemetry(); // Takes about 30 us @168 MHz.
-	}
-
-	for ( uint8_t i = 0; i < 4; ++i ) {
-#if 1 // select between filtered (1) and unfiltered (0) motor_hz
-		// Filter out decode errors represented as 0.0f:
-		static float motor_hz_unfiltered[ 4 ];
-		if ( motor_hz_decoded[ i ] != 0.0f ) {
-			motor_hz_unfiltered[ i ] = motor_hz_decoded[ i ];
-		}
-		// Median filtering:
-		static int median_array[ 4 ][ 3 ]; // 4 motors, 3 values
-		static int idx;
-		median_array[ i ][ idx ] = motor_hz_unfiltered[ i ];
-		const int a = median_array[ i ][ 0 ];
-		const int b = median_array[ i ][ 1 ];
-		const int c = median_array[ i ][ 2 ];
-		motor_hz_unfiltered[ i ] = MAX( MIN( a, b ), MIN( MAX( a, b ), c ) );
-		if ( i == 3 ) {
-			++idx;
-			if ( idx == 3 ) {
-				idx = 0;
-			}
-		}
-		// 1st order LPF:
-		lpf_hz( &motor_hz[ i ], motor_hz_unfiltered[ i ], 100 ); // 100 Hz
-#else
-		motor_hz[ i ] = motor_hz_decoded[ i ];
-#endif
-	}
-
 	for ( uint8_t i = 0; i < 16 * 3; ++i ) {
 		dshot_data_port1st[ i ] = 0;
 		dshot_data_port2nd[ i ] = 0;
@@ -251,6 +216,45 @@ static void dshot_dma_start()
 	}
 
 	dma_write_dshot();
+
+	// Decode previous GCR telemetry just after starting the Dshot DMA transfer.
+	// This way we are sure that receiving telemetry has finished.
+	extern bool packet_received; // usermain.c
+	if ( ! packet_received ) { // Sacrifice decoding telemetry once every 5 ms in favor of lowering max loop time.
+		decode_gcr_telemetry();
+	}
+
+	for ( uint8_t i = 0; i < 4; ++i ) {
+#if 1 // select between filtered (1) and unfiltered (0) motor_hz
+		// Filter out decode errors represented as 0.0f:
+		static float motor_hz_unfiltered[ 4 ];
+		if ( motor_hz_decoded[ i ] != 0.0f ) {
+			motor_hz_unfiltered[ i ] = motor_hz_decoded[ i ];
+		}
+/*
+		// Median filtering:
+		static int median_array[ 4 ][ 3 ]; // 4 motors, 3 values
+		static int idx;
+		median_array[ i ][ idx ] = motor_hz_unfiltered[ i ];
+		const int a = median_array[ i ][ 0 ];
+		const int b = median_array[ i ][ 1 ];
+		const int c = median_array[ i ][ 2 ];
+		motor_hz_unfiltered[ i ] = MAX( MIN( a, b ), MIN( MAX( a, b ), c ) );
+		if ( i == 3 ) {
+			++idx;
+			if ( idx == 3 ) {
+				idx = 0;
+			}
+		}
+*/
+		// 2nd order LPF:
+		static float motor_hz_filt[ 4 ];
+		lpf_hz( &motor_hz_filt[ i ], motor_hz_unfiltered[ i ], 50 ); // 50 Hz
+		lpf_hz( &motor_hz[ i ], motor_hz_filt[ i ], 50 ); // 50 Hz
+#else
+		motor_hz[ i ] = motor_hz_decoded[ i ];
+#endif
+	}
 }
 
 static void dma_write_dshot()
@@ -308,7 +312,7 @@ void DMA2_Stream2_IRQHandler()
 	} else if ( dma_state == READ_TELEMETRY ) {
 		// Do not decode_gcr_telemetry() here in the ISR. If it get's called at the end of main-loop busy-waiting,
 		// it could still be running while we should already be starting the next loop cycle, which would ruin a
-		// stable loop time. Instead we run decode_gcr_telemetry() before starting the next Dshot DMA transfer.
+		// stable loop time. Instead we run decode_gcr_telemetry() right after starting the next Dshot DMA transfer.
 	}
 }
 
@@ -346,28 +350,42 @@ static void dma_read_telemetry()
 
 static void decode_gcr_telemetry()
 {
-	if ( ESC1_GPIO_Port == GPIO1st ) {
-		motor_hz_decoded[ 0 ] = decode_to_hz( gcr_data_port1st, ESC1_Pin );
-	} else {
-		motor_hz_decoded[ 0 ] = decode_to_hz( gcr_data_port2nd, ESC1_Pin );
-	}
-
-	if ( ESC2_GPIO_Port == GPIO1st ) {
-		motor_hz_decoded[ 1 ] = decode_to_hz( gcr_data_port1st, ESC2_Pin );
-	} else {
-		motor_hz_decoded[ 1 ] = decode_to_hz( gcr_data_port2nd, ESC2_Pin );
-	}
-
-	if ( ESC3_GPIO_Port == GPIO1st ) {
-		motor_hz_decoded[ 2 ] = decode_to_hz( gcr_data_port1st, ESC3_Pin );
-	} else {
-		motor_hz_decoded[ 2 ] = decode_to_hz( gcr_data_port2nd, ESC3_Pin );
-	}
-
-	if ( ESC4_GPIO_Port == GPIO1st ) {
-		motor_hz_decoded[ 3 ] = decode_to_hz( gcr_data_port1st, ESC4_Pin );
-	} else {
-		motor_hz_decoded[ 3 ] = decode_to_hz( gcr_data_port2nd, ESC4_Pin );
+	// Decoding all 4 channels takes about 30 us @168 MHz.
+	// So we decode only one each main loop cycle.
+	static int state;
+	switch ( state ) {
+		case 0:
+			if ( ESC1_GPIO_Port == GPIO1st ) {
+				motor_hz_decoded[ 0 ] = decode_to_hz( gcr_data_port1st, ESC1_Pin );
+			} else {
+				motor_hz_decoded[ 0 ] = decode_to_hz( gcr_data_port2nd, ESC1_Pin );
+			}
+			state = 1;
+			break;
+		case 1:
+			if ( ESC2_GPIO_Port == GPIO1st ) {
+				motor_hz_decoded[ 1 ] = decode_to_hz( gcr_data_port1st, ESC2_Pin );
+			} else {
+				motor_hz_decoded[ 1 ] = decode_to_hz( gcr_data_port2nd, ESC2_Pin );
+			}
+			state = 2;
+			break;
+		case 2:
+			if ( ESC3_GPIO_Port == GPIO1st ) {
+				motor_hz_decoded[ 2 ] = decode_to_hz( gcr_data_port1st, ESC3_Pin );
+			} else {
+				motor_hz_decoded[ 2 ] = decode_to_hz( gcr_data_port2nd, ESC3_Pin );
+			}
+			state = 3;
+			break;
+		case 3:
+			if ( ESC4_GPIO_Port == GPIO1st ) {
+				motor_hz_decoded[ 3 ] = decode_to_hz( gcr_data_port1st, ESC4_Pin );
+			} else {
+				motor_hz_decoded[ 3 ] = decode_to_hz( gcr_data_port2nd, ESC4_Pin );
+			}
+			state = 0;
+			break;
 	}
 }
 

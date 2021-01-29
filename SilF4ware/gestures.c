@@ -14,9 +14,10 @@
 #include "sixaxis.h"
 #include "util.h"
 
-extern int onground;
-extern bool ledcommand;
-extern int ledblink;
+extern int onground; // control.c
+extern bool beep_motors_once; // control.c
+extern bool ledcommand; // led.c
+extern int ledblink; // led.c
 extern char aux[ AUXNUMBER ];
 
 int rx_bind_enable;
@@ -76,21 +77,25 @@ void gestures( void )
 		if ( command == GESTURE_LLU ) {
 			aux[ CH_AUX1 ] = 1;
 			ledblink = 1;
+			beep_motors_once = true;
 		}
 
 		if ( command == GESTURE_LLD ) {
 			aux[ CH_AUX1 ] = 0;
 			ledcommand = true;
+			beep_motors_once = true;
 		}
 
 		if ( command == GESTURE_RRU ) {
 			aux[ CH_AUX2 ] = 1;
 			ledblink = 1;
+			beep_motors_once = true;
 		}
 
 		if ( command == GESTURE_RRD ) {
 			aux[ CH_AUX2 ] = 0;
 			ledcommand = true;
+			beep_motors_once = true;
 		}
 
 #ifdef PID_GESTURE_TUNING

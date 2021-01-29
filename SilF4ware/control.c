@@ -22,6 +22,7 @@ bool reverse_motor_direction[ 4 ] = {
 	[ MOTOR_BR - 1 ] = REVERSE_MOTOR_BR,
 	[ MOTOR_FR - 1 ] = REVERSE_MOTOR_FR
 };
+bool beep_motors_once = false;
 
 float thrsum;
 static float mixmax;
@@ -300,7 +301,12 @@ void control( bool send_motor_values )
 	#ifndef MOTOR_BEEPS_CHANNEL
 		#define MOTOR_BEEPS_CHANNEL CH_OFF
 	#endif
-			motorbeep( motors_failsafe, MOTOR_BEEPS_CHANNEL );
+			if ( beep_motors_once ) {
+				beep_motors_once = false;
+				motorbeep( motors_failsafe, CH_ON );
+			} else {
+				motorbeep( motors_failsafe, MOTOR_BEEPS_CHANNEL );
+			}
 #endif // MOTOR_BEEPS
 		}
 	} else { // motors on - normal flight

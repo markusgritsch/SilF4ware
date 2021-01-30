@@ -70,6 +70,7 @@ void gestures( void )
 			} else {
 				ledcommand = true; // flash a few times if disabled
 			}
+			beep_motors_once = true;
 			skip_accel_cal_on_save = 1;
 		}
 #endif

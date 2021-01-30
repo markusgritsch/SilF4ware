@@ -222,7 +222,7 @@
 
 // unscaled PID values tuned for 4S
 //             { roll, pitch, yaw }
-#define PID_KP { 0.04, 0.04, 0.04 }
+#define PID_KP { 0.035, 0.035, 0.04 }
 #define PID_KI { 0.40, 0.40, 2.0 }
 #define PID_KD { 0.20, 0.20, 0.0 }
 
@@ -250,8 +250,8 @@
 #define RFS_THROTTLE_BREAKPOINT 0.5 // No smoothing at and above RFS_THROTTLE_BREAKPOINT.
 
 // Attenuate P and D linearly with rising throttle until TPDA_VALUE is reached at TPDA_BREAKPOINT.
-//#define THROTTLE_PD_ATTENUATION // No scaling at zero throttle. No scaling for inverted flying.
-#define TPDA_VALUE 0.5 // Scale P and D by this factor at TPDA_BREAKPOINT.
+#define THROTTLE_PD_ATTENUATION // No scaling at zero throttle. No scaling for inverted flying.
+#define TPDA_VALUE 0.8 // Scale P and D by this factor at TPDA_BREAKPOINT.
 #define TPDA_BREAKPOINT 0.5 // Constant scaling with TPDA_VALUE at and above this throttle value.
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response

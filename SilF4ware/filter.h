@@ -12,8 +12,9 @@ float gyro_lpf2_filter( float in, int num );
 float dterm_filter( float in, int num );
 float throttle_hpf( float in );
 void throttle_hpf_reset( int holdoff_time_ms );
-float kalman_filter( float in, int num );
-void kalman_set( float in, int num );
+float gyro_kalman_filter( float in, int num );
+float motor_kalman_filter( float in, int num );
+void motor_kalman_set( float in, int num );
 
 // With constants as parameters this should be precalculated by the compiler.
 // This is used to calculate alpha. filtertime = 1 / filter-cutoff-frequency.

@@ -481,7 +481,7 @@ void throttle_hpf_reset( int holdoff_time_ms )
 }
 
 
-#ifdef KALMAN_q
+#if defined GYRO_KALMAN_q || defined MOTOR_KALMAN_q
 
 #define KALMAN_WINDOW_SIZE 256
 
@@ -499,7 +499,7 @@ typedef struct Kalman_s {
 	int index;
 } Kalman_t;
 
-static float kalman_step( Kalman_t * filter, float input )
+static float kalman_step( Kalman_t * filter, float input, float kalman_q )
 {
 	// update variance
 	filter->window[ filter->index ] = input;
@@ -520,7 +520,7 @@ static float kalman_step( Kalman_t * filter, float input )
 	// update last state
 	filter->lastX = filter->x;
 	// prediction update
-	filter->p += KALMAN_q * 1e-6f;
+	filter->p += kalman_q * 1e-6f;
 	// measurement update
 	filter->k = filter->p / ( filter->p + filter->r );
 	filter->x += filter->k * ( input - filter->x );
@@ -529,17 +529,31 @@ static float kalman_step( Kalman_t * filter, float input )
 	return filter->x;
 }
 
-static Kalman_t kalman_lpf[ 4 ];
+#endif // defined GYRO_KALMAN_q || defined MOTOR_KALMAN_q
 
-float kalman_filter( float input, int num )
+#ifdef GYRO_KALMAN_q
+
+float gyro_kalman_filter( float input, int num )
 {
-	return kalman_step( &kalman_lpf[ num ], input );
+	static Kalman_t gyro_kalman_lpf[ 3 ];
+	return kalman_step( &gyro_kalman_lpf[ num ], input, GYRO_KALMAN_q );
 }
 
-void kalman_set( float input, int num )
+#endif // GYRO_KALMAN_q
+
+#ifdef MOTOR_KALMAN_q
+
+static Kalman_t motor_kalman_lpf[ 4 ];
+
+float motor_kalman_filter( float input, int num )
 {
-	kalman_lpf[ num ].x = input;
-	kalman_lpf[ num ].lastX = input;
+	return kalman_step( &motor_kalman_lpf[ num ], input, MOTOR_KALMAN_q );
 }
 
-#endif // KALMAN_q
+void motor_kalman_set( float input, int num )
+{
+	motor_kalman_lpf[ num ].x = input;
+	motor_kalman_lpf[ num ].lastX = input;
+}
+
+#endif // MOTOR_KALMAN_q

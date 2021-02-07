@@ -337,6 +337,10 @@ static void process_gyronew_to_gyro( float gyronew[] )
 			gyro[ 2 ] = yaw1st;
 		}
 #endif
+
+#ifdef GYRO_KALMAN_q
+		gyro[ i ] = gyro_kalman_filter( gyro[ i ], i );
+#endif // GYRO_KALMAN_q
 	}
 }
 

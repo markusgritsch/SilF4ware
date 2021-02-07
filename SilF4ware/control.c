@@ -625,14 +625,14 @@ void control( bool send_motor_values )
 			}
 #endif // MIX_FILTER_HZ
 
-#ifdef KALMAN_q
-			const float mix_kalman = kalman_filter( mix[ i ], i );
+#ifdef MOTOR_KALMAN_q
+			const float mix_kalman = motor_kalman_filter( mix[ i ], i );
 			if ( prevent_motor_filtering_state == 2 ) {
-				kalman_set( mix[ i ], i );
+				motor_kalman_set( mix[ i ], i );
 			} else {
 				mix[ i ] = mix_kalman;
 			}
-#endif // KALMAN_q
+#endif // MOTOR_KALMAN_q
 
 			if ( send_motor_values ) {
 				pwm_set( i, mix[ i ] );

@@ -1,4 +1,5 @@
 #include <math.h> // fabsf
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h> // abs
 
@@ -18,7 +19,7 @@
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
 //#define PD_SCALE_YAW_STABILIZER 1.2f // multiply pdScaleValue by this value at full yaw
-static float pdScaleValue = 1.0f; // updated in pid_precalc()
+float pdScaleValue = 1.0f; // updated in pid_precalc()
 
 #define AA_KP ( x < 2 ? pdScaleValue * aux_analog[ 0 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
 #define AA_KI 1.0f
@@ -104,12 +105,13 @@ void pid( int x )
 		i_windup = 1;
 	}
 
+	static float avgSetpoint[ 3 ];
+	lpf( &avgSetpoint[ x ], setpoint[ x ], ALPHACALC( LOOPTIME, 1e6f / 20.0f ) ); // 20 Hz
+	const float absHpfSetpointX = fabsf( setpoint[ x ] - avgSetpoint[ x ] ); // HPF = input - average_input
+
 #ifdef TRANSIENT_WINDUP_PROTECTION
-	static float avgSetpoint[ 2 ];
 	if ( x < 2 ) { // Only for roll and pitch.
-		lpf( &avgSetpoint[ x ], setpoint[ x ], ALPHACALC( LOOPTIME, 1e6f / 20.0f ) ); // 20 Hz
-		const float hpfSetpoint = setpoint[ x ] - avgSetpoint[ x ]; // HPF = input - average_input
-		if ( fabsf( hpfSetpoint ) > 0.1f ) { // 5.7 °/s
+		if ( absHpfSetpointX > 0.1f ) { // 5.7 °/s
 			i_windup = 1;
 		}
 	}
@@ -118,7 +120,9 @@ void pid( int x )
 #ifdef DYNAMIC_ITERM_RESET
 	static float lastGyro[ 3 ];
 	if ( fabsf( ierror[ x ] ) > integrallimit[ x ] * 0.2f * battery_scale_factor &&
-		( ( gyro[ x ] < 0.0f ) != ( lastGyro[ x ] < 0.0f ) ) ) // gyro crossed zero
+		( ( gyro[ x ] < 0.0f ) != ( lastGyro[ x ] < 0.0f ) ) && // gyro crossed zero
+		// absHpfSetpointX > 0.1f && // and ierror was caused by some recent setpoint change
+		true )
 	{
 		ierror[ x ] *= 0.2f;
 	}
@@ -180,6 +184,22 @@ void pid( int x )
 		dScaleValueX = 1.0f - absGyroX * ( 1.0f - (float)RFS_D_SCALER );
 	}
 #endif // ROLL_FLIP_SMOOTHER
+
+// #ifdef PER_AXIS_PROP_WASH_REDUCER
+// 	if ( x < 2 ) { // Only for roll and pitch.
+// 		static int holdoff_steps[ 2 ];
+// 		if ( fabsf( setpoint[ x ] ) > 5.0f * DEGTORAD ) { // 5 °/s setpoint limit
+// 			holdoff_steps[ x ] = 70000 / LOOPTIME - 1; // 70 ms holdoff time
+// 		} else if ( holdoff_steps[ x ] > 0 ) {
+// 			--holdoff_steps[ x ];
+// 		}
+// 		const bool setpoint_is_long_below_limit = holdoff_steps[ x ] == 0;
+// 		if ( fabsf( gyro[ x ] ) > 20.0f * DEGTORAD && setpoint_is_long_below_limit ) { // 20 °/s gyro limit
+// 			pScaleValueX *= 0.5f;
+// 			dScaleValueX *= 0.5f;
+// 		}
+// 	}
+// #endif // PER_AXIS_PROP_WASH_REDUCER
 
 	// P term
 #ifdef ENABLE_SETPOINT_WEIGHTING
@@ -379,6 +399,26 @@ void pid_precalc()
 		}
 	}
 #endif
+
+#ifdef PROP_WASH_REDUCER
+	extern int pwmdir; // control.c
+	extern float bb_throttle; // To include throttle HPF.
+	if ( pwmdir == FORWARD ) { // No PD reduction for inverted flying, as prop grip is already weak there.
+		// Only for roll and pitch.
+		static int holdoff_steps;
+		if ( fabsf( setpoint[ 0 ] ) > 5.0f * DEGTORAD || fabsf( setpoint[ 1 ] ) > 5.0f * DEGTORAD ) { // 5 °/s setpoint limit
+			holdoff_steps = 70000 / LOOPTIME - 1; // 70 ms holdoff time
+		} else if ( holdoff_steps > 0 ) {
+			--holdoff_steps;
+		}
+		if ( holdoff_steps == 0 && // holdoff_steps counted to zero, so setpoint is already 70 ms below the limit.
+			bb_throttle > 0.1f && // No reduction after throttle punch outs.
+			( fabsf( gyro[ 0 ] ) > 20.0f * DEGTORAD || fabsf( gyro[ 1 ] ) > 20.0f * DEGTORAD ) ) // 20 °/s gyro limit
+		{
+			pdScaleValue *= (float)PROP_WASH_REDUCER;
+		}
+	}
+#endif // PROP_WASH_REDUCER
 
 #ifdef PD_SCALE_YAW_STABILIZER
 	const float absyaw = fabsf( rxcopy[ 2 ] );

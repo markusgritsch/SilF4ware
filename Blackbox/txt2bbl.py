@@ -124,8 +124,8 @@ def writeData( f_out ):
 	setpoint[3] = signedVariableByte( setpoint[3] ) # 0 .. 1000 -> 0.0% .. 100.0%
 	# Battery volt., Amperage, rssi
 	vbatLatest = unsignedVariableByte( vbatLatest ) # 0.01 V/unit
-	#amperageLatest = signedVariableByte( amperageLatest ) # 0.01 A/unit
-	amperageLatest = signedVariableByte( rssi ) # 0.01 A/unit
+	amperageLatest = signedVariableByte( amperageLatest ) # 0.01 A/unit
+	# amperageLatest = signedVariableByte( rssi ) # 0.01 A/unit
 	global rssiLast, rssiAvg, rssiArray, rssiIndex
 	if iteration % 10 == 0:
 		rssiAvg -= rssiArray[ rssiIndex ]

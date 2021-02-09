@@ -11,6 +11,7 @@ static uint8_t bb_buffer[ 93 ] = "FRAME"; // 98 bytes practical limit
 #endif // BLACKBOX_LOGGING
 
 extern int onground;
+extern float pdScaleValue;
 extern float bb_p[ 3 ];
 extern float bb_i[ 3 ];
 extern float bb_d[ 2 ];
@@ -102,7 +103,7 @@ void blackbox_log( void )
 	// vbatLatest
 	*(uint16_t *)( &bb_buffer[ pos ] ) = vbattadc * 100.0f; pos += 2;
 	// amperageLatest
-	*(int16_t *)( &bb_buffer[ pos ] ) = 0; pos += 2;
+	*(int16_t *)( &bb_buffer[ pos ] ) = pdScaleValue * 1000.0f; pos += 2; // * 1000 to get enough resolution
 	// rssi
 	*(uint16_t *)( &bb_buffer[ pos ] ) = packetrx; pos += 2;
 	// gyroADC

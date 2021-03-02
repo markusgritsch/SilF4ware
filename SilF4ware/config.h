@@ -252,12 +252,12 @@
 #define RFS_D_SCALER 0.5 // Scale D by this factor at and above RFS_RATE_MAX.
 #define RFS_THROTTLE_BREAKPOINT 0.5 // No smoothing at and above RFS_THROTTLE_BREAKPOINT.
 
-// Attenuate P and D linearly with rising throttle until TPDA_VALUE is reached at TPDA_BREAKPOINT.
+// Attenuate P and D on roll and pitch axes linearly with rising throttle until TPDA_VALUE is reached at TPDA_BREAKPOINT.
 #define THROTTLE_PD_ATTENUATION // No scaling at zero throttle. No scaling for inverted flying.
 #define TPDA_VALUE 0.8 // Scale P and D by this factor at TPDA_BREAKPOINT.
 #define TPDA_BREAKPOINT 0.5 // Constant scaling with TPDA_VALUE at and above this throttle value.
 
-// Further reduce P and D in case gyro shows activity (prop wash) without setpoint (stick) movement.
+// Further reduce P and D on roll and pitch axes in case gyro shows activity (prop wash) without setpoint (stick) movement.
 //#define PROP_WASH_REDUCER 0.6
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response

@@ -552,7 +552,11 @@ void control( bool send_motor_values )
 				mix[ i ] = 1.0f;
 			}
 
-			mix[ i ] = idle_offset + mix[ i ] * ( 1.0f - idle_offset ); // maps 0 .. 1 -> idle_offset .. 1
+			if ( prevent_motor_filtering_state == 1 ) {
+				// Do not add idle_offset during the throttle = 0 motor reversing state.
+			} else {
+				mix[ i ] = idle_offset + mix[ i ] * ( 1.0f - idle_offset ); // maps 0 .. 1 -> idle_offset .. 1
+			}
 
 #ifdef MOTOR_FILTER_A_HZ
 			static float mix_filt_a[ 4 ];

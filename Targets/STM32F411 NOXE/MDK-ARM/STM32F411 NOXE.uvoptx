@@ -922,6 +922,18 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\SilF4ware\tm_stm32f4_rcc.c</PathWithFileName>
+      <FilenameWithoutPath>tm_stm32f4_rcc.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>5</GroupNumber>
+      <FileNumber>60</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\SilF4ware\usermain.c</PathWithFileName>
       <FilenameWithoutPath>usermain.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
@@ -929,7 +941,7 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>60</FileNumber>
+      <FileNumber>61</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>

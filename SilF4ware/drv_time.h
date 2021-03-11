@@ -3,7 +3,7 @@
 #if defined(STM32F405xx)
 	#define SYS_CLOCK_FREQ_MHZ 168
 #elif defined(STM32F411xE)
-	#define SYS_CLOCK_FREQ_MHZ 100
+	#define SYS_CLOCK_FREQ_MHZ 100 // Overclocking up to 150 MHz seems to work fine.
 #else
 	#error "Unknown MCU"
 #endif

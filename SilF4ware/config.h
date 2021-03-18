@@ -87,7 +87,7 @@
 // Additional static Gyro first order LPF on yaw only
 //#define GYRO_YAW_LPF_1ST_HZ 240
 
-// Kalman gyro filter. The specified value is not Hz but the process noise covariance in micro units.
+// Kalman gyro filter. The specified value is not Hz but affects the process noise covariance.
 //#define GYRO_KALMAN_q 100 // Higher value is less filtering
 
 // Dynamic D-Term second order LPF
@@ -120,8 +120,8 @@
 //#define MIX_CHANGE_LIMIT 25 // 25/s == 25%/10ms
 // Post-MIX_CHANGE_LIMIT motor filter
 //#define MIX_FILTER_HZ 120 // MIX_FILTER_HZ at zero to 2 * MIX_FILTER_HZ at full motor speed
-// Kalman motor filter. The specified value is not Hz but the process noise covariance in micro units.
-#define MOTOR_KALMAN_q 100 // Higher value is less filtering
+// Kalman motor filter. The specified value is not Hz but affects the process noise covariance.
+#define MOTOR_KALMAN_q 40 // Higher value is less filtering
 
 // Switch function selection
 

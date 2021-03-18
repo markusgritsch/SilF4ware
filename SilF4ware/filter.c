@@ -483,7 +483,7 @@ void throttle_hpf_reset( int holdoff_time_ms )
 
 #if defined GYRO_KALMAN_q || defined MOTOR_KALMAN_q
 
-#define KALMAN_WINDOW_SIZE 256
+#define KALMAN_WINDOW_SIZE ( 64000 / LOOPTIME ) // 64 ms. The resulting WINDOW_SIZE must be a power of 2.
 
 typedef struct Kalman_s {
 	// float q; // process noise covariance
@@ -520,7 +520,7 @@ static float kalman_step( Kalman_t * filter, float input, float kalman_q )
 	// update last state
 	filter->lastX = filter->x;
 	// prediction update
-	filter->p += kalman_q * 1e-6f;
+	filter->p += ( kalman_q * LOOPTIME * 1e-6f ) * ( kalman_q * LOOPTIME * 1e-6f );
 	// measurement update
 	filter->k = filter->p / ( filter->p + filter->r );
 	filter->x += filter->k * ( input - filter->x );

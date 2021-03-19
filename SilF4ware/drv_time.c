@@ -29,7 +29,9 @@ uint32_t gettime( void )
 
 void delay( uint32_t us )
 {
-	volatile uint32_t count;
-	count = us * ( SYS_CLOCK_FREQ_MHZ / 6 );
-	while ( count-- );
+	const uint32_t wait_until = gettime() + us;
+	if ( wait_until < gettime() ) { // check for overflow
+		while ( gettime() > wait_until );
+	}
+	while ( gettime() < wait_until );
 }

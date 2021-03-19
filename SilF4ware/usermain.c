@@ -38,7 +38,6 @@ extern float vbattfilt; // battery.c
 void usermain()
 {
 	ledoff();
-	delay( 1000 );
 
 	time_init();
 	pwm_init(); // For legacy reasons it's called pwm even in the Dshot driver.

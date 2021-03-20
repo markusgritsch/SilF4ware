@@ -29,7 +29,7 @@ uint32_t gettime( void )
 
 void delay( uint32_t us )
 {
-	const uint32_t wait_until = gettime() + us;
+	const uint32_t wait_until = gettime() + us + 1; // +1 to wait at least the specified time
 	if ( wait_until < gettime() ) { // check for overflow
 		while ( gettime() > wait_until );
 	}

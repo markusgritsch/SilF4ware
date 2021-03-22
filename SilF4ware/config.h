@@ -121,7 +121,7 @@
 // Post-MIX_CHANGE_LIMIT motor filter
 //#define MIX_FILTER_HZ 120 // MIX_FILTER_HZ at zero to 2 * MIX_FILTER_HZ at full motor speed
 // Kalman motor filter. The specified value is not Hz but affects the process noise covariance.
-#define MOTOR_KALMAN_q 40 // Higher value is less filtering
+#define MOTOR_KALMAN_q 100 // Higher value is less filtering
 
 // Switch function selection
 

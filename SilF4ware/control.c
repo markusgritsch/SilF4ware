@@ -481,9 +481,7 @@ void control( bool send_motor_values )
 		if ( reduceAmount > 0.0f ) {
 	#endif // ALLOW_MIX_INCREASING
 	#ifdef TRANSIENT_MIX_INCREASING_HZ
-			if ( reduceAmount < -transientMixIncreaseLimit &&
-				mixmax > idle_offset + 0.1f ) // Do not apply the limit on idling (e.g. after throttle punches) to prevent from slow wobbles.
-			{
+			if ( reduceAmount < -transientMixIncreaseLimit ) {
 				reduceAmount = -transientMixIncreaseLimit;
 			}
 	#endif // TRANSIENT_MIX_INCREASING_HZ

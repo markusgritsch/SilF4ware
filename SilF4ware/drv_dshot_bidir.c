@@ -438,7 +438,8 @@ uint32_t rpm_telemetry_sample_stats[ 12 ];
 
 static float decode_to_hz( uint32_t gcr_data[], uint16_t pin )
 {
-	uint32_t index = 20 * GCR_FREQUENCY * 3 / 1000; // Start looking at 20 us.
+	// uint32_t index = 20 * GCR_FREQUENCY * 3 / 1000; // Start looking at 20 us.
+	uint32_t index = 0;
 	while ( index < GCR_BUFFER_SIZE && ( ( gcr_data[ index ] & pin ) != 0 ) ) { // Find the start bit.
 		index += 2;
 	}

@@ -207,6 +207,7 @@ void pid( int x )
 #else // b disabled
 	pidoutput[ x ] = error[ x ] * pidkp[ x ] * AA_KP * pScaleValueX;
 #endif
+	pidoutput[ x ] *= 0.1f; // Since PID_KP is specified 10 times largen compared to traditional SilverWare.
 	bb_p[ x ] = pidoutput[ x ];
 
 	// Feedforward term

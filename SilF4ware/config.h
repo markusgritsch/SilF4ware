@@ -179,7 +179,7 @@
 // For more consistent motor reversing in 3D flight
 #define THROTTLE_REVERSING_KICK 0.15 // 4S
 #define THROTTLE_REVERSING_DEADTIME 20000 // 20 ms (increase this in case of over-propped motors)
-//#define THROTTLE_STARTUP_KICK 0.10
+//#define THROTTLE_STARTUP_KICK 0.05
 
 // Continue stick movement with the current stick velocity in case of lost packets
 #define RX_PREDICTOR
@@ -223,9 +223,9 @@
 // Save gyro calibration (together with accelerometer calibration) to flash (gesture DDD)
 #define PERSISTENT_GYRO_CAL
 
-// unscaled PID values tuned for 4S
-//             { roll, pitch, yaw }
-#define PID_KP { 0.035, 0.035, 0.04 }
+// Unscaled PID values tuned for 4S. Note: Compared to traditional SilverWare PID_KP values must be multiplied by 10.
+//             { roll  pitch yaw }
+#define PID_KP { 0.35, 0.35, 0.4 }
 #define PID_KI { 0.40, 0.40, 2.0 }
 #define PID_KD { 0.20, 0.20, 0.0 }
 

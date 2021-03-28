@@ -37,14 +37,14 @@ void battery_init( void )
 	vbattfilt = vbattfilt / count;
 
 #ifdef BATTERY_CELL_COUNT_DETECTION
-	//for cells in range( 1, 5 ):
+	//for cells in range( 1, 7 ):
 	//	print "'%sS'" % cells
 	//	for cell_voltage in ( 3.2, 4.25 ):
 	//		voltage = cell_voltage * cells
-	//		print 'I' * int( voltage * 10 ), voltage, voltage, '(%s * %s)' % ( cell_voltage, cells )
+	//		print 'I' * int( voltage * 10 ), voltage, '(%s * %s)' % ( cell_voltage, cells )
 	//	print
-	for ( int cell_count = 4; cell_count > 0; --cell_count ) { // 3.2V works for up to 4S without overlapping ranges
-		if ( cell_count * 3.2f < vbattfilt * CELL_COUNT_UNSCALED || cell_count == 1 ) {
+	for ( int cell_count = 6; cell_count > 0; --cell_count ) { // 3.55V works for up to 6S without overlapping ranges.
+		if ( cell_count * 3.55f < vbattfilt * CELL_COUNT_UNSCALED || cell_count == 1 ) {
 			battery_scale_factor = (float)CELL_COUNT_UNSCALED / cell_count;
 			break;
 		}

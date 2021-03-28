@@ -17,7 +17,7 @@
 // Change this factor to get a correct battery voltage.
 #define ADC_SCALEFACTOR 11.111 // 11.0 for an ideal 10k/1k voltage divider
 
-// Make sure to understand CELL_COUNT_UNSCALED in battery.c before enabling this.
+// Allow automatic cell count detection (up to 6S) and report single cell voltage.
 #define BATTERY_CELL_COUNT_DETECTION
 
 // Do not start software if battery is too low. Flashes 2 times repeatedly at startup.

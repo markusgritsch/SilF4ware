@@ -257,8 +257,10 @@
 #define TPDA_VALUE 0.8 // Scale P and D by this factor at TPDA_BREAKPOINT.
 #define TPDA_BREAKPOINT 0.5 // Constant scaling with TPDA_VALUE at and above this throttle value.
 
-// Further reduce P and D on roll and pitch axes in case gyro shows activity (prop wash) without setpoint (stick) movement.
-//#define PROP_WASH_REDUCER 0.6
+// Scale P and D on roll and pitch axes in case gyro shows activity (prop wash) without setpoint (stick) movement.
+//#define PROP_WASH_REDUCER
+#define PROP_WASH_P_SCALER 0.75
+#define PROP_WASH_D_SCALER 1.33
 
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response
 // 0.0f (or commented out) equates D-term on measurement, 1.0f equates D-term on error.

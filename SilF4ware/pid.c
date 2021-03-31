@@ -19,7 +19,8 @@
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
 //#define PD_SCALE_YAW_STABILIZER 1.2f // multiply pdScaleValue by this value at full yaw
-float pdScaleValue = 1.0f; // updated in pid_precalc()
+static float pdScaleValue = 1.0f; // updated in pid_precalc()
+int pw_sustain_steps = 0; // updated in pid_precalc()
 
 #define AA_KP ( x < 2 ? pdScaleValue * aux_analog[ 0 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
 #define AA_KI 1.0f
@@ -185,21 +186,12 @@ void pid( int x )
 	}
 #endif // ROLL_FLIP_SMOOTHER
 
-// #ifdef PER_AXIS_PROP_WASH_REDUCER
-// 	if ( x < 2 ) { // Only for roll and pitch.
-// 		static int holdoff_steps[ 2 ];
-// 		if ( fabsf( setpoint[ x ] ) > 5.0f * DEGTORAD ) { // 5 °/s setpoint limit
-// 			holdoff_steps[ x ] = 70000 / LOOPTIME - 1; // 70 ms holdoff time
-// 		} else if ( holdoff_steps[ x ] > 0 ) {
-// 			--holdoff_steps[ x ];
-// 		}
-// 		const bool setpoint_is_long_below_limit = holdoff_steps[ x ] == 0;
-// 		if ( fabsf( gyro[ x ] ) > 20.0f * DEGTORAD && setpoint_is_long_below_limit ) { // 20 °/s gyro limit
-// 			pScaleValueX *= 0.5f;
-// 			dScaleValueX *= 0.5f;
-// 		}
-// 	}
-// #endif // PER_AXIS_PROP_WASH_REDUCER
+#ifdef PROP_WASH_REDUCER
+	if ( pw_sustain_steps > 0 && x < 2 ) { // Only for roll and pitch.
+		pScaleValueX *= (float)PROP_WASH_P_SCALER;
+		dScaleValueX *= (float)PROP_WASH_D_SCALER;
+	}
+#endif // PROP_WASH_REDUCER
 
 	// P term
 #ifdef ENABLE_SETPOINT_WEIGHTING
@@ -401,31 +393,36 @@ void pid_precalc()
 	}
 #endif
 
-#ifdef PROP_WASH_REDUCER
-	extern int pwmdir; // control.c
-	extern float bb_throttle; // To include throttle HPF.
-	if ( pwmdir == FORWARD ) { // No PD reduction for inverted flying, as prop grip is already weak there.
-		// Only for roll and pitch.
-		static int holdoff_steps;
-		if ( fabsf( setpoint[ 0 ] ) > 5.0f * DEGTORAD || fabsf( setpoint[ 1 ] ) > 5.0f * DEGTORAD ) { // 5 °/s setpoint limit
-			holdoff_steps = 70000 / LOOPTIME - 1; // 70 ms holdoff time
-		} else if ( holdoff_steps > 0 ) {
-			--holdoff_steps;
-		}
-		if ( holdoff_steps == 0 && // holdoff_steps counted to zero, so setpoint is already 70 ms below the limit.
-			bb_throttle > 0.1f && // No reduction after throttle punch outs.
-			( fabsf( gyro[ 0 ] ) > 20.0f * DEGTORAD || fabsf( gyro[ 1 ] ) > 20.0f * DEGTORAD ) ) // 20 °/s gyro limit
-		{
-			pdScaleValue *= (float)PROP_WASH_REDUCER;
-		}
-	}
-#endif // PROP_WASH_REDUCER
-
 #ifdef PD_SCALE_YAW_STABILIZER
 	const float absyaw = fabsf( rxcopy[ 2 ] );
 	// const float absyaw = fabsf( gyro[ 2 ] / ( (float)MAX_RATEYAW * DEGTORAD ) );
 	pdScaleValue *= 1.0f + absyaw * ( PD_SCALE_YAW_STABILIZER - 1.0f ); // Increase Kp and Kd on high yaw speeds to avoid iTerm Rotation related wobbles.
 #endif
+
+#ifdef PROP_WASH_REDUCER
+	extern int pwmdir; // control.c
+	extern float bb_throttle; // To include throttle HPF.
+	if ( pwmdir == FORWARD ) { // No P and D scaling for inverted flying, as prop grip is already weak there.
+		// Only for roll and pitch.
+		static int holdoff_steps;
+		if ( fabsf( setpoint[ 0 ] ) > 5.0f * DEGTORAD || fabsf( setpoint[ 1 ] ) > 5.0f * DEGTORAD || // 5 °/s roll/pitch setpoint limit
+			fabsf( setpoint[ 2 ] ) > 100.0f * DEGTORAD ) // 100 °/s yaw setpoint limit
+		{
+			holdoff_steps = 70000 / LOOPTIME - 1; // 70 ms holdoff time
+		} else if ( holdoff_steps > 0 ) {
+			--holdoff_steps;
+		}
+		if ( holdoff_steps == 0 && // holdoff_steps counted to zero, so setpoint is already 70 ms below the limit.
+			bb_throttle > 0.1f && // No scaling when on ground and after throttle punch outs.
+			bb_throttle < 0.9f && // Prevent scaling during throttle punch outs.
+			( fabsf( gyro[ 0 ] ) > 20.0f * DEGTORAD || fabsf( gyro[ 1 ] ) > 20.0f * DEGTORAD ) ) // 20 °/s gyro limit
+		{
+			pw_sustain_steps = 25000 / LOOPTIME - 1; // 25 ms sustain time
+		} else if ( pw_sustain_steps > 0 ) {
+			--pw_sustain_steps;
+		}
+	}
+#endif // PROP_WASH_REDUCER
 }
 
 // I vector rotation by joelucid

@@ -55,7 +55,7 @@ static void make_packet( uint8_t number, uint16_t value, bool telemetry );
 static void dshot_dma_start( void );
 static void dma_write_dshot( void );
 static void dma_read_telemetry( void );
-static void decode_gcr_telemetry( void );
+static int decode_gcr_telemetry( void );
 static float decode_to_hz( uint32_t gcr_data[], uint16_t pin );
 
 static float motor_hz_decoded[ 4 ];
@@ -221,38 +221,36 @@ static void dshot_dma_start()
 	// This way we are sure that receiving telemetry has finished.
 	extern bool packet_received; // usermain.c
 	if ( ! packet_received ) { // Sacrifice decoding telemetry once every 5 ms in favor of lowering max loop time.
-		decode_gcr_telemetry();
-	}
+		const int decoded_index = decode_gcr_telemetry();
 
-	for ( uint8_t i = 0; i < 4; ++i ) {
 #if 1 // select between filtered (1) and unfiltered (0) motor_hz
 		// Filter out decode errors represented as 0.0f:
 		static float motor_hz_unfiltered[ 4 ];
-		if ( motor_hz_decoded[ i ] != 0.0f ) {
-			motor_hz_unfiltered[ i ] = motor_hz_decoded[ i ];
+		if ( motor_hz_decoded[ decoded_index ] != 0.0f ) {
+			motor_hz_unfiltered[ decoded_index ] = motor_hz_decoded[ decoded_index ];
 		}
 /*
 		// Median filtering:
 		static int median_array[ 4 ][ 3 ]; // 4 motors, 3 values
 		static int idx;
-		median_array[ i ][ idx ] = motor_hz_unfiltered[ i ];
-		const int a = median_array[ i ][ 0 ];
-		const int b = median_array[ i ][ 1 ];
-		const int c = median_array[ i ][ 2 ];
-		motor_hz_unfiltered[ i ] = MAX( MIN( a, b ), MIN( MAX( a, b ), c ) );
-		if ( i == 3 ) {
+		median_array[ decoded_index ][ idx ] = motor_hz_unfiltered[ decoded_index ];
+		const int a = median_array[ decoded_index ][ 0 ];
+		const int b = median_array[ decoded_index ][ 1 ];
+		const int c = median_array[ decoded_index ][ 2 ];
+		motor_hz_unfiltered[ decoded_index ] = MAX( MIN( a, b ), MIN( MAX( a, b ), c ) );
+		if ( decoded_index == 3 ) {
 			++idx;
 			if ( idx == 3 ) {
 				idx = 0;
 			}
 		}
 */
-		// 2nd order LPF:
+		// 2nd order LPF (4 * Hz since we decode only one motor per main loop cycle):
 		static float motor_hz_filt[ 4 ];
-		lpf_hz( &motor_hz_filt[ i ], motor_hz_unfiltered[ i ], 50 ); // 50 Hz
-		lpf_hz( &motor_hz[ i ], motor_hz_filt[ i ], 50 ); // 50 Hz
+		lpf_hz( &motor_hz_filt[ decoded_index ], motor_hz_unfiltered[ decoded_index ], 4 * 50 ); // 50 Hz
+		lpf_hz( &motor_hz[ decoded_index ], motor_hz_filt[ decoded_index ], 4 * 50 ); // 50 Hz
 #else
-		motor_hz[ i ] = motor_hz_decoded[ i ];
+		motor_hz[ decoded_index ] = motor_hz_decoded[ decoded_index ];
 #endif
 	}
 }
@@ -348,19 +346,22 @@ static void dma_read_telemetry()
 	HAL_TIM_Base_Start( &htim1 );
 }
 
-static void decode_gcr_telemetry()
+static int decode_gcr_telemetry()
 {
 	// Decoding all 4 channels takes about 30 us @168 MHz.
 	// So we decode only one each main loop cycle.
-	static int state;
-	switch ( state ) {
+	static int decoded_index = -1;
+	++decoded_index;
+	if ( decoded_index == 4 ) {
+		decoded_index = 0;
+	}
+	switch ( decoded_index ) {
 		case 0:
 			if ( ESC1_GPIO_Port == GPIO1st ) {
 				motor_hz_decoded[ 0 ] = decode_to_hz( gcr_data_port1st, ESC1_Pin );
 			} else {
 				motor_hz_decoded[ 0 ] = decode_to_hz( gcr_data_port2nd, ESC1_Pin );
 			}
-			state = 1;
 			break;
 		case 1:
 			if ( ESC2_GPIO_Port == GPIO1st ) {
@@ -368,7 +369,6 @@ static void decode_gcr_telemetry()
 			} else {
 				motor_hz_decoded[ 1 ] = decode_to_hz( gcr_data_port2nd, ESC2_Pin );
 			}
-			state = 2;
 			break;
 		case 2:
 			if ( ESC3_GPIO_Port == GPIO1st ) {
@@ -376,7 +376,6 @@ static void decode_gcr_telemetry()
 			} else {
 				motor_hz_decoded[ 2 ] = decode_to_hz( gcr_data_port2nd, ESC3_Pin );
 			}
-			state = 3;
 			break;
 		case 3:
 			if ( ESC4_GPIO_Port == GPIO1st ) {
@@ -384,9 +383,9 @@ static void decode_gcr_telemetry()
 			} else {
 				motor_hz_decoded[ 3 ] = decode_to_hz( gcr_data_port2nd, ESC4_Pin );
 			}
-			state = 0;
 			break;
 	}
+	return decoded_index;
 }
 
 // https://github.com/betaflight/betaflight/pull/8554#issuecomment-512507625

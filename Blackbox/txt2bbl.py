@@ -217,7 +217,7 @@ def parseFile( f, f_out ):
 			except struct.error, message:
 				if f.tell() == size:
 					print '  [' + '#' * 50 + ']',
-					print '100%'
+					print '100%  '
 					print 'file ended with partial frame'
 					break
 				else:
@@ -234,7 +234,7 @@ def parseFile( f, f_out ):
 				if f.tell() == size:
 					writeData( f_out )
 					print '  [' + '#' * 50 + ']',
-					print '100% '
+					print '100%  '
 					print 'file ended with complete frame'
 					break
 				else:

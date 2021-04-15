@@ -13,8 +13,8 @@
 //#define TRAPEZOIDAL_RULE_INTEGRAL
 //#define SIMPSON_RULE_INTEGRAL
 
-#define FIRST_DIFFERENCE
-//#define CENTRAL_DIFFERENCE
+//#define FIRST_DIFFERENCE
+#define CENTRAL_DIFFERENCE
 
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
@@ -69,7 +69,7 @@ extern float error[ PIDNUMBER ]; // control.c
 extern float gyro[ 3 ]; // sixaxis.c
 extern float gyro_notch_filtered[ 3 ]; // sixaxis.c
 extern int onground; // control.c
-extern float vbattadc; // battery.c
+extern float vbattfilt_corr; // battery.c
 extern float battery_scale_factor; // battery.c
 extern float rxcopy[ 4 ]; // control.c
 extern float aux_analog[ 2 ]; // rx.c
@@ -344,7 +344,7 @@ void pid( int x )
 	}
 
 #ifdef PID_VOLTAGE_COMPENSATION
-	pidoutput[ x ] *= v_compensation; // This adds some noise.
+	pidoutput[ x ] *= v_compensation;
 #endif
 
 	pidoutput[ x ] *= battery_scale_factor;
@@ -361,13 +361,7 @@ void pid( int x )
 void pid_precalc()
 {
 #ifdef PID_VOLTAGE_COMPENSATION
-	if ( vbattadc != 0.0f ) {
-		static float avg_vbattadc;
-		lpf( &avg_vbattadc, vbattadc, ALPHACALC( LOOPTIME, 1e6f / 500.0f ) ); // 500 Hz
-		v_compensation = 4.2f / avg_vbattadc;
-	} else {
-		v_compensation = 1.0f;
-	}
+	v_compensation = 4.2f / vbattfilt_corr;
 #endif
 
 	pdScaleValue = 1.0f; // constant (no throttle dependent scaling)

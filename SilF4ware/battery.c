@@ -78,7 +78,7 @@ void battery_init( void )
 void battery( void )
 {
 	vbattadc = vbatt_read();
-	lpf( &vbattfilt, vbattadc, ALPHACALC( LOOPTIME, 2 * PI_F * 0.5e6f ) ); // 0.5 seconds time constant (tau)
+	lpf( &vbattfilt, vbattadc, ALPHACALC( LOOPTIME, 2 * PI_F * 0.5e6f ) ); // 0.5 seconds time constant, tau=1/(2*pi*fc), i.e. fc=0.318 Hz
 
 	// battery low logic
 

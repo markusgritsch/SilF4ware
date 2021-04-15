@@ -442,7 +442,7 @@ void control( bool send_motor_values )
 				maxSpeedRxcopy = absSpeedRxcopy;
 			}
 		}
-		static float transientMixIncreaseLimit;
+		static float transientMixIncreaseLimit; // 0 .. no increasing allowed, 1 .. full increasing allowed
 		lpf( &transientMixIncreaseLimit, maxSpeedRxcopy, ALPHACALC( LOOPTIME, 1e6f / (float)( TRANSIENT_MIX_INCREASING_HZ ) ) );
 		if ( transientMixIncreaseLimit > 1.0f ) {
 			transientMixIncreaseLimit = 1.0f;
@@ -490,6 +490,30 @@ void control( bool send_motor_values )
 			}
 		}
 #endif // MIX_SCALING
+
+// #ifdef MIX_LINEAR
+// 		// https://github.com/betaflight/betaflight/pull/10370
+// 		float minMix = 1000.0f;
+// 		float maxMix = -1000.0f;
+// 		for ( int i = 0; i < 4; ++i ) {
+// 			if ( mix[ i ] < minMix ) {
+// 				minMix = mix[ i ];
+// 			}
+// 			if ( mix[ i ] > maxMix ) {
+// 				maxMix = mix[ i ];
+// 			}
+// 		}
+// 		const float mixRange = maxMix - minMix;
+// 		const float mixNormalizationFactor = mixRange > 1.0f ? mixRange : 1.0f;
+// 		const float mixDelta = 0.5f * mixRange;
+// 		for ( int i = 0; i < 4; ++i ) {
+// 			const bool airmodeEnabled = true;
+// 			if ( airmodeEnabled || throttle > 0.5f ) {
+// 				mix[ i ] = mapf( throttle, 0.0f, 1.0f, mix[ i ] + mixDelta, mix[ i ] - mixDelta );
+// 			}
+// 			mix[ i ] /= mixNormalizationFactor;
+// 		}
+// #endif MIX_LINEAR
 
 		thrsum = 0.0f;
 		mixmax = 0.0f;

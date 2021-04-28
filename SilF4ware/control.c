@@ -392,18 +392,16 @@ void control( bool send_motor_values )
 
 		bb_throttle = throttle;
 
-#ifdef THRUST_LINEARIZATION
+#if defined THRUST_LINEARIZATION
 		#define AA_motorCurve (float)THRUST_LINEARIZATION // 0 .. linear, 1 .. quadratic
 		const float aa = AA_motorCurve;
-		throttle = throttle * ( throttle * aa + 1 - aa ); // invert the motor curve correction applied further below
-#endif // THRUST_LINEARIZATION
-
-#ifdef ALTERNATIVE_THRUST_LINEARIZATION
+		throttle = throttle * ( throttle * aa + 1 - aa ); // inverse motor curve correction applied further below
+#elif defined ALTERNATIVE_THRUST_LINEARIZATION
 		// not really the inverse of ALTERNATIVE_THRUST_LINEARIZATION below, but a good enough approximation
 		const float aa = 1.2f * (float)( ALTERNATIVE_THRUST_LINEARIZATION ); // use <1.2 for less compensation
 		const float tr = 1.0f - throttle; // throttle reversed
 		throttle = throttle / ( 1.0f + tr * tr * aa ); // compensate throttle for the linearization applied further below
-#endif // ALTERNATIVE_THRUST_LINEARIZATION
+#endif // (ALTERNATIVE_)THRUST_LINEARIZATION
 
 #ifdef INVERT_YAW_PID
 		pidoutput[ 2 ] = -pidoutput[ 2 ];
@@ -532,6 +530,15 @@ void control( bool send_motor_values )
 		}
 #endif // defined(MOTOR_FILTER_A_HZ) || defined(MOTOR_FILTER_B_HZ)
 
+#if defined THRUST_LINEARIZATION
+		const float iioc = idle_offset * ( idle_offset * aa + 1 - aa ); // inverse idle_offset correction
+#elif defined ALTERNATIVE_THRUST_LINEARIZATION
+		const float ior = 1.0f - idle_offset; // idle_offset reversed
+		const float iioc = idle_offset / ( 1.0f + ior * ior * aa ); // inverse idle_offset correction
+#else
+		const float iioc = idle_offset; // inverse idle_offset correction
+#endif // (ALTERNATIVE_)THRUST_LINEARIZATION
+
 		for ( int i = 0; i < 4; ++i ) { // For each motor.
 
 #if defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
@@ -577,7 +584,7 @@ void control( bool send_motor_values )
 			if ( prevent_motor_filtering_state == 1 ) {
 				// Do not add idle_offset during the throttle = 0 motor reversing state.
 			} else {
-				mix[ i ] = idle_offset + mix[ i ] * ( 1.0f - idle_offset ); // maps 0 .. 1 -> idle_offset .. 1
+				mix[ i ] = iioc + mix[ i ] * ( 1.0f - iioc ); // maps 0 .. 1 -> idle_offset .. 1
 			}
 
 #ifdef MOTOR_FILTER_A_HZ
@@ -599,7 +606,7 @@ void control( bool send_motor_values )
 			}
 #endif // MOTOR_FILTER_B_HZ
 
-#ifdef THRUST_LINEARIZATION
+#if defined THRUST_LINEARIZATION
 			// Computationally quite expensive:
 			static float a, a_reci, b, b_sq;
 			if ( a != AA_motorCurve ) {
@@ -613,12 +620,10 @@ void control( bool send_motor_values )
 			if ( mix[ i ] > 0.0f && a > 0.0f ) {
 				mix[ i ] = sqrtf( mix[ i ] * a_reci + b_sq ) - b;
 			}
-#endif // THRUST_LINEARIZATION
-
-#ifdef ALTERNATIVE_THRUST_LINEARIZATION
+#elif defined ALTERNATIVE_THRUST_LINEARIZATION
 			const float mr = 1.0f - mix[ i ]; // mix reversed
 			mix[ i ] *= 1.0f + mr * mr * (float)( ALTERNATIVE_THRUST_LINEARIZATION );
-#endif // ALTERNATIVE_THRUST_LINEARIZATION
+#endif // (ALTERNATIVE_)THRUST_LINEARIZATION
 
 #ifdef MIX_CHANGE_LIMIT
 			static float mix_limited[ 4 ];

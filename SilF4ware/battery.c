@@ -39,12 +39,13 @@ void battery_init( void )
 #ifdef BATTERY_CELL_COUNT_DETECTION
 	//for cells in range( 1, 7 ):
 	//	print "'%sS'" % cells
-	//	for cell_voltage in ( 3.2, 4.25 ):
+	//	for cell_voltage in ( 3.55, 4.25 ):
 	//		voltage = cell_voltage * cells
 	//		print 'I' * int( voltage * 10 ), voltage, '(%s * %s)' % ( cell_voltage, cells )
 	//	print
-	for ( int cell_count = 6; cell_count > 0; --cell_count ) { // 3.55V works for up to 6S without overlapping ranges.
-		if ( cell_count * 3.55f < vbattfilt * CELL_COUNT_UNSCALED || cell_count == 1 ) {
+	for ( int cell_count = 1; cell_count < 7; ++cell_count ) {
+		// 3.55V .. 4.25V works for up to 6S without overlapping ranges.
+		if ( cell_count * 4.25f > vbattfilt * CELL_COUNT_UNSCALED ) {
 			battery_scale_factor = (float)CELL_COUNT_UNSCALED / cell_count;
 			break;
 		}
@@ -53,15 +54,6 @@ void battery_init( void )
 
 	extern float idle_offset; // control.c
 	idle_offset *= battery_scale_factor;
-#ifdef THRUST_LINEARIZATION
-	const float aa = THRUST_LINEARIZATION;
-	idle_offset *= idle_offset * aa + 1 - aa;
-#endif // THRUST_LINEARIZATION
-#ifdef ALTERNATIVE_THRUST_LINEARIZATION
-	const float aa = 1.2f * (float)( ALTERNATIVE_THRUST_LINEARIZATION );
-	const float ior = 1.0f - idle_offset; // idle_offset reversed
-	idle_offset /=  1.0f + ior * ior * aa;
-#endif // ALTERNATIVE_THRUST_LINEARIZATION
 
 #endif // BATTERY_CELL_COUNT_DETECTION
 

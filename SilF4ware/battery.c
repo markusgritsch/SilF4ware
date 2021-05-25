@@ -52,9 +52,6 @@ void battery_init( void )
 	}
 	vbattfilt *= battery_scale_factor;
 
-	extern float idle_offset; // control.c
-	idle_offset *= battery_scale_factor;
-
 #endif // BATTERY_CELL_COUNT_DETECTION
 
 	vbatt_comp = vbattfilt_corr = vbattfilt;

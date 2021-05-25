@@ -199,8 +199,10 @@
 // Can be used to limit maximum motor RPM, i.e. tone down a too fast quad.
 #define MIX_RANGE_LIMIT 1.0f // aux[ DEVO_CHAN_11 ] ? 0.75f : 1.0f
 
-// Adjust IDLE_OFFSET so that the motors still spin reliably at zero throttle.
-#define IDLE_OFFSET 0.03 // 4S
+// Adjust MOTOR_IDLE_OFFSET so that the motors still spin reliably under all circumstances.
+#define MOTOR_IDLE_OFFSET 0.03 // 4S
+// Throttle value when throttle stick is at zero to have some headroom for pid mixing at zero throttle.
+#define THROTTLE_ZERO_VALUE 0.00 // 4S
 
 // Use a square root motor curve to counteract thrust ~ RPM^2
 //#define THRUST_LINEARIZATION 0.4 // 0.0 .. no compensation, 1.0 .. full square root curve
@@ -225,7 +227,7 @@
 
 // Unscaled PID values tuned for 4S. Note: Compared to traditional SilverWare PID_KP values must be multiplied by 10.
 //             { roll  pitch yaw }
-#define PID_KP { 0.35, 0.35, 0.4 }
+#define PID_KP { 0.40, 0.40, 0.4 }
 #define PID_KI { 0.40, 0.40, 2.0 }
 #define PID_KD { 0.20, 0.20, 0.0 }
 

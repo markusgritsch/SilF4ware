@@ -52,7 +52,6 @@ extern int packet_period; // rx.c
 
 extern bool ledcommand; // led.c
 
-float idle_offset = IDLE_OFFSET; // gets corrected by battery_scale_factor in battery.c
 float rxcopy[ 4 ];
 float bb_throttle;
 float bb_mix[ 4 ];
@@ -390,6 +389,9 @@ void control( bool send_motor_values )
 		}
 #endif // LVC_LOWER_THROTTLE
 
+		const float throttle_zero_value = (float)THROTTLE_ZERO_VALUE * battery_scale_factor;
+		throttle = throttle_zero_value + throttle * ( 1.0f - throttle_zero_value ); // maps 0 .. 1 -> throttle_zero_value .. 1
+
 		bb_throttle = throttle;
 
 #if defined THRUST_LINEARIZATION
@@ -530,46 +532,50 @@ void control( bool send_motor_values )
 		}
 #endif // defined(MOTOR_FILTER_A_HZ) || defined(MOTOR_FILTER_B_HZ)
 
+		const float idle_offset = (float)MOTOR_IDLE_OFFSET * battery_scale_factor;
+
 #if defined THRUST_LINEARIZATION
-		const float iioc = idle_offset * ( idle_offset * aa + 1 - aa ); // inverse idle_offset correction
+		float iioc = idle_offset * ( idle_offset * aa + 1 - aa ); // inverse idle_offset correction
 #elif defined ALTERNATIVE_THRUST_LINEARIZATION
 		const float ior = 1.0f - idle_offset; // idle_offset reversed
-		const float iioc = idle_offset / ( 1.0f + ior * ior * aa ); // inverse idle_offset correction
+		float iioc = idle_offset / ( 1.0f + ior * ior * aa ); // inverse idle_offset correction
 #else
-		const float iioc = idle_offset; // inverse idle_offset correction
+		float iioc = idle_offset; // inverse idle_offset correction
 #endif // (ALTERNATIVE_)THRUST_LINEARIZATION
 
 		for ( int i = 0; i < 4; ++i ) { // For each motor.
 
 #if defined(MOTORS_TO_THROTTLE) || defined(MOTORS_TO_THROTTLE_MODE)
 
-			static float orig_idle_offset = 0.0f;
-			if ( orig_idle_offset == 0.0f ) {
-				orig_idle_offset = idle_offset;
-			}
+			static bool single_motor_testing = false;
 #if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
 			if ( aux[ MOTORS_TO_THROTTLE_MODE ] ) {
 #endif
 				mix[ i ] = throttle;
-				if ( throttle > 0.0f ) {
-					idle_offset = orig_idle_offset;
-				}
-				if ( ( i == MOTOR_FL - 1 && rxcopy[ ROLL ] < 0 && rxcopy[ PITCH ] > 0 ) ||
-					( i == MOTOR_BL - 1 && rxcopy[ ROLL ] < 0 && rxcopy[ PITCH ] < 0 ) ||
-					( i == MOTOR_FR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] > 0 ) ||
-					( i == MOTOR_BR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] < 0 ) )
-				{
-					idle_offset = 0.0f;
-					mix[ i ] = fabsf( rxcopy[ ROLL ] * rxcopy[ PITCH ] * rate_multiplier );
+				if ( rxcopy[ 3 ] > 0.0f ) {
+					single_motor_testing = false;
+				} else {
+					if ( single_motor_testing ) {
+						mix[ i ] = 0.0f;
+					}
+					if ( ( i == MOTOR_FL - 1 && rxcopy[ ROLL ] < 0 && rxcopy[ PITCH ] > 0 ) ||
+						( i == MOTOR_BL - 1 && rxcopy[ ROLL ] < 0 && rxcopy[ PITCH ] < 0 ) ||
+						( i == MOTOR_FR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] > 0 ) ||
+						( i == MOTOR_BR - 1 && rxcopy[ ROLL ] > 0 && rxcopy[ PITCH ] < 0 ) )
+					{
+						single_motor_testing = true;
+						mix[ i ] = fabsf( rxcopy[ ROLL ] * rxcopy[ PITCH ] * rate_multiplier );
 #ifdef RPM_FILTER
-					extern float motor_hz[ 4 ];
-					notify_telemetry_value( motor_hz[ i ] );
+						extern float motor_hz[ 4 ];
+						notify_telemetry_value( motor_hz[ i ] );
 #endif // RPM_FILTER
+					}
+				}
+				if ( single_motor_testing ) {
+					iioc = 0.0f;
 				}
 				ledcommand = true;
 #if defined(MOTORS_TO_THROTTLE_MODE) && !defined(MOTORS_TO_THROTTLE)
-			} else {
-				idle_offset = orig_idle_offset;
 			}
 #endif
 
@@ -583,6 +589,7 @@ void control( bool send_motor_values )
 
 			if ( prevent_motor_filtering_state == 1 ) {
 				// Do not add idle_offset during the throttle = 0 motor reversing state.
+				mix[ i ] = 0.0f;
 			} else {
 				mix[ i ] = iioc + mix[ i ] * ( 1.0f - iioc ); // maps 0 .. 1 -> idle_offset .. 1
 			}

@@ -3,9 +3,6 @@
 // Enable this for 3D. The 'Motor Direction' setting in BLHeliSuite must be set to 'Bidirectional' (or 'Bidirectional Rev.') accordingly:
 #define BIDIRECTIONAL
 
-// IDLE_OFFSET is added to the throttle. Adjust its value so that the motors still spin at minimum throttle.
-#define IDLE_OFFSET 30 // 4S
-
 // Select Dshot1200, Dshot600, Dshot300, or Dshot150
 // #define DSHOT 1200 // BLHeli_32 only
 // #define DSHOT 600 // BLHeli_S BB2 (not supported by BB1)

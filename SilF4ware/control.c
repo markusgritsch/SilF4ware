@@ -232,9 +232,32 @@ void control( bool send_motor_values )
 		}
 	}
 
+// #ifdef SMITH_PREDICTOR
+// 	for ( int i = 0; i < 2; ++i ) { // Only for roll and pitch.
+// 		// The model of the predicted system is a simple PT1:
+// 		#define SMITH_PREDICTOR_AMPLITUDE 50
+// 		#define SMITH_PREDICTOR_TAU 32000 // 32 ms time constant of the "plant"
+// 		#define SMITH_PREDICTOR_DEADTIME 33000 // 33 ms
+// 		static float smith_predictor_1st[ 2 ];
+// 		const float smith_output = pidoutput[ i ] * (float)SMITH_PREDICTOR_AMPLITUDE;
+// 		lpf( &smith_predictor_1st[ i ], smith_output, ALPHACALC( LOOPTIME, 2 * PI_F * (float)SMITH_PREDICTOR_TAU ) ); // filtertime = tau*2*pi = 1/fc
+
+// 		static float smith_array[ 2 ][ SMITH_PREDICTOR_DEADTIME / LOOPTIME ];
+// 		static int smith_index[ 2 ];
+// 		// Smith predictor gets added to gyro. Deadtime delayed predictor gets subtracted.
+// 		error[ i ] -= smith_predictor_1st[ i ] - smith_array[ i ][ smith_index[ i ] ];
+
+// 		smith_array[ i ][ smith_index[ i ] ] = smith_predictor_1st[ i ];
+// 		++smith_index[ i ];
+// 		if ( smith_index[ i ] >= SMITH_PREDICTOR_DEADTIME * aux_analog[ 1 ] / LOOPTIME ) {
+// 			smith_index[ i ] = 0;
+// 		}
+// 	}
+// #endif // SMITH_PREDICTOR
+
 #ifdef PID_ROTATE_ERRORS
 	rotateErrors();
-#endif
+#endif // PID_ROTATE_ERRORS
 
 	pid( 0 );
 	pid( 1 );
@@ -299,7 +322,7 @@ void control( bool send_motor_values )
 #ifdef MOTOR_BEEPS
 	#ifndef MOTOR_BEEPS_CHANNEL
 		#define MOTOR_BEEPS_CHANNEL CH_OFF
-	#endif
+	#endif // MOTOR_BEEPS_CHANNEL
 			if ( beep_motors_once ) {
 				beep_motors_once = false;
 				motorbeep( motors_failsafe, CH_ON );
@@ -345,11 +368,16 @@ void control( bool send_motor_values )
 				throttle = 0.0f;
 				pidoutput[ 0 ] = pidoutput[ 1 ] = pidoutput[ 2 ] = 0.0f;
 			} else {
-				const float transitioning_factor = ( throttle_reversing_kick - throttle_reversing_kick_sawtooth ) / throttle_reversing_kick;
-				throttle = throttle_reversing_kick_sawtooth + throttle * transitioning_factor;
-				pidoutput[ 0 ] *= transitioning_factor;
-				pidoutput[ 1 ] *= transitioning_factor;
-				pidoutput[ 2 ] *= transitioning_factor;
+				if ( throttle_reversing_kick_sawtooth > 1.0f ) {
+					throttle = 1.0f;
+					pidoutput[ 0 ] = pidoutput[ 1 ] = pidoutput[ 2 ] = 0.0f;
+				} else {
+					const float transitioning_factor = ( throttle_reversing_kick - throttle_reversing_kick_sawtooth ) / throttle_reversing_kick;
+					throttle = throttle_reversing_kick_sawtooth + throttle * transitioning_factor;
+					pidoutput[ 0 ] *= transitioning_factor;
+					pidoutput[ 1 ] *= transitioning_factor;
+					pidoutput[ 2 ] *= transitioning_factor;
+				}
 				if ( prevent_motor_filtering_state == 1 ) {
 					prevent_motor_filtering_state = 2;
 				}
@@ -407,7 +435,7 @@ void control( bool send_motor_values )
 
 #ifdef INVERT_YAW_PID
 		pidoutput[ 2 ] = -pidoutput[ 2 ];
-#endif
+#endif // INVERT_YAW_PID
 
 		float mix[ 4 ];
 
@@ -429,7 +457,7 @@ void control( bool send_motor_values )
 #ifdef INVERT_YAW_PID
 		// we invert again cause it's used by the pid internally (for limit)
 		pidoutput[ 2 ] = -pidoutput[ 2 ];
-#endif
+#endif // INVERT_YAW_PID
 
 #ifdef MIX_SCALING
 	#ifdef TRANSIENT_MIX_INCREASING_HZ
@@ -513,7 +541,7 @@ void control( bool send_motor_values )
 // 			}
 // 			mix[ i ] /= mixNormalizationFactor;
 // 		}
-// #endif MIX_LINEAR
+// #endif // MIX_LINEAR
 
 		thrsum = 0.0f;
 		mixmax = 0.0f;

@@ -71,6 +71,8 @@
 
 #define BIQUAD_SDFT_NOTCH // Sliding DFT dynamic notch filters. Two per filtered axis.
 
+//#define SDFT_GYRO_FILTER // Experimental frequency domain filtering. Does not work well.
+
 // Dynamic Gyro first and second order LPFs
 
 //#define GYRO_LPF_1ST_HZ_BASE 120 // Filter frequency at zero throttle.
@@ -107,7 +109,7 @@
 //#define BIQUAD_PEAK_Q 3
 //#define BIQUAD_PEAK_GAIN 1.2
 
-// If enabled, the D-Term filter uses the filtered gyro signal from above. (Notch filters are always applied.)
+// If enabled, the D-Term filters use the LPF-filtered gyro signal from above. (RPM-, Notch-, and SDFT-filtering is always applied, if enabled.)
 //#define CASCADE_GYRO_AND_DTERM_FILTER
 
 // Motor first order LPFs

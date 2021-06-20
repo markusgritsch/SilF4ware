@@ -8,6 +8,7 @@
 #include "drv_time.h"
 #include "fft.h"
 #include "filter.h"
+#include "filter_sdft.h"
 #include "sdft.h"
 #include "sixaxis.h"
 #include "util.h"
@@ -29,7 +30,11 @@ void sixaxis_init( void )
 {
 #ifdef BIQUAD_SDFT_NOTCH
 	sdft_init();
-#endif // BIQUAD_SDFT_NOTCH
+#endif
+
+#ifdef SDFT_GYRO_FILTER
+	filter_sdft_init();
+#endif
 
 	mpu_init();
 
@@ -312,6 +317,10 @@ static void process_gyronew_to_gyro( float gyronew[] )
 			gyro[ i ] = sdft_notch_filter( gyro[ i ], i * 2 );
 			gyro[ i ] = sdft_notch_filter( gyro[ i ], i * 2 + 1 );
 		}
+#endif
+
+#ifdef SDFT_GYRO_FILTER
+		gyro[ i ] = filter_sdft_step( gyro[ i ], i );
 #endif
 
 		gyro_notch_filtered[ i ] = gyro[ i ];

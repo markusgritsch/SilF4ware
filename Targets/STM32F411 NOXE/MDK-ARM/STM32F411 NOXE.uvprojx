@@ -634,6 +634,11 @@
               <FilePath>..\..\..\SilF4ware\filter.c</FilePath>
             </File>
             <File>
+              <FileName>filter_sdft.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SilF4ware\filter_sdft.c</FilePath>
+            </File>
+            <File>
               <FileName>flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SilF4ware\flash.c</FilePath>

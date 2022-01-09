@@ -1,7 +1,7 @@
 BLHeliSuiteSiLabs ESC Setup_*.png
 
 Blackbox/*
-!Blackbox/txt2bbl.py
+!Blackbox/txt2bbl.*
 
 SilF4ware/_birdseyeview.png
 SilF4ware/_birdseyeviews/

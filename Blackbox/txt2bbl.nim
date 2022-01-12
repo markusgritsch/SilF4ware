@@ -223,22 +223,28 @@ proc processFile(f: File, fout: File) =
       var iter = 0
       let processedData = processFrame(buffer, iter)
       if iter < lastIter:
-        echo "  new logging session"
+        stdout.write("\n  new logging session ")
         fout.write(getLogEndMarker())
         fout.write(getLogStartMarker())
       lastIter = iter
       fout.write(processedData)
+      if (iter + 1) mod 20000 == 0: # 10 seconds
+        if (iter + 1) mod 120000 == 0: # 1 minute
+          stdout.write((iter + 1) div 120000)
+        else:
+          stdout.write(".")
     endOfFileReached = f.readBuffer(addr(buffer[0]), 5) != 5
     nextFrameFound = not endOfFileReached and buffer.startswith("FRAME")
     if not nextFrameFound and not endOfFileReached:
-      echo "  bad frame"
+      stdout.write("\n    bad frame ")
   fout.write(getLogEndMarker())
+  stdout.write("\n\n")
 
 when isMainModule:
   # setStdIoUnbuffered()
   for file in walkFiles("*"):
     if file.startsWith("LOG") and file.endsWith(".TXT"):
-      echo file
+      stdout.write(file & " ")
       let datePrefix = now().format("yyyy-MM-dd  HH''mm''ss  ")
       let f = open(file)
       let fout = open(datePrefix & "SLF4_" & file[3 .. ^5] & ".bbl", fmWrite)

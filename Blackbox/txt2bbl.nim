@@ -219,7 +219,7 @@ proc processFile(f: File, fout: File) =
           nextFrameFound = true
       except EOFError:
         endOfFileReached = true
-    if f.readBuffer(addr(buffer[0]), 88) == 88:
+    if f.readChars(buffer) == 88:
       var iter = 0
       let processedData = processFrame(buffer, iter)
       if iter < lastIter:
@@ -241,7 +241,7 @@ proc processFile(f: File, fout: File) =
   stdout.write("\n\n")
 
 when isMainModule:
-  # setStdIoUnbuffered()
+  setStdIoUnbuffered()
   for file in walkFiles("*"):
     if file.startsWith("LOG") and file.endsWith(".TXT"):
       stdout.write(file & " ")

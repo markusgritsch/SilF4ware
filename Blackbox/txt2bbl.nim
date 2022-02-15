@@ -1,4 +1,4 @@
-import std/[os, strutils, times]
+import std/[os, strutils, terminal, times]
 
 func getLogStartMarker(): string =
   result.add("H Product:Blackbox flight data recorder by Nicholas Sherlock\n") # log start marker
@@ -253,5 +253,5 @@ when isMainModule:
       f.close()
       createDir("trash")
       moveFile(file, joinPath("trash", datePrefix & file))
-  stdout.write("all done (press Return)")
-  discard stdin.readline()
+  stdout.write("all done (press any key)")
+  discard getch()

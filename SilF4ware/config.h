@@ -52,7 +52,8 @@
 // Gyro Notch Filters
 
 #define RPM_FILTER // requires DSHOT_DMA_BIDIR in hardware.h -- also ensure MOTOR_POLE_COUNT in drv_dshot_bidir.c is correct
-#define RPM_FILTER_HZ_MIN 100
+#define RPM_FILTER_HZ_MIN 80 // do not apply RPM filtering below RPM_FILTER_HZ_MIN
+#define RPM_FILTER_HZ_FADE 40 // gradually increase notch filtering until RPM_FILTER_HZ_MIN + RPM_FILTER_HZ_FADE is reached
 #define RPM_FILTER_2ND_HARMONIC true // note, that there are 12 notch filters (4 motors * 3 axes) per harmonic
 #define RPM_FILTER_3RD_HARMONIC true
 #define RPM_FILTER_Q 6 // -3dB bandwidth = f0 / Q -- but a higher Q also results in a longer settling time

@@ -206,9 +206,14 @@ float rpm_filter( float input, int axis )
 					filter_notch_coeff( &gyro_notch_coeff[ motor ][ harmonic ], filter_hz_harmonic, RPM_FILTER_Q );
 				}
 				const float filtered = filter_biquad_step( &gyro_notch[ axis ][ motor ][ harmonic ], &gyro_notch_coeff[ motor ][ harmonic ], output );
-				if ( gyro_notch_coeff[ motor ][ harmonic ].f_Hz >= RPM_FILTER_HZ_MIN ) {
-					output = filtered;
+				// Gradually cross-fade to the unfiltered input signal for low frequencies.
+				float weight = ( filter_hz_harmonic - RPM_FILTER_HZ_MIN ) / (float)RPM_FILTER_HZ_FADE;
+				if ( weight > 1.0f ) {
+					weight = 1.0f;
+				} else if ( weight < 0.0f ) {
+					weight = 0.0f;
 				}
+				output = weight * filtered + ( 1.0f - weight ) * input;
 			}
 		}
 	}
@@ -304,9 +309,7 @@ float sdft_notch_filter( float input, int num )
 {
 	static FilterBiquadCoeff_t gyro_notch_coeff[ SDFT_AXES * 2 ];
 	static FilterBiquad_t gyro_notch[ SDFT_AXES * 2 ];
-	static float notch_Hz[ SDFT_AXES * 2 ];
-	if ( notch_Hz[ num ] != sdft_notch_Hz[ num ] ) {
-		notch_Hz[ num ] = sdft_notch_Hz[ num ];
+	if ( gyro_notch_coeff[ num ].f_Hz != sdft_notch_Hz[ num ] ) {
 		float Q = sdft_notch_Hz[ num ] / 20.0f; // 20 Hz bandwidth
 		Q = Q > 6.0f ? 6.0f : Q; // Limit Q to 6, otherwise the settling time gets too long.
 		filter_notch_coeff( &gyro_notch_coeff[ num ], sdft_notch_Hz[ num ], Q );

@@ -207,12 +207,28 @@ proc processFrame(frame: string, iter: var int): string =
 	result.add(unsignedVariableByte(motor2))
 	result.add(unsignedVariableByte(motor3))
 
-proc processFile(f: File, fout: File) =
+proc processFile(file: string): string =
 	initRssi()
-	fout.write(getLogStartMarker())
-	var buffer = newString(88)
 	var nextFrameFound = false
 	var endOfFileReached = false
+	var buffer = newString(88)
+	let f = open(file)
+	endOfFileReached = f.readBuffer(addr(buffer[0]), 5) != 5
+	nextFrameFound = not endOfFileReached and buffer.startswith("FRAME")
+	var craftName = ""
+	if not nextFrameFound and buffer.startswith("CRAFT"):
+		while true:
+			let char = f.readChar()
+			if (char == '\0'):
+				break
+			else:
+				craftName.add(char)
+	if craftName.len() == 0:
+		craftName = "SLF4"
+	stdout.write(substr("(" & craftName & ")", 0, 9).alignLeft(11))
+	let datePrefix = now().format("yyyy-MM-dd  HH''mm''ss  ")
+	let fout = open(datePrefix & craftName & "_" & file[^7 .. ^5] & ".bbl", fmWrite)
+	fout.write(getLogStartMarker())
 	var lastIter = 0
 	while not endOfFileReached:
 		while not nextFrameFound and not endOfFileReached:
@@ -238,21 +254,19 @@ proc processFile(f: File, fout: File) =
 		endOfFileReached = f.readBuffer(addr(buffer[0]), 5) != 5
 		nextFrameFound = not endOfFileReached and buffer.startswith("FRAME")
 		if not nextFrameFound and not endOfFileReached:
-			stdout.write("\n    bad frame ")
+			stdout.write("?") # bad frame
 	fout.write(getLogEndMarker())
+	fout.close()
+	f.close
 	stdout.write("\n\n")
+	return datePrefix
 
 when isMainModule:
 	setStdIoUnbuffered()
 	for file in walkFiles("*"):
 		if file.startsWith("LOG") and file.endsWith(".TXT"):
 			stdout.write(file & " ")
-			let datePrefix = now().format("yyyy-MM-dd  HH''mm''ss  ")
-			let f = open(file)
-			let fout = open(datePrefix & "SLF4_" & file[3 .. ^5] & ".bbl", fmWrite)
-			processFile(f, fout)
-			fout.close()
-			f.close()
+			let datePrefix = processFile(file)
 			createDir("trash")
 			moveFile(file, joinPath("trash", datePrefix & file))
 	stdout.write("all done (press any key)")

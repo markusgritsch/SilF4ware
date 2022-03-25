@@ -39,6 +39,14 @@ extern float bb_mix[ 4 ];
 	#define BB_huartx huart2
 #endif // fc board
 
+void log_buffer( uint8_t buffer[], size_t size )
+{
+	extern UART_HandleTypeDef BB_huartx;
+	// HAL_UART_IRQHandler( &BB_huartx ); // Resets huart->gState to HAL_UART_STATE_READY
+	BB_huartx.gState = HAL_UART_STATE_READY; // Do it directly to save flash space.
+	HAL_UART_Transmit_DMA( &BB_huartx, buffer, size );
+}
+
 void blackbox_init( void )
 {
 #ifdef BLACKBOX_LOGGING
@@ -57,6 +65,14 @@ void blackbox_log( void )
 
 	if ( onground ) {
 		bb_iteration = 0;
+		return;
+	}
+
+	static bool writeCraftOnce = true;
+	if ( writeCraftOnce ) {
+		writeCraftOnce = false;
+		static uint8_t buffer[] = "CRAFT" CRAFT_NAME;
+		log_buffer( buffer, sizeof( buffer ) );
 		return;
 	}
 
@@ -146,10 +162,7 @@ void blackbox_log( void )
 	// pos is 93
 	++bb_iteration;
 
-	extern UART_HandleTypeDef BB_huartx;
-	// HAL_UART_IRQHandler( &BB_huartx ); // Resets huart->gState to HAL_UART_STATE_READY
-	BB_huartx.gState = HAL_UART_STATE_READY; // Do it directly to save flash space.
-	HAL_UART_Transmit_DMA( &BB_huartx, bb_buffer, sizeof( bb_buffer ) );
+	log_buffer( bb_buffer, sizeof( bb_buffer ) );
 
 #endif // BLACKBOX_LOGGING
 }

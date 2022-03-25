@@ -327,6 +327,7 @@
 
 // Logs various information to an externally connected OpenLager logger.
 //#define BLACKBOX_LOGGING
+#define CRAFT_NAME "SILF4WARE" // Used as filename of the converted logfile.
 
 // OSD usage requires uploading the custom SilF4ware.mcm font from the Utilities folder to the FC using Betaflight Configurator.
 // Display battery status, flight time, and RSSI info in the OSD.

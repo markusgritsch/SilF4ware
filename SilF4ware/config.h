@@ -119,8 +119,8 @@
 //#define MOTOR_FILTER_HZ_MULTIPLIER 1 // Multiply motor filter frequency by MOTOR_FILTER_HZ_MULTIPLIER
 //#define MOTOR_FILTER_THROTTLE_BREAKPOINT 0.25 // at and above MOTOR_FILTER_THROTTLE_BREAKPOINT.
 
-// Limit maximum motor speed change rate from MIX_CHANGE_LIMIT at zero to 2 * MIX_CHANGE_LIMIT at full motor speed
-//#define MIX_CHANGE_LIMIT 25 // 25/s == 25%/10ms
+// Limit maximum motor speed change rate to MIX_CHANGE_LIMIT
+//#define MIX_CHANGE_LIMIT 50 // 50/s == 50%/10ms
 // Post-MIX_CHANGE_LIMIT motor filter
 //#define MIX_FILTER_HZ 120 // MIX_FILTER_HZ at zero to 2 * MIX_FILTER_HZ at full motor speed
 // Kalman motor filter. The specified value is not Hz but affects the process noise covariance.

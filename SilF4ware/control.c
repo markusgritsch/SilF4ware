@@ -624,7 +624,7 @@ void control( bool send_motor_values )
 
 #ifdef MOTOR_FILTER_A_HZ
 			static float mix_filt_a[ 4 ];
-			if ( prevent_motor_filtering_state == 2 ) {
+			if ( prevent_motor_filtering_state > 0 ) {
 				mix_filt_a[ i ] = mix[ i ];
 			} else {
 				lpf( &mix_filt_a[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)( MOTOR_FILTER_A_HZ ) * filter_frequency_multiplier ) ) );
@@ -633,7 +633,7 @@ void control( bool send_motor_values )
 #endif // MOTOR_FILTER_A_HZ
 #ifdef MOTOR_FILTER_B_HZ
 			static float mix_filt_b[ 4 ];
-			if ( prevent_motor_filtering_state == 2 ) {
+			if ( prevent_motor_filtering_state > 0 ) {
 				mix_filt_b[ i ] = mix[ i ];
 			} else {
 				lpf( &mix_filt_b[ i ], mix[ i ], ALPHACALC( LOOPTIME, 1e6f / ( (float)( MOTOR_FILTER_B_HZ ) * filter_frequency_multiplier ) ) );
@@ -662,11 +662,11 @@ void control( bool send_motor_values )
 
 #ifdef MIX_CHANGE_LIMIT
 			static float mix_limited[ 4 ];
-			if ( prevent_motor_filtering_state == 2 ) {
+			if ( prevent_motor_filtering_state > 0 ) {
 				mix_limited[ i ] = mix[ i ];
 			} else {
-				const float delta_limit = ( 1.0f + fabsf( mix_limited[ i ] ) ) * (float)MIX_CHANGE_LIMIT * LOOPTIME * 1e-6f;
-				// const float delta_limit = (float)MIX_CHANGE_LIMIT * LOOPTIME * 1e-6f;
+				// const float delta_limit = ( 1.0f + fabsf( mix_limited[ i ] ) ) * (float)MIX_CHANGE_LIMIT * LOOPTIME * 1e-6f;
+				const float delta_limit = (float)MIX_CHANGE_LIMIT * LOOPTIME * 1e-6f;
 				float abs_delta = fabsf( mix[ i ] - mix_limited[ i ] );
 				if ( abs_delta > delta_limit ) {
 					abs_delta = delta_limit;
@@ -682,7 +682,7 @@ void control( bool send_motor_values )
 
 #ifdef MIX_FILTER_HZ
 			static float mix_filt[ 4 ];
-			if ( prevent_motor_filtering_state == 2 ) {
+			if ( prevent_motor_filtering_state > 0 ) {
 				mix_filt[ i ] = mix[ i ];
 			} else {
 				const float mix_filter_hz = ( 1.0f + fabsf( mix_filt[ i ] ) ) * (float)( MIX_FILTER_HZ );
@@ -693,7 +693,7 @@ void control( bool send_motor_values )
 
 #ifdef MOTOR_KALMAN_q
 			const float mix_kalman = motor_kalman_filter( mix[ i ], i );
-			if ( prevent_motor_filtering_state == 2 ) {
+			if ( prevent_motor_filtering_state > 0 ) {
 				motor_kalman_set( mix[ i ], i );
 			} else {
 				mix[ i ] = mix_kalman;

@@ -129,13 +129,15 @@ void pid( int x )
 	}
 	lastGyro[ x ] = gyro[ x ];
 
-	static float lastError[ 3 ];
-	if ( fabsf( ierror[ x ] ) > integrallimit[ x ] * 0.8f * battery_scale_factor &&
-		( ( error[ x ] < 0.0f ) != ( lastError[ x ] < 0.0f ) ) ) // error crossed zero
-	{
-		ierror[ x ] *= 0.5f;
+	if ( x == 2 ) { // Only for yaw
+		static float lastError[ 3 ];
+		if ( fabsf( ierror[ x ] ) > integrallimit[ x ] * 0.8f * battery_scale_factor &&
+			( ( error[ x ] < 0.0f ) != ( lastError[ x ] < 0.0f ) ) ) // error crossed zero
+		{
+			ierror[ x ] *= 0.5f;
+		}
+		lastError[ x ] = error[ x ];
 	}
-	lastError[ x ] = error[ x ];
 #endif // DYNAMIC_ITERM_RESET
 
 #ifdef RECTANGULAR_RULE_INTEGRAL

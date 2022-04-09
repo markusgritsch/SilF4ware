@@ -207,6 +207,12 @@ proc processFrame(frame: string, iter: var int): string =
 	result.add(unsignedVariableByte(motor2))
 	result.add(unsignedVariableByte(motor3))
 
+func getSessionDuration(iterations: int): string =
+	let totalSeconds = iterations div 2000
+	let minutes = totalSeconds div 60
+	let seconds = totalSeconds mod 60
+	result = " [$#:$#]" % [$minutes, align($seconds, 2, '0')]
+
 proc processFile(file: string): string =
 	initRssi()
 	var nextFrameFound = false
@@ -241,6 +247,7 @@ proc processFile(file: string): string =
 			var iter = 0
 			let processedData = processFrame(buffer, iter)
 			if iter < lastIter:
+				stdout.write(getSessionDuration(lastIter))
 				stdout.write("\n  new logging session ")
 				fout.write(getLogEndMarker())
 				fout.write(getLogStartMarker())
@@ -255,6 +262,7 @@ proc processFile(file: string): string =
 		nextFrameFound = not endOfFileReached and buffer.startswith("FRAME")
 		if not nextFrameFound and not endOfFileReached:
 			stdout.write("?") # bad frame
+	stdout.write(getSessionDuration(lastIter))
 	fout.write(getLogEndMarker())
 	fout.close()
 	f.close

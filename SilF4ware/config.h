@@ -234,6 +234,12 @@
 #define PID_KI { 0.40, 0.40, 2.0 }
 #define PID_KD { 0.20, 0.20, 0.0 }
 
+// Multiply PID by this value when flying inverted
+#define PID_SCALE_INVERTED 1.2f
+
+// Multiply P and D by this value at full yaw to avoid oscillations
+//#define PD_SCALE_YAW_STABILIZER 0.8f
+
 // Compensate PID values for sagging battery voltage
 #define PID_VOLTAGE_COMPENSATION
 

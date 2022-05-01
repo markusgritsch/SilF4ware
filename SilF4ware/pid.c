@@ -18,15 +18,12 @@
 
 // aux_analog[ 0 ] -- aux_analog[ 1 ]
 
-//#define PD_SCALE_YAW_STABILIZER 1.2f // multiply pdScaleValue by this value at full yaw
 static float pdScaleValue = 1.0f; // updated in pid_precalc()
 int pw_sustain_steps = 0; // updated in pid_precalc()
 
 #define AA_KP ( x < 2 ? pdScaleValue * aux_analog[ 0 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
 #define AA_KI 1.0f
 #define AA_KD ( x < 2 ? pdScaleValue * aux_analog[ 1 ] : 1.0f ) // Scale Kp and Kd only for roll and pitch.
-
-#define PID_SCALE_INVERTED 1.2f // multiply by this value when flying inverted
 
 // if ( aux[ DEVO_CHAN_11 ] ) { // 3S
 // } else { // 4S
@@ -392,7 +389,7 @@ void pid_precalc()
 #ifdef PD_SCALE_YAW_STABILIZER
 	const float absyaw = fabsf( rxcopy[ 2 ] );
 	// const float absyaw = fabsf( gyro[ 2 ] / ( (float)MAX_RATEYAW * DEGTORAD ) );
-	pdScaleValue *= 1.0f + absyaw * ( PD_SCALE_YAW_STABILIZER - 1.0f ); // Increase Kp and Kd on high yaw speeds to avoid iTerm Rotation related wobbles.
+	pdScaleValue *= 1.0f + absyaw * ( PD_SCALE_YAW_STABILIZER - 1.0f ); // Scale Kp and Kd on high yaw speeds to avoid oscillations.
 #endif
 
 #ifdef PROP_WASH_REDUCER

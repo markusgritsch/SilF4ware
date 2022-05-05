@@ -273,6 +273,11 @@
 #define PROP_WASH_P_SCALER 1.0
 #define PROP_WASH_D_SCALER 1.5
 
+// Cross-attenuate roll/pitch pidoutput on high pitch/roll pidoutput respectively.
+//#define MIX_CROSS_ATTENUATION
+#define MCA_STEEPNESS 200 // 0 .. is identical to no attenuation. A higher value results in stronger attenuation.
+#define MCA_MIN 0.5 // Do not scale below MCA_MIN at high pidoutput.
+
 // Feed fast roll/pitch-stick changes directly to the motors to give a snappier response
 // 0.0f (or commented out) equates D-term on measurement, 1.0f equates D-term on error.
 //#define FEED_FORWARD_STRENGTH 1.0f

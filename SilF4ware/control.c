@@ -439,19 +439,31 @@ void control( bool send_motor_values )
 
 		float mix[ 4 ];
 
+#ifdef MIX_CROSS_ATTENUATION
+		const float mca_steepness = MCA_STEEPNESS;
+		const float mca_min = MCA_MIN;
+		const float scale_roll = mca_min + ( 1.0f - mca_min ) / ( 1.0f + pidoutput[ PITCH ] * pidoutput[ PITCH ] * mca_steepness );
+		const float pidoutput_roll = pidoutput[ ROLL ] * scale_roll;
+		const float scale_pitch = ( mca_min + ( 1.0f - mca_min ) / ( 1.0f + pidoutput[ ROLL ] * pidoutput[ ROLL ] * mca_steepness ) );
+		const float pidoutput_pitch = pidoutput[ PITCH ] * scale_pitch;
+#else
+		const float pidoutput_roll = pidoutput[ ROLL ];
+		const float pidoutput_pitch = pidoutput[ PITCH ];
+#endif // MIX_CROSS_ATTENUATION
+
 #ifdef INVERTED_ENABLE
 		if ( pwmdir == REVERSE ) { // inverted flight
-			mix[ MOTOR_FR - 1 ] = throttle + pidoutput[ ROLL ] + pidoutput[ PITCH ] - pidoutput[ YAW ]; // FR
-			mix[ MOTOR_FL - 1 ] = throttle - pidoutput[ ROLL ] + pidoutput[ PITCH ] + pidoutput[ YAW ]; // FL
-			mix[ MOTOR_BR - 1 ] = throttle + pidoutput[ ROLL ] - pidoutput[ PITCH ] + pidoutput[ YAW ]; // BR
-			mix[ MOTOR_BL - 1 ] = throttle - pidoutput[ ROLL ] - pidoutput[ PITCH ] - pidoutput[ YAW ]; // BL
+			mix[ MOTOR_FR - 1 ] = throttle + pidoutput_roll + pidoutput_pitch - pidoutput[ YAW ]; // FR
+			mix[ MOTOR_FL - 1 ] = throttle - pidoutput_roll + pidoutput_pitch + pidoutput[ YAW ]; // FL
+			mix[ MOTOR_BR - 1 ] = throttle + pidoutput_roll - pidoutput_pitch + pidoutput[ YAW ]; // BR
+			mix[ MOTOR_BL - 1 ] = throttle - pidoutput_roll - pidoutput_pitch - pidoutput[ YAW ]; // BL
 		} else
 #endif // INVERTED_ENABLE
 		{ // normal mixer
-			mix[ MOTOR_FR - 1 ] = throttle - pidoutput[ ROLL ] - pidoutput[ PITCH ] + pidoutput[ YAW ]; // FR
-			mix[ MOTOR_FL - 1 ] = throttle + pidoutput[ ROLL ] - pidoutput[ PITCH ] - pidoutput[ YAW ]; // FL
-			mix[ MOTOR_BR - 1 ] = throttle - pidoutput[ ROLL ] + pidoutput[ PITCH ] - pidoutput[ YAW ]; // BR
-			mix[ MOTOR_BL - 1 ] = throttle + pidoutput[ ROLL ] + pidoutput[ PITCH ] + pidoutput[ YAW ]; // BL
+			mix[ MOTOR_FR - 1 ] = throttle - pidoutput_roll - pidoutput_pitch + pidoutput[ YAW ]; // FR
+			mix[ MOTOR_FL - 1 ] = throttle + pidoutput_roll - pidoutput_pitch - pidoutput[ YAW ]; // FL
+			mix[ MOTOR_BR - 1 ] = throttle - pidoutput_roll + pidoutput_pitch - pidoutput[ YAW ]; // BR
+			mix[ MOTOR_BL - 1 ] = throttle + pidoutput_roll + pidoutput_pitch + pidoutput[ YAW ]; // BL
 		}
 
 #ifdef INVERT_YAW_PID

@@ -11,6 +11,7 @@ float gyro_lpf_filter( float in, int num );
 float gyro_lpf2_filter( float in, int num );
 float dterm_filter( float in, int num );
 float throttle_hpf( float in );
+float throttle_hpf_bypass( float in );
 void throttle_hpf_reset( int holdoff_time_ms );
 float gyro_kalman_filter( float in, int num );
 float motor_kalman_filter( float in, int num );

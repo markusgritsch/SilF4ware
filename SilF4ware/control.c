@@ -350,15 +350,13 @@ void control( bool send_motor_values )
 #endif // THROTTLE_VOLTAGE_COMPENSATION
 
 #ifdef THROTTLE_TRANSIENT_COMPENSATION_FACTOR
-		const float throttle_boost = throttle_hpf( throttle ); // Keep the HPF call in the loop to keep its state updated.
 		extern bool lowbatt;
-		if ( aux[ RATES ] && ! lowbatt ) {
-			throttle += (float)THROTTLE_TRANSIENT_COMPENSATION_FACTOR * throttle_boost;
-			if ( throttle < 0.0f ) {
-				throttle = 0.0f;
-			} else if ( throttle > 1.0f ) {
-				throttle = 1.0f;
-			}
+		const float throttle_boost = ( aux[ RATES ] && ! lowbatt ) ? throttle_hpf( throttle ) : throttle_hpf_bypass( throttle );
+		throttle += (float)THROTTLE_TRANSIENT_COMPENSATION_FACTOR * throttle_boost;
+		if ( throttle < 0.0f ) {
+			throttle = 0.0f;
+		} else if ( throttle > 1.0f ) {
+			throttle = 1.0f;
 		}
 #endif // THROTTLE_TRANSIENT_COMPENSATION_FACTOR
 

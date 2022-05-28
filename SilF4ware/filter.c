@@ -479,6 +479,14 @@ float throttle_hpf( float in )
 	return throttle_hpf1.avg_boost;
 }
 
+float throttle_hpf_bypass( float in )
+{
+	throttle_hpf1.in_lpf = in;
+	const float boost = 0.0f;
+	lpf( &throttle_hpf1.avg_boost, boost, ALPHACALC( LOOPTIME, 1e6f / 8.0f ) ); // 8 Hz for LPF
+	return throttle_hpf1.avg_boost;
+}
+
 void throttle_hpf_reset( int holdoff_time_ms )
 {
 	throttle_hpf1.in_lpf = 0.0f;

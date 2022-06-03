@@ -119,6 +119,7 @@ void pid( int x )
 	static float lastGyro[ 3 ];
 	if ( fabsf( ierror[ x ] ) > integrallimit[ x ] * 0.2f * battery_scale_factor &&
 		( ( gyro[ x ] < 0.0f ) != ( lastGyro[ x ] < 0.0f ) ) && // gyro crossed zero
+		fabsf( rxcopy[ x ] ) < 0.05f && // stick near center
 		// absHpfSetpointX > 0.1f && // and ierror was caused by some recent setpoint change
 		true )
 	{

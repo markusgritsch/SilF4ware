@@ -351,7 +351,7 @@ void pid( int x )
 
 #ifdef INVERTED_ENABLE
 	if ( aux[ FN_INVERTED ] ) {
-		pidoutput[ x ] *= PID_SCALE_INVERTED;
+		pidoutput[ x ] *= (float)( PID_SCALE_INVERTED );
 	}
 #endif
 

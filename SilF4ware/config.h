@@ -174,7 +174,7 @@
 #define LED_BRIGHTNESS 15
 
 // a filter which makes throttle feel faster (aka Throttle Boost) (not active in LOW_RATES or lowbatt)
-#define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
+//#define THROTTLE_TRANSIENT_COMPENSATION_FACTOR 3.0
 
 // Compensate throttle for sagging battery voltage
 #define THROTTLE_VOLTAGE_COMPENSATION
@@ -200,7 +200,7 @@
 // A higher value means a shorter active increasing period (shorter bouncy period)
 #define TRANSIENT_MIX_INCREASING_HZ 2.0
 // Can be used to limit maximum motor RPM, i.e. tone down a too fast quad.
-#define MIX_RANGE_LIMIT 1.0f // aux[ DEVO_CHAN_11 ] ? 0.75f : 1.0f
+#define MIX_RANGE_LIMIT 1.0 // aux[ DEVO_CHAN_11 ] ? 0.75 : 1.0
 
 // Adjust MOTOR_IDLE_OFFSET so that the motors still spin reliably under all circumstances.
 #define MOTOR_IDLE_OFFSET 0.03 // 4S
@@ -212,7 +212,7 @@
 #define ALTERNATIVE_THRUST_LINEARIZATION 0.6 // different shape from the above curve; do not enable both together
 
 // A deadband can be used to eliminate stick center jitter and non-returning to exactly 0.
-#define STICKS_DEADBAND 0.02f
+#define STICKS_DEADBAND 0.02
 
 // throttle direct to motors for thrust measure
 //#define MOTORS_TO_THROTTLE
@@ -230,12 +230,12 @@
 
 // Unscaled PID values tuned for 4S. Note: Compared to traditional SilverWare PID_KP values must be multiplied by 10.
 //             { roll  pitch yaw }
-#define PID_KP { 0.40, 0.40, 0.4 }
+#define PID_KP { 0.30, 0.30, 0.4 }
 #define PID_KI { 0.40, 0.40, 2.0 }
-#define PID_KD { 0.20, 0.20, 0.0 }
+#define PID_KD { 0.15, 0.15, 0.0 }
 
 // Multiply PID by this value when flying inverted
-#define PID_SCALE_INVERTED 1.2f
+#define PID_SCALE_INVERTED 1.5
 
 // Multiply P and D by this value at full yaw to avoid oscillations
 //#define PD_SCALE_YAW_STABILIZER 0.8f

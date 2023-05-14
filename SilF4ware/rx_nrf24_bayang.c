@@ -333,7 +333,7 @@ static void send_telemetry()
 	int vbatt = maxg * 100;
 #elif defined DISPLAY_FLY_TIME_INSTEAD_OF_VOLTAGE
 	extern uint32_t fly_time;
-	const uint32_t total_secs = fly_time / 1000000 + 1; // +1 to prevent 8.88 on TX screen at startup
+	const uint32_t total_secs = fly_time / 1000000;
 	const uint32_t minutes = total_secs / 60;
 	const uint32_t seconds = total_secs % 60;
 	int vbatt = minutes * 100 + seconds;

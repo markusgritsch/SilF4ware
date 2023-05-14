@@ -22,7 +22,7 @@
 
 float looptime; // in seconds
 uint32_t lastlooptime;
-uint32_t fly_time;
+uint32_t fly_time = 1000000; // Start with 1 sec to prevent 8.88 on TX screen at startup
 uint32_t used_loop_time;
 uint32_t max_used_loop_time;
 uint32_t avg_used_loop_time;

@@ -218,9 +218,10 @@ static void dshot_dma_start()
 	dma_write_dshot();
 
 	// Decode previous GCR telemetry just after starting the Dshot DMA transfer.
-	// This way we are sure that receiving telemetry has finished.
-	extern bool packet_received; // usermain.c
-	if ( ! packet_received ) { // Sacrifice decoding telemetry once every 5 ms in favor of lowering max loop time.
+	// This way we are sure that receiving Dshot telemetry has finished.
+	// extern bool packet_received; // usermain.c
+	// if ( ! packet_received ) { // Sacrifice decoding telemetry once every 5 ms in favor of lowering max loop time.
+	if ( true ) {
 		const int decoded_index = decode_gcr_telemetry();
 
 #if 1 // select between filtered (1) and unfiltered (0) motor_hz

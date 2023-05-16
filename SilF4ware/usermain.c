@@ -74,8 +74,8 @@ void usermain()
 
 		blackbox_log(); // First thing in the loop to get equal spacing between the calls.
 
-		if ( loops_since_last_packet == 2 ) { // In this loops_since_last_packet we have enough time to waste, since telemetry
-			// gets transmitted and therefore sending motor values is omitted. This reads the accel data only once every 5 ms.
+		if ( loops_since_last_packet % ( 5000 / LOOPTIME ) == 3 ) { // In this loops_since_last_packet
+			// we should have a bit more time. This reads the accel data only once every 5 ms.
 			sixaxis_read(); // read gyro (and accelerometer data for blackbox logging)
 		} else {
 			gyro_read(); // read just gyro data
@@ -92,7 +92,8 @@ void usermain()
 			loops_since_last_packet = 0;
 		}
 
-		const bool send_motor_values = ! telemetry_transmitted; // Skip to not interfere with sending telemetry.
+		// const bool send_motor_values = ! telemetry_transmitted; // Skip to not interfere with sending telemetry.
+		const bool send_motor_values = true;
 		control( send_motor_values ); // all flight calculations, pid and motors
 
 		battery();

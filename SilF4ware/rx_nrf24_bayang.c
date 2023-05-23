@@ -730,7 +730,7 @@ bool checkrx( void )
 		rx_command( FLUSH_RX );
 	}
 
-	if ( time - secondtimer > (uint32_t)( 1000000 / WALLTIME_CORRECTION_FACTOR ) ) {
+	if ( time - secondtimer > (uint32_t)( 1000000 / (float)WALLTIME_CORRECTION_FACTOR ) ) {
 		packetpersecond = packetrx;
 		packetrx = 0;
 		secondtimer = time;

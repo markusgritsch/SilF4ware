@@ -41,7 +41,8 @@ void sixaxis_init( void )
 	// gyro soft reset
 	// mpu_writereg( 107, 128 );
 
-	delay( 50000 ); // 30 ms gyro start up time, 10 ms PLL settling time, 10 ms safety margin
+	// 30 ms gyro start up time, 10 ms PLL settling time, 10 ms safety margin
+	delay( 60000 ); // 50 ms are still too little on my BL7-280 model. So we use 60 ms.
 
 	// disable I2C
 	mpu_writereg( 106, 0x10 );
@@ -415,7 +416,7 @@ void gyro_cal( void )
 		}
 
 		// receiver function
-		void checkrx( void );
+		extern bool checkrx( void );
 		checkrx();
 
 		while ( gettime() - time < LOOPTIME );

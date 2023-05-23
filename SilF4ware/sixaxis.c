@@ -1,4 +1,5 @@
 #include <math.h> // fabsf
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "binary.h"

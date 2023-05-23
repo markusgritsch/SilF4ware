@@ -12,15 +12,15 @@
 // radio settings
 
 // packet period in uS
-#define PACKET_PERIOD 2000
-#define PACKET_PERIOD_TELEMETRY 5000
+#define PACKET_PERIOD ( 2000 / WALLTIME_CORRECTION_FACTOR )
+#define PACKET_PERIOD_TELEMETRY ( 5000 / WALLTIME_CORRECTION_FACTOR )
 
 // was 250 ( uS )
 #define PACKET_OFFSET 0
 
 #ifdef USE_STOCK_TX
 #undef PACKET_PERIOD
-#define PACKET_PERIOD 2000
+#define PACKET_PERIOD ( 2000 / WALLTIME_CORRECTION_FACTOR )
 #undef PACKET_OFFSET
 #define PACKET_OFFSET 0
 #endif
@@ -730,7 +730,7 @@ bool checkrx( void )
 		rx_command( FLUSH_RX );
 	}
 
-	if ( time - secondtimer > (uint32_t)( 1000000 / (float)WALLTIME_CORRECTION_FACTOR ) ) {
+	if ( time - secondtimer > (uint32_t)( 1000000 / WALLTIME_CORRECTION_FACTOR ) ) {
 		packetpersecond = packetrx;
 		packetrx = 0;
 		secondtimer = time;
